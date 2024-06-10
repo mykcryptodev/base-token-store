@@ -11,7 +11,7 @@ import {
   createTRPCRouter,
   publicProcedure,
 } from "~/server/api/trpc";
-import { type TokenListResponse, type PoolResponse, TokenDetailResponse } from "~/types/coingecko";
+import { type TokenListResponse, type PoolResponse, type TokenDetailResponse } from "~/types/coingecko";
 
 export const coingeckoRouter = createTRPCRouter({
   getTokenPrice: publicProcedure

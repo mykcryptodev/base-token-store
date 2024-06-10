@@ -8,8 +8,10 @@ import { useCartContext } from '~/contexts/Cart';
 import { api } from '~/utils/api';
 import { sendCalls } from '@wagmi/core/experimental';
 import { config } from "~/providers/Wagmi";
+import { useRouter } from 'next/router';
 
 const Cart: FC = () => {
+  const router = useRouter();
   const { cart, updateItem, deleteItem } = useCartContext();
   const account = useAccount();
   const { data: etherPrice } = api.dex.getEtherPrice.useQuery({
@@ -44,6 +46,9 @@ const Cart: FC = () => {
         { calls }
       );
       console.log({ called });
+      void router.push(`/profile/${account?.address}`);
+      // close the drawer
+      void document.getElementById('my-drawer')?.click();
     } catch (e) {
       console.error(e);
     } finally {
@@ -79,7 +84,7 @@ const Cart: FC = () => {
                 />
                 <div className="flex flex-col">
                   <span className="font-bold">{item.name}</span>
-                  <span className="text-xs">${item.price.toLocaleString([], { currency: 'usd' })}</span>
+                  <span className="text-xs">${item.price.toPrecision(2)}</span>
                 </div>
               </div>
               <div className="flex flex-col justify-end grow">
