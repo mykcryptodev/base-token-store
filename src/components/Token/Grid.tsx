@@ -46,7 +46,7 @@ export const TokenGrid: FC = () => {
             </figure>
             <div className="card-body p-4">
               <h2 className="card-title">{token.name}</h2>
-              <div className="flex items-center gap-2 text-xs">
+              <div className="flex items-center gap-2 text-xs h-6">
                 <span className="text-sm">${token.current_price.toPrecision(2)}</span>
 
                 <Sparkline data={token.sparkline_in_7d.price} />
@@ -62,6 +62,7 @@ export const TokenGrid: FC = () => {
                     {sevenDayPercentDiff.toFixed(2)}%
                   </div>
                 )}
+                <span className="opacity-50 text-xs">7d</span>
               </div>
               <div className="card-actions justify-end">
                 <button 
@@ -83,7 +84,7 @@ export const TokenGrid: FC = () => {
                         decimals: baseDecimals,
                         symbol: token.symbol,
                         name: token.name,
-                        usdAmountDesired: 0, 
+                        usdAmountDesired: 1, 
                         price: token.current_price,
                         img: token.image,
                       });

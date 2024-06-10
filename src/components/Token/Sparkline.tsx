@@ -28,6 +28,9 @@ export const Sparkline: FC<Props> = ({ data }) => {
         enabled: true
       },
     },
+    tooltip: {
+      enabled: false,
+    },
     stroke: {
       curve: 'smooth',
       width: 1.5,
@@ -36,7 +39,7 @@ export const Sparkline: FC<Props> = ({ data }) => {
       opacity: 0.9,
     },
     yaxis: {
-      min: 0,
+      min: Math.min(...data),
       max: Math.max(...data),
     },
     colors: [trend === 'up' ? '#10B981' : '#EF4444'],
@@ -46,7 +49,7 @@ export const Sparkline: FC<Props> = ({ data }) => {
       options={options} 
       series={series} 
       type="line" 
-      height={35} 
+      height={"100%"} 
       width={50}
     />
   )
