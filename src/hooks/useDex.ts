@@ -55,23 +55,19 @@ const useDex = () => {
   console.log({ usdInEther, usdIn })
 
   const { data: simpleSwapRoute } = api.kyberswap.getSwapRoute.useQuery({
-    chainSrc: activeChain.id,
+    chainId: activeChain.id,
     tokenIn: NATIVE_TOKEN_ADDRESS,
     tokenOut: tokenOutput.address,
     amountIn: parseEther(usdInEther.toString()).toString(),
-    from: account?.address ?? '',
-    to: ROUTER[activeChain.id]!,
   }, {
     enabled: swapSimply,
   });
 
   const { data: swapRoute } = api.kyberswap.getSwapRoute.useQuery({
-    chainSrc: activeChain.id,
+    chainId: activeChain.id,
     tokenIn: tokenInput.address,
     tokenOut: tokenOutput.address,
     amountIn: tokenInputAmount.raw.toString(),
-    from: account?.address ?? '',
-    to: ROUTER[activeChain.id]!,
   }, {
     enabled: !swapSimply,
   });
