@@ -78,7 +78,7 @@ export default function Home() {
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
           <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem] flex items-center gap-4 flex-wrap">
             <Image src="/images/base.png" alt="Base Token Store" width={65} height={65} priority />
-            Base <span className="text-primary">Token</span> Store
+            Base <span className="text-primary">Token</span> Store <span className="badge badge-accent tracking-normal mb-12 -ml-4">Beta</span>
           </h1>
           {/* <div className="flex justify-end w-full max-w-sm items-end -mb-6">
             <div className="form-control">
