@@ -51,7 +51,7 @@ const Cart: FC = () => {
         chain: DEFAULT_CHAIN,
         client,
       }));
-      console.log({ encodedData });
+      console.log({ encodedData, calls, });
       const called = sendCalls({
         wallet,
         calls,
@@ -59,7 +59,7 @@ const Cart: FC = () => {
           ...capabilities,
           paymasterService: {
             supported: true,
-            url: `https://${DEFAULT_CHAIN.id}.bundler.thirdweb.com/${client.clientId}`
+            // url: `https://${DEFAULT_CHAIN.id}.bundler.thirdweb.com/${client.clientId}`
           }
         }
       });
