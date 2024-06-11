@@ -1,3 +1,4 @@
+import Head from "next/head";
 import { type NextPage } from "next";
 
 import { type GetServerSideProps } from "next";
@@ -9,6 +10,7 @@ import { api } from "~/utils/api";
 import dynamic from "next/dynamic";
 import { type ApexOptions } from "apexcharts";
 import { useDisconnect } from "wagmi";
+import useShortenedAddress from "~/hooks/useShortenedAddress";
 
 const ReactApexChart = dynamic(
   () => import(
@@ -19,6 +21,7 @@ const ReactApexChart = dynamic(
 interface ProfileProps {
   address: string;
   isValidAddress: boolean;
+  ens: string | null;
 }
 
 export const getServerSideProps: GetServerSideProps<ProfileProps> = async (context) => {
@@ -26,6 +29,7 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async (conte
   let address = handle;
   const handleIsAddress = isAddress(handle);
   let isValidAddress = handleIsAddress;
+  let ens = null;
 
   if (!handleIsAddress) {
     try {
@@ -34,6 +38,7 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async (conte
         name: handle,
       });
       isValidAddress = true;
+      ens = handle;
     } catch (e) {
       isValidAddress = false;
       console.error(e);
@@ -44,13 +49,15 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async (conte
     props: {
       address,
       isValidAddress,
+      ens,
     },
   };
 };
 
 
-export const Profile: NextPage<ProfileProps> = ({ address, isValidAddress }) => {
+export const Profile: NextPage<ProfileProps> = ({ address, ens, isValidAddress }) => {
   const { disconnect } = useDisconnect();
+  const { getShortenedAddress } = useShortenedAddress();
 
   const { data: networth } = api.moralis.getWalletNetworth.useQuery({
     address,
@@ -113,17 +120,30 @@ export const Profile: NextPage<ProfileProps> = ({ address, isValidAddress }) => 
   };
 
   return (
-    <div className="container flex flex-col gap-2">
-      <div>Profile: {address}</div>
-      <button 
-        className="btn btn-secondary w-fit" 
-        onMouseDown={() => void disconnect()
-      }>
-        Disconnect
-      </button>
-      <h2 className="text-2xl font-bold">${networth?.total_networth_usd}</h2>
-      <ReactApexChart options={options} series={series} type="pie" width={380} />
-    </div>
+    <>
+      <Head>
+        <title>Base Token Store - {address}</title>
+        <meta name="description" content="A place to buy and sell tokens on Base" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <main className="flex min-h-screen flex-col items-center justify-center">
+        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
+          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem] flex items-center gap-4 flex-wrap">
+            {ens ?? getShortenedAddress(address)}
+          </h1>
+          <button 
+            className="btn btn-secondary w-fit" 
+            onMouseDown={() => void disconnect()
+          }>
+            Disconnect
+          </button>
+          <h2 className="text-2xl font-bold">${networth?.total_networth_usd}</h2>
+          <div className="flex w-full justify-center">
+            <ReactApexChart options={options} series={series} type="pie" width={400} />
+          </div>
+        </div>
+      </main>
+    </>
   );
 };
 
