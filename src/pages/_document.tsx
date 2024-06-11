@@ -5,7 +5,7 @@ export default function Document() {
   const { theme } = useTheme();
 
   return (
-    <Html data-theme={theme}>
+    <Html data-theme={theme} style={{ fontFamily: 'sans-serif '}}>
       <Head>
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/icons/icon.png"></link>
