@@ -1,26 +1,38 @@
 import { type FC } from "react";
-import { Avatar, Name } from '@coinbase/onchainkit/identity';
-import { useAccount, useEnsName } from 'wagmi';
-import { ConnectAccount } from '@coinbase/onchainkit/wallet';
 import Link from "next/link";
+import { ConnectButton, useActiveAccount } from "thirdweb/react";
+import { client } from "~/providers/Thirdweb";
+import { createWallet } from "thirdweb/wallets";
+import { DEFAULT_CHAIN } from "~/constants/chain";
+import { APP_NAME } from "~/constants";
 
 export const Connect: FC = () => {
-  const { address } = useAccount();
-  const { status: ensStatus } = useEnsName({ address });
+  const account = useActiveAccount();
 
-  if (!address) {
-    return <ConnectAccount />; 
+  if (!account) {
+    return (
+      <ConnectButton 
+        client={client}
+        wallets={[createWallet("com.coinbase.wallet")]}
+      />
+    ); 
   }
 
   return (
-    <Link href={`/profile/${address}`} className="btn btn-ghost flex h-10 items-center space-x-2">
-      <Avatar address={address} showAttestation />
-      <div className="flex flex-col text-sm">
-        <b className={`${ensStatus === 'pending' || ensStatus === 'error' ? 'hidden': ''}`}>
-          <Name address={address} />
-        </b>
-        <Name address={address} />
-      </div>
-    </Link>
+    <div className="flex items-center gap-2">
+      <ConnectButton
+        client={client}
+        chain={DEFAULT_CHAIN}
+        wallets={[createWallet("com.coinbase.wallet")]}
+        appMetadata={{
+          name: APP_NAME,
+          description: "A marketplace for tokens and memes",
+          logoUrl: "https://avatars.githubusercontent.com/u/108554348?s=200&v=4"
+        }}
+      />
+      <Link href={`/profile/${account.address}`} className="btn btn-ghost flex h-10 items-center space-x-2">
+        Portfolio
+      </Link>
+    </div>
   )
 };

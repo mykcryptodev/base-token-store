@@ -1,21 +1,19 @@
-import { type ChainMetadata } from "node_modules/thirdweb/dist/types/chains/types";
-import { createContext } from "react";
-import { type Chain} from "thirdweb/chains"
+import { createContext, useContext } from 'react';
+import useActiveChain from '~/hooks/useActiveChain';
 
-import { DEFAULT_CHAIN, DEFAULT_CHAIN_METADATA } from "~/constants/chain";
+const ActiveChainContext = createContext<ReturnType<typeof useActiveChain> | null>(null);
 
-type IActiveChainContext = {
-  activeChain: Chain;
-  activeChainMetadata: ChainMetadata;
-  updateActiveChain: (chainId: number) => void;
-}
-const defaultState = {
-  activeChain: DEFAULT_CHAIN,
-  activeChainMetadata: DEFAULT_CHAIN_METADATA,
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  updateActiveChain: () => {},
-}
+export const ActiveChainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const activeChain = useActiveChain();
+  return <ActiveChainContext.Provider value={activeChain}>{children}</ActiveChainContext.Provider>;
+};
 
-const ActiveChainContext = createContext<IActiveChainContext>(defaultState);
+export const useActiveChainContext = () => {
+  const context = useContext(ActiveChainContext);
+  if (!context) {
+    throw new Error('useActiveChainContext must be used within an ActiveChainProvider');
+  }
+  return context;
+};
 
 export default ActiveChainContext;

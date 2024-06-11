@@ -9,9 +9,9 @@ import { client } from "~/providers/Thirdweb";
 import { api } from "~/utils/api";
 import dynamic from "next/dynamic";
 import { type ApexOptions } from "apexcharts";
-import { useDisconnect } from "wagmi";
 import useShortenedAddress from "~/hooks/useShortenedAddress";
 import { useMemo } from "react";
+import { useActiveWallet, useDisconnect } from "thirdweb/react";
 
 const ReactApexChart = dynamic(
   () => import(
@@ -58,6 +58,7 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async (conte
 
 export const Profile: NextPage<ProfileProps> = ({ address, ens, isValidAddress }) => {
   const { disconnect } = useDisconnect();
+  const wallet = useActiveWallet();
   const { getShortenedAddress } = useShortenedAddress();
 
   const { data: portfolio } = api.moralis.getPortfolioPositions.useQuery({
@@ -81,7 +82,7 @@ export const Profile: NextPage<ProfileProps> = ({ address, ens, isValidAddress }
     tooltip: {
       enabled: false
     },
-    labels: portfolio?.result.map((position) =>`${position.name} - $${position.usd_value.toLocaleString([], { currency: 'usd', maximumFractionDigits: 2, minimumFractionDigits: 2 }) ?? '0'}`) ?? [],
+    labels: portfolio?.result.map((position) =>`${position.name} - $${position.usd_value?.toLocaleString([], { currency: 'usd', maximumFractionDigits: 2, minimumFractionDigits: 2 }) ?? '0'}`) ?? [],
     colors: portfolio?.result.map(() => "#FEFEFE") ?? [],
     fill: {
       type: 'image',
@@ -130,12 +131,14 @@ export const Profile: NextPage<ProfileProps> = ({ address, ens, isValidAddress }
           <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem] flex items-center gap-4 flex-wrap">
             {ens ?? getShortenedAddress(address)}
           </h1>
+          {wallet && (
           <button 
             className="btn btn-secondary w-fit" 
-            onMouseDown={() => void disconnect()
-          }>
+            onMouseDown={() => void disconnect(wallet)}
+          >
             Disconnect
           </button>
+          )}
           <h2 className="text-2xl font-bold">${portfolioValue?.toLocaleString([], { currency: 'usd' })}</h2>
           <div className="flex w-full justify-center min-h-96">
             <ReactApexChart options={options} series={series} type="pie" width={400} />

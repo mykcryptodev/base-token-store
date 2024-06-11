@@ -1,66 +1,10 @@
 import Head from "next/head";
-import DexContext from "~/contexts/Dex";
-import useDex from "~/hooks/useDex";
 import Image from "next/image";
 import TokenGrid from "~/components/Token/Grid";
 
 export default function Home() {
-  const { 
-    tokenInput, 
-    tokenOutput, 
-    updateTokenInput, 
-    updateTokenOutput,
-    tokenInputAmount,
-    tokenOutputAmount,
-    updateTokenInputAmount,
-    updateTokenOutputAmount,
-    updateUsdIn,
-    updateSwapSimply,
-    swapSimply,
-    nonNativeTokenInSwap,
-    trade,
-    tradeError,
-    slippageTolerance,
-    updateSlippageTolerance,
-    isExactIn,
-    updateIsExactIn,
-    requiresSwapApproval,
-    pairData,
-    pairDataIsLoading,
-    tokensSwappedInputAt,
-    updateTokensSwappedInputsAt,
-    swapRoute,
-    simpleSwapRoute,
-  } = useDex();
-
   return (
-    <DexContext.Provider value={{
-      tokenInput,
-      tokenOutput,
-      updateTokenInput,
-      updateTokenOutput,
-      tokenInputAmount,
-      tokenOutputAmount,
-      updateTokenInputAmount,
-      updateTokenOutputAmount,
-      updateUsdIn,
-      swapSimply,
-      updateSwapSimply,
-      nonNativeTokenInSwap,
-      trade,
-      tradeError,
-      slippageTolerance,
-      updateSlippageTolerance,
-      isExactIn,
-      updateIsExactIn,
-      requiresSwapApproval,
-      pairData,
-      pairDataIsLoading,
-      tokensSwappedInputAt,
-      updateTokensSwappedInputsAt,
-      swapRoute,
-      simpleSwapRoute,
-    }}>
+    <>
       <Head>
         <title>Base Token Store</title>
         <meta name="description" content="A place to buy and sell tokens on Base" />
@@ -75,6 +19,6 @@ export default function Home() {
           <TokenGrid />
         </div>
       </main>
-    </DexContext.Provider>
+    </>
   );
 }
