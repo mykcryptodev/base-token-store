@@ -1,10 +1,12 @@
 import { useMemo, type FC } from "react";
 import { api } from "~/utils/api";
+import Image from "next/image";
 
 import { useState } from "react";
 import TokenCard from "~/components/Token/Card";
 import { type TokenListResponse } from "~/types/coingecko";
 import useDebounce from "~/hooks/useDebounce";
+import Link from "next/link";
 
 export const TokenGrid: FC = () => {
   const { data: tokens } = api.coingecko.getTokens.useQuery({
@@ -20,7 +22,6 @@ export const TokenGrid: FC = () => {
   const tokensPerPage = 8;
   const indexOfLastToken = currentPage * tokensPerPage;
   const indexOfFirstToken = indexOfLastToken - tokensPerPage;
-  // const currentTokens = tokens?.slice(indexOfFirstToken, indexOfLastToken);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
@@ -46,6 +47,11 @@ export const TokenGrid: FC = () => {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4 place-content-center">
         {filteredTokens?.map((token) => <TokenCard key={token.id} token={token as TokenListResponse} />)}
+      </div>
+      <div className="flex w-full justify-end">
+        <Link href="https://coingecko.com" target="_blank" rel="noopener noreferrer" className="flex gap-1 items-center">
+          <span className="text-xs opacity-90">Token data provided by</span><Image src="/images/coingecko.webp" alt="Powered by CoinGecko" width={85} height={85} />
+        </Link>
       </div>
       <div className="flex justify-center mt-4">
         <button 
