@@ -85,7 +85,7 @@ export const Profile: NextPage<ProfileProps> = ({ address, ens, isValidAddress }
     tooltip: {
       enabled: false
     },
-    labels: portfolio?.result.map((position) =>`${position.name} - $${position.usd_value.toLocaleString([], { currency: 'usd', maximumFractionDigits: 2, minimumFractionDigits: 2 })}`) ?? [],
+    labels: portfolio?.result.map((position) =>`${position.name} - $${position.usd_value?.toLocaleString([], { currency: 'usd', maximumFractionDigits: 2, minimumFractionDigits: 2 })}`) ?? [],
     colors: portfolio?.result.map(() => "#FEFEFE") ?? [],
     fill: {
       type: 'image',
@@ -141,8 +141,8 @@ export const Profile: NextPage<ProfileProps> = ({ address, ens, isValidAddress }
             Disconnect
           </button>
           <h2 className="text-2xl font-bold">${networth?.total_networth_usd}</h2>
-          <div className="flex w-full justify-center">
-            <ReactApexChart options={options} series={series} type="pie" width={400} />
+          <div className="flex w-full justify-center min-h-96">
+            <ReactApexChart options={options} series={series} type="pie" width={400} height={400} />
           </div>
         </div>
       </main>
