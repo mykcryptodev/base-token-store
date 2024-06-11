@@ -12,7 +12,6 @@ import { client } from "~/providers/Thirdweb";
 import { defineChain } from "thirdweb";
 import { ShoppingBagIcon } from "@heroicons/react/24/outline";
 import Cart from "~/components/Cart";
-import { useCartContext } from "~/contexts/Cart";
 
 interface LayoutProps {
   children: ReactNode
@@ -28,7 +27,6 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
   const { disconnectAsync } = useDisconnect();
   const setActiveWallet = useSetActiveWallet();
   const { switchChainAsync } = useSwitchChain();
-  const { cart } = useCartContext();
 
   useEffect(() => {
     const setActive = async () => {
