@@ -82,6 +82,9 @@ export const Profile: NextPage<ProfileProps> = ({ address, ens, isValidAddress }
       width: 380,
       type: 'pie',
     },
+    tooltip: {
+      enabled: false
+    },
     labels: portfolio?.result.map((position) =>`${position.name} - $${position.usd_value.toLocaleString([], { currency: 'usd', maximumFractionDigits: 2, minimumFractionDigits: 2 })}`) ?? [],
     colors: portfolio?.result.map(() => "#FEFEFE") ?? [],
     fill: {
