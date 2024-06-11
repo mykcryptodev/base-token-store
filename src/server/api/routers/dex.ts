@@ -6,7 +6,7 @@ import { maxUnits } from "thirdweb/extensions/farcaster/storageRegistry";
 import { getWalletBalance } from "thirdweb/wallets";
 import { z } from "zod";
 
-import { binance, binanceTestnet,DEFAULT_CHAIN, SUPPORTED_CHAINS } from "~/constants/chain";
+import { DEFAULT_CHAIN, SUPPORTED_CHAINS } from "~/constants/chain";
 import { env } from "~/env";
 import {
   createTRPCRouter,
@@ -194,8 +194,6 @@ export const dexRouter = createTRPCRouter({
       const NATIVE_ASSET_PRICE_ORACLES: Record<number, string> = {
         [ethereum.id]: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // ETH / USD
         [sepolia.id]: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // ETH / USD
-        [binance.id]: "0x14e613ac84a31f709eadbdf89c6cc390fdc9540a", // BNB / USD
-        [binanceTestnet.id]: "0x14e613ac84a31f709eadbdf89c6cc390fdc9540a", // BNB / USD
         [base.id]: "0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419", // ETH / USD
         [baseSepolia.id]: "0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419", // ETH / USD
       } as const;
@@ -204,17 +202,22 @@ export const dexRouter = createTRPCRouter({
         chain: ethereum,
         address: NATIVE_ASSET_PRICE_ORACLES[input.chainId] ?? NATIVE_ASSET_PRICE_ORACLES[DEFAULT_CHAIN.id]!,
       });
-      const [decimalsInPrice, latestRound] = await Promise.all([
-        decimals({ contract }),
-        latestRoundData({ contract }),
-      ]);
-      const usd = new Token(
-        input.chainId,
-        ADDRESS_ZERO,
-        decimalsInPrice,
-        "USD",
-        "US Dollar",
-      );
-      return new TokenAmount(usd, latestRound[1]).toSignificant(decimalsInPrice);
+      try {
+        const [decimalsInPrice, latestRound] = await Promise.all([
+          decimals({ contract }),
+          latestRoundData({ contract }),
+        ]);
+        const usd = new Token(
+          input.chainId,
+          ADDRESS_ZERO,
+          decimalsInPrice,
+          "USD",
+          "US Dollar",
+        );
+        return new TokenAmount(usd, latestRound[1]).toSignificant(decimalsInPrice);
+      } catch (e) {
+        const error = e as Error;
+        throw new Error(error.message);
+      }
     }),
 });

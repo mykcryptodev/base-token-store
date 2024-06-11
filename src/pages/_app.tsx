@@ -4,25 +4,25 @@ import { type AppType } from "next/app";
 import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
-import Wagmi from "~/providers/Wagmi";
 import { Layout } from "~/components/Layout";
 import Thirdweb from "~/providers/Thirdweb";
 import { CartProvider } from "~/contexts/Cart";
+import { ActiveChainProvider } from "~/contexts/ActiveChain";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
-    <Thirdweb>
-      <Wagmi>
-        <CartProvider>
-          <main className={GeistSans.className}>
+    <main className={GeistSans.className}>
+      <ActiveChainProvider>
+        <Thirdweb>
+          <CartProvider>
             <Layout>
               <Component {...pageProps} />
             </Layout>
             <div id="portal" />
-          </main>
-        </CartProvider>
-      </Wagmi>
-    </Thirdweb>
+          </CartProvider>
+        </Thirdweb>
+      </ActiveChainProvider>
+    </main>
   );
 };
 

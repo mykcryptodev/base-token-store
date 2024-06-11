@@ -1,19 +1,28 @@
 import { ShoppingBagIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { useState, type FC } from 'react';
-import { ADDRESS_ZERO, toUnits } from 'thirdweb';
+import { ADDRESS_ZERO, prepareTransaction, toWei } from 'thirdweb';
 import { base } from 'thirdweb/chains';
-import { useAccount } from 'wagmi';
 import { useCartContext } from '~/contexts/Cart';
 import { api } from '~/utils/api';
-import { sendCalls } from '@wagmi/core/experimental';
-import { config } from "~/providers/Wagmi";
-import { useRouter } from 'next/router';
+import { useCapabilities, useSendCalls, useCallsStatus } from "thirdweb/wallets/eip5792";
+import { client } from '~/providers/Thirdweb';
+import { useActiveAccount, useActiveWallet } from 'thirdweb/react';
+import { DEFAULT_CHAIN } from '~/constants/chain';
 
 const Cart: FC = () => {
-  const router = useRouter();
+  const { mutate: sendCalls, data: bundleId } = useSendCalls({
+    client,
+  });
+  const { data: capabilities } = useCapabilities();
+  const { data: status, isLoading } = useCallsStatus({
+    bundleId: typeof bundleId === 'string' ? bundleId : '',
+    client,
+  });
+  console.log({ capabilities, status, isLoading });
+  const wallet = useActiveWallet();
   const { cart, updateItem, deleteItem } = useCartContext();
-  const account = useAccount();
+  const account = useActiveAccount();
   const { data: etherPrice } = api.dex.getEtherPrice.useQuery({
     chainId: base.id,
   });
@@ -28,25 +37,35 @@ const Cart: FC = () => {
           const amountInEther = item.usdAmountDesired / Number(etherPrice ?? 1);
           return {
             token: item.address,
-            amount: toUnits(amountInEther.toString(), 18).toString(),
+            amount: toWei(amountInEther.toString()).toString(),
           };
         }),
         chainId: base.id,
         from: account?.address ?? ADDRESS_ZERO,
         to: account?.address ?? ADDRESS_ZERO,
       });
-      const calls = encodedData.map(swap => ({
+      const calls = encodedData.map(swap => prepareTransaction({
         to: swap.data.routerAddress as `0x${string}`,
         data: swap.data.data as `0x${string}`,
         value: BigInt(swap.data.amountIn),
+        chain: DEFAULT_CHAIN,
+        client,
       }));
       console.log({ encodedData });
-      const called = await sendCalls(
-        config,
-        { calls }
-      );
+      const called = sendCalls({
+        wallet,
+        calls,
+        capabilities: {
+          ...capabilities,
+          paymasterService: {
+            supported: true,
+            url: `https://${DEFAULT_CHAIN.id}.bundler.thirdweb.com/${client.clientId}`
+          }
+        }
+      });
       console.log({ called });
-      void router.push(`/profile/${account?.address}`);
+      console.log({ capabilities, status, isLoading });
+      // void router.push(`/profile/${account?.address}`);
       // close the drawer
       void document.getElementById('my-drawer')?.click();
     } catch (e) {

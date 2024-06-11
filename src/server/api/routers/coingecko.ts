@@ -2,7 +2,7 @@ import { NATIVE_TOKEN_ADDRESS } from "thirdweb";
 import { base, getChainMetadata } from "thirdweb/chains";
 import { z } from "zod";
 
-import { binance,SUPPORTED_CHAINS } from "~/constants/chain";
+import { SUPPORTED_CHAINS } from "~/constants/chain";
 import { COINGECKO_UNKNOWN_IMG } from "~/constants/dex";
 import coingeckoList from "~/constants/tokenLists/coingecko.json";
 import { customTokenList } from "~/constants/tokenLists/custom";
@@ -128,7 +128,6 @@ export const coingeckoRouter = createTRPCRouter({
       type ChainNames = Record<string, string>
       const coingeckoChainNames = {
         [base.id]: 'base',
-        [binance.id]: 'binance-smart-chain',
       } as ChainNames;
       const chainName = coingeckoChainNames[input.chainId];
       if (!chainName) throw new Error(`Chain ${input.chainId} not supported by coingecko`);
