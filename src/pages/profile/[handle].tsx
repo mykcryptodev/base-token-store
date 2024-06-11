@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 import { type ApexOptions } from "apexcharts";
 import { useDisconnect } from "wagmi";
 import useShortenedAddress from "~/hooks/useShortenedAddress";
+import { useMemo } from "react";
 
 const ReactApexChart = dynamic(
   () => import(
@@ -59,14 +60,6 @@ export const Profile: NextPage<ProfileProps> = ({ address, ens, isValidAddress }
   const { disconnect } = useDisconnect();
   const { getShortenedAddress } = useShortenedAddress();
 
-  const { data: networth } = api.moralis.getWalletNetworth.useQuery({
-    address,
-    chainIds: [base.id],
-  }, {
-    enabled: isValidAddress,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-  });
   const { data: portfolio } = api.moralis.getPortfolioPositions.useQuery({
     address,
     chainId: base.id,
@@ -75,6 +68,9 @@ export const Profile: NextPage<ProfileProps> = ({ address, ens, isValidAddress }
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   });
+  const portfolioValue = useMemo(() => {
+    return portfolio?.result.reduce((acc, position) => acc + position.usd_value ?? 0, 0);
+  }, [portfolio])
 
   const series = portfolio?.result.map((position) => position.portfolio_percentage) ?? [];
   const options: ApexOptions = {
@@ -85,7 +81,7 @@ export const Profile: NextPage<ProfileProps> = ({ address, ens, isValidAddress }
     tooltip: {
       enabled: false
     },
-    labels: portfolio?.result.map((position) =>`${position.name} - $${position.usd_value?.toLocaleString([], { currency: 'usd', maximumFractionDigits: 2, minimumFractionDigits: 2 })}`) ?? [],
+    labels: portfolio?.result.map((position) =>`${position.name} - $${position.usd_value.toLocaleString([], { currency: 'usd', maximumFractionDigits: 2, minimumFractionDigits: 2 }) ?? '0'}`) ?? [],
     colors: portfolio?.result.map(() => "#FEFEFE") ?? [],
     fill: {
       type: 'image',
@@ -140,9 +136,9 @@ export const Profile: NextPage<ProfileProps> = ({ address, ens, isValidAddress }
           }>
             Disconnect
           </button>
-          <h2 className="text-2xl font-bold">${networth?.total_networth_usd}</h2>
+          <h2 className="text-2xl font-bold">${portfolioValue?.toLocaleString([], { currency: 'usd' })}</h2>
           <div className="flex w-full justify-center min-h-96">
-            <ReactApexChart options={options} series={series} type="pie" width={400} height={400} />
+            <ReactApexChart options={options} series={series} type="pie" width={400} />
           </div>
         </div>
       </main>
