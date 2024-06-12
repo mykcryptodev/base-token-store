@@ -5,21 +5,15 @@ import { ADDRESS_ZERO, prepareTransaction, toWei } from 'thirdweb';
 import { base } from 'thirdweb/chains';
 import { useCartContext } from '~/contexts/Cart';
 import { api } from '~/utils/api';
-import { useCapabilities, useSendCalls, useCallsStatus } from "thirdweb/wallets/eip5792";
+import { useCapabilities } from "thirdweb/wallets/eip5792";
+import { useSendCalls } from 'wagmi/experimental'
 import { client } from '~/providers/Thirdweb';
 import { useActiveAccount, useActiveWallet } from 'thirdweb/react';
 import { DEFAULT_CHAIN } from '~/constants/chain';
 
 const Cart: FC = () => {
-  const { mutate: sendCalls, data: bundleId } = useSendCalls({
-    client,
-  });
+  const { sendCalls } = useSendCalls()
   const { data: capabilities } = useCapabilities();
-  const { data: status, isLoading } = useCallsStatus({
-    bundleId: typeof bundleId === 'string' ? bundleId : '',
-    client,
-  });
-  console.log({ capabilities, status, isLoading });
   const wallet = useActiveWallet();
   const { cart, updateItem, deleteItem } = useCartContext();
   const account = useActiveAccount();
@@ -51,26 +45,24 @@ const Cart: FC = () => {
         chain: DEFAULT_CHAIN,
         client,
       }));
-      console.log({ encodedData, calls, });
-      const called = sendCalls({
-        wallet,
-        calls,
+      sendCalls({
+        calls: encodedData.map(swap => ({
+          to: swap.data.routerAddress as `0x${string}`,
+          data: swap.data.data as `0x${string}`,
+          value: BigInt(swap.data.amountIn),
+        })),
         capabilities: {
           ...capabilities,
           auxiliaryFunds: {
             supported: true
           },
           paymasterService: {
-            supported: true,
             url: `https://${DEFAULT_CHAIN.id}.bundler.thirdweb.com/${client.clientId}`
           }
         }
       });
-      console.log({ called });
-      console.log({ capabilities, status, isLoading });
-      // void router.push(`/profile/${account?.address}`);
       // close the drawer
-      // void document.getElementById('my-drawer')?.click();
+      void document.getElementById('my-drawer')?.click();
     } catch (e) {
       console.error(e);
     } finally {

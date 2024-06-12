@@ -1,20 +1,57 @@
-import { type FC } from "react";
+import { useEffect, type FC } from "react";
 import Link from "next/link";
-import { ConnectButton, useActiveAccount } from "thirdweb/react";
+import { ConnectButton, useActiveAccount, useSetActiveWallet } from "thirdweb/react";
 import { client } from "~/providers/Thirdweb";
-import { createWallet } from "thirdweb/wallets";
+import { createWallet, createWalletAdapter } from "thirdweb/wallets";
 import { DEFAULT_CHAIN } from "~/constants/chain";
 import { APP_NAME } from "~/constants";
+import { useConnect, useAccount, useDisconnect, useWalletClient, useSwitchChain } from "wagmi";
+import { viemAdapter } from "thirdweb/adapters/viem";
+import { defineChain } from "thirdweb";
 
 export const Connect: FC = () => {
   const account = useActiveAccount();
+  const { connectors, connect } = useConnect();
+  const wagmiAccount = useAccount();
+  const { disconnectAsync } = useDisconnect();
+  const { switchChainAsync } = useSwitchChain();
+  const { data: walletClient } = useWalletClient();
+  const setActiveWallet = useSetActiveWallet();
+  
+  useEffect(() => {
+    const setActive = async () => {
+      if (walletClient) {
+        // adapt the walletClient to a thirdweb account
+        const adaptedAccount = viemAdapter.walletClient.fromViem({
+          walletClient: walletClient as any, // accounts for wagmi/viem version mismatches
+        });
+        // create the thirdweb wallet with the adapted account
+        const thirdwebWallet = createWalletAdapter({
+          client,
+          adaptedAccount,
+          chain: defineChain(await walletClient.getChainId()),
+          onDisconnect: async () => {
+            await disconnectAsync();
+          },
+          switchChain: async (chain) => {
+            await switchChainAsync({ chainId: chain.id as any });
+          },
+        });
+        setActiveWallet(thirdwebWallet);
+      }
+    };
+    setActive();
+  }, [walletClient]);
 
-  if (!account) {
+  if (!wagmiAccount.isConnected) {
+    const connector = connectors[0]!;
     return (
-      <ConnectButton 
-        client={client}
-        wallets={[createWallet("com.coinbase.wallet")]}
-      />
+      <button
+        className="btn btn-primary"
+        onClick={() => void connect({connector})}
+      >
+        Connect Wallet
+      </button>
     ); 
   }
 
@@ -31,7 +68,7 @@ export const Connect: FC = () => {
           logoUrl: "https://avatars.githubusercontent.com/u/108554348?s=200&v=4"
         }}
       />
-      <Link href={`/profile/${account.address}`} className="btn btn-ghost flex h-10 items-center space-x-2">
+      <Link href={`/profile/${account?.address}`} className="btn btn-ghost flex h-10 items-center space-x-2">
         Portfolio
       </Link>
     </div>
