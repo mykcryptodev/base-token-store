@@ -2,10 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@100..900&display=swap');
 
+body {
+  font-family: 'Heebo', sans-serif;
+}
 
 /* move an element up when hovered */
 .raise-on-hover {

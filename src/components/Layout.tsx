@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Connect } from "~/components/Connect";
 import { ShoppingBagIcon } from "@heroicons/react/24/outline";
 import Cart from "~/components/Cart";
+import Image from "next/image";
+import { APP_NAME } from "~/constants";
 
 interface LayoutProps {
   children: ReactNode
@@ -28,11 +30,14 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
           <div className="overflow-x-hidden max-w-7xl mx-auto min-h-screen mt-10">
             <div className="w-full justify-between items-center flex mr-4">
               <div className="flex items-center gap-2">
-                {router.pathname !== '/' && (
-                  <Link href="/" className="btn btn-ghost text-neutral ml-4">
-                    Base Token Store
-                  </Link>
-                )}
+                <Link href="/" className="btn btn-ghost rounded-full text-neutral ml-4">
+                  <div className="sm:flex hidden">
+                    <Image src="/images/logo-horizontal.png" alt={APP_NAME} className="h-6 w-auto" width={200} height={200} priority /> 
+                  </div>
+                  <div className="sm:hidden flex">
+                    <Image src="/images/logo-vertical.png" alt={APP_NAME} className="h-12 w-auto" width={200} height={200} priority /> 
+                  </div>
+                </Link>
               </div>
               <div className="flex items-center gap-2">
                 <Connect />

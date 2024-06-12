@@ -12,14 +12,15 @@ export default function Home() {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center">
         <div className="container flex flex-col items-center justify-center gap-2 px-4 py-16 ">
-          <h1 className="text-3xl sm:text-[5rem] tracking-tight font-extrabold flex items-center gap-2 sm:gap-4 flex-wrap sm:pb-8 pb-0">
-            <div className="sm:hidden flex">
-              <Image src="/images/base.png" alt="Base Token Store" width={30} height={30} priority />
+          <h1 className="text-7xl tracking-tight flex items-center gap-2 sm:gap-4 flex-wrap sm:pb-8 pb-4 text-black">
+            <Image src="/images/logo-vertical.png" alt="Base Token Store" width={85} height={85} priority />
+            <div className="flex flex-col gap-4">
+              <span className="-mt-3">Base</span>
+              <span className="-mt-4">Token</span>
+              <span className="-mt-5">
+                Store
+              </span>
             </div>
-            <div className="sm:flex hidden">
-              <Image src="/images/base.png" alt="Base Token Store" width={65} height={65} priority />
-            </div>
-            Base <span className="text-primary">Token</span> Store <span className="badge sm:badge-md badge-sm badge-accent tracking-normal mb-10 sm:mb-12 -ml-2 sm:-ml-4">Beta</span>
           </h1>
           <TokenGrid />
         </div>

@@ -8,6 +8,7 @@ import { APP_NAME } from "~/constants";
 import { useConnect, useAccount, useDisconnect, useWalletClient, useSwitchChain } from "wagmi";
 import { viemAdapter } from "thirdweb/adapters/viem";
 import { defineChain } from "thirdweb";
+import { ChartPieIcon } from "@heroicons/react/24/outline";
 
 export const Connect: FC = () => {
   const account = useActiveAccount();
@@ -83,7 +84,7 @@ export const Connect: FC = () => {
         }}
       />
       <Link href={`/profile/${account?.address}`} className="btn btn-ghost flex h-10 items-center space-x-2">
-        Portfolio
+        <ChartPieIcon className="h-6 w-6" />
       </Link>
     </div>
   )
