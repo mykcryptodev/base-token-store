@@ -1,4 +1,4 @@
-import { useEffect, type FC } from "react";
+import { useEffect, type FC, useState } from "react";
 import Link from "next/link";
 import { ConnectButton, useActiveAccount, useSetActiveWallet } from "thirdweb/react";
 import { client } from "~/providers/Thirdweb";
@@ -17,6 +17,9 @@ export const Connect: FC = () => {
   const { switchChainAsync } = useSwitchChain();
   const { data: walletClient } = useWalletClient();
   const setActiveWallet = useSetActiveWallet();
+  const [isMounted, setIsMounted] = useState<boolean>(false);
+
+  useEffect(() => setIsMounted(true), []);
   
   useEffect(() => {
     const setActive = async () => {
@@ -42,6 +45,17 @@ export const Connect: FC = () => {
     };
     setActive();
   }, [walletClient]);
+
+  if (!isMounted) {
+    return (
+      <button
+        className="btn btn-primary"
+        disabled
+      >
+        Connect Wallet
+      </button>
+    )
+  }
 
   if (!wagmiAccount.isConnected) {
     const connector = connectors[0]!;
