@@ -23,6 +23,7 @@ export const Connect: FC = () => {
       <ConnectButton
         client={client}
         chain={DEFAULT_CHAIN}
+        theme="light"
         wallets={[createWallet("com.coinbase.wallet")]}
         appMetadata={{
           name: APP_NAME,

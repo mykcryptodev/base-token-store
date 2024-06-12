@@ -1,4 +1,4 @@
-import { type FC, type ReactNode,useEffect, useState } from "react"
+import { type FC, type ReactNode } from "react"
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { Connect } from "~/components/Connect";
@@ -12,33 +12,19 @@ interface LayoutProps {
 export const Layout: FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
 
-  const [userPrefersDarkMode, setUserPrefersDarkMode] = useState<boolean>(false);
-  useEffect(() => {
-    setUserPrefersDarkMode(window.matchMedia('(prefers-color-scheme: dark)').matches);
-  }, []);
-
-  const fromYellow = "from-[#0052FF]";
-  const toYellow = "to-transparent";
-  const fromPink = "from-[#0052FF]";
-  const toPink = "to-transaprent";
-  const viaPink = "via-[#0052FF]";
-
-  // const fromYellow = userPrefersDarkMode ? "from-yellow-300" : "from-yellow-100";
-  // const toYellow = userPrefersDarkMode ? "to-yellow-800" : "to-yellow-00";
-  // const fromPink = userPrefersDarkMode ? "from-pink-300" : "from-pink-100";
-  // const toPink = userPrefersDarkMode ? "to-pink-800" : "to-pink-500";
-  // const viaPink = userPrefersDarkMode ? "via-pink-300" : "via-pink-200";
+  const fromBlue = "from-[#0052FF]";
+  const toTransparent = "to-transparent";
+  const viaBlue = "via-[#0052FF]";
 
   return (
     <div className="drawer drawer-end">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         <div className="block">
-          <div className={`absolute bg-gradient-to-t ${fromYellow} ${toYellow} rounded-full blur-3xl -top-[85%] -left-[45%] w-full h-full -z-10 opacity-30`} ></div>
-          <div className={`fixed bg-gradient-to-br ${fromYellow} ${viaPink} ${toPink} rounded-full blur-3xl -bottom-0 -right-[100%] w-full h-full -z-10 opacity-30`}></div>
-          <div className={`fixed bg-gradient-to-br ${fromYellow} ${viaPink} ${toPink} rounded-full blur-3xl -bottom-0 -left-[55%] w-1/2 h-full -z-10 opacity-30`}></div>
-          {/* <div className={`fixed bg-gradient-to-tl ${fromYellow} ${viaPink} ${toYellow} rounded-full blur-3xl -bottom-0 -left-[25%] w-1/2 h-full -z-10 ${userPrefersDarkMode ? 'opacity-30' : ''}`}></div> */}
-          <div className={`fixed bg-gradient-to-bl ${fromPink} ${toPink} rounded-full -top-[-85%] blur-3xl -left-[35%] w-full h-full -z-10 opacity-30`}></div>
+          <div className={`absolute bg-gradient-to-t ${fromBlue} ${toTransparent} rounded-full blur-3xl -top-[85%] -left-[45%] w-full h-full -z-10 opacity-30`} ></div>
+          <div className={`fixed bg-gradient-to-br ${fromBlue} ${viaBlue} ${toTransparent} rounded-full blur-3xl -bottom-0 -right-[100%] w-full h-full -z-10 opacity-30`}></div>
+          <div className={`fixed bg-gradient-to-br ${fromBlue} ${viaBlue} ${toTransparent} rounded-full blur-3xl -bottom-0 -left-[55%] w-1/2 h-full -z-10 opacity-30`}></div>
+          <div className={`fixed bg-gradient-to-bl ${fromBlue} ${viaBlue} rounded-full -top-[-85%] blur-3xl -left-[35%] w-full h-full -z-10 opacity-30`}></div>
           <div className="overflow-x-hidden max-w-7xl mx-auto min-h-screen mt-10">
             <div className="w-full justify-between items-center flex mr-4">
               <div className="flex items-center gap-2">

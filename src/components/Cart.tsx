@@ -57,9 +57,12 @@ const Cart: FC = () => {
         calls,
         capabilities: {
           ...capabilities,
+          auxiliaryFunds: {
+            supported: true
+          },
           paymasterService: {
             supported: true,
-            // url: `https://${DEFAULT_CHAIN.id}.bundler.thirdweb.com/${client.clientId}`
+            url: `https://${DEFAULT_CHAIN.id}.bundler.thirdweb.com/${client.clientId}`
           }
         }
       });
@@ -67,7 +70,7 @@ const Cart: FC = () => {
       console.log({ capabilities, status, isLoading });
       // void router.push(`/profile/${account?.address}`);
       // close the drawer
-      void document.getElementById('my-drawer')?.click();
+      // void document.getElementById('my-drawer')?.click();
     } catch (e) {
       console.error(e);
     } finally {
