@@ -1,7 +1,7 @@
 import { ShoppingBagIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { useState, type FC } from 'react';
-import { ADDRESS_ZERO, prepareTransaction, toWei } from 'thirdweb';
+import { ADDRESS_ZERO, toWei } from 'thirdweb';
 import { base } from 'thirdweb/chains';
 import { useCartContext } from '~/contexts/Cart';
 import { api } from '~/utils/api';

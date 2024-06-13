@@ -1,5 +1,4 @@
 import { type FC, type ReactNode } from "react"
-import { useRouter } from "next/router";
 import Link from "next/link";
 import { Connect } from "~/components/Connect";
 import { ShoppingBagIcon } from "@heroicons/react/24/outline";
@@ -12,8 +11,6 @@ interface LayoutProps {
 }
 
 export const Layout: FC<LayoutProps> = ({ children }) => {
-  const router = useRouter();
-
   const fromBlue = "from-[#0052FF]";
   const toTransparent = "to-transparent";
   const viaBlue = "via-[#0052FF]";
