@@ -3,7 +3,6 @@ import { type TokenListResponse } from "~/types/coingecko";
 import { useState } from 'react'
 import Image from "next/image";
 import Sparkline from "~/components/Token/Sparkline";
-import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 import { useCartContext } from "~/contexts/Cart";
 import { api } from "~/utils/api";
 import { CartItem } from "~/hooks/useCart";
