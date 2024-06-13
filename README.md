@@ -1,4 +1,4 @@
-# Base Token Store on Base
+# Base Token Store
 
 Welcome to Base Token Store, a revolutionary way to buy and manage your tokens on Coinbase's L2 blockchain, Base. Our app operates like a traditional e-commerce store, enabling users to add tokens to their cart and checkout in a single transaction thanks to the advanced batch transaction features of Coinbase smart wallets. Additionally, users can leverage their Coinbase balances onchain, making the process seamless and efficient.
 
