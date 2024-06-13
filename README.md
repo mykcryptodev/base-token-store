@@ -6,7 +6,7 @@ Welcome to Base Token Store, a revolutionary way to buy and manage your tokens o
 
 Check out our demo video to see the app in action:
 
-[![ERC-20 Token Store Demo](https://i.imgur.com/CEF3k7Y.gif)](https://streamable.com/nwb8tr)
+[Base Token Store Demo](https://streamable.com/nwb8tr)
 
 ## Inspiration
 
