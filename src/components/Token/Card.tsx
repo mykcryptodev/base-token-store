@@ -80,7 +80,9 @@ export const TokenCard: FC<Props> = ({ token }) => {
             disabled={loading}
             className="btn btn-secondary"
             onClick={() => onAddToCart()}
-          >Add to Cart</button>
+          >
+            Add to Cart
+          </button>
         </div>
       </div>
     </div>
