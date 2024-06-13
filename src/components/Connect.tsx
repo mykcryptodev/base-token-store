@@ -9,6 +9,7 @@ import { useConnect, useAccount, useDisconnect, useWalletClient, useSwitchChain 
 import { viemAdapter } from "thirdweb/adapters/viem";
 import { defineChain } from "thirdweb";
 import { ChartPieIcon } from "@heroicons/react/24/outline";
+import useShortenedAddress from "~/hooks/useShortenedAddress";
 
 export const Connect: FC = () => {
   const account = useActiveAccount();
@@ -19,6 +20,7 @@ export const Connect: FC = () => {
   const { data: walletClient } = useWalletClient();
   const setActiveWallet = useSetActiveWallet();
   const [isMounted, setIsMounted] = useState<boolean>(false);
+  const { getShortenedAddress } = useShortenedAddress();
 
   useEffect(() => setIsMounted(true), []);
   
@@ -51,10 +53,10 @@ export const Connect: FC = () => {
   if (!isMounted) {
     return (
       <button
-        className="btn btn-primary"
+        className="btn btn-secondary"
         disabled
       >
-        Connect Wallet
+        Connect wallet
       </button>
     )
   }
@@ -62,12 +64,20 @@ export const Connect: FC = () => {
   if (!wagmiAccount.isConnected) {
     const connector = connectors[0]!;
     return (
-      <button
-        className="btn btn-primary"
-        onClick={() => void connect({connector})}
-      >
-        Connect Wallet
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          className="btn btn-secondary lg:btn-lg"
+          onClick={() => void connect({connector})}
+        >
+          Connect wallet
+        </button>
+        <button
+          className="btn btn-neutral lg:btn-lg"
+          onClick={() => void connect({connector})}
+        >
+          Create wallet
+        </button>
+      </div>
     ); 
   }
 
@@ -78,6 +88,13 @@ export const Connect: FC = () => {
         chain={DEFAULT_CHAIN}
         theme="light"
         wallets={[createWallet("com.coinbase.wallet")]}
+        detailsButton={{
+          render: () => (
+            <button className="btn btn-secondary lg:btn-lg">
+              {getShortenedAddress(account?.address)}
+            </button>
+          )
+        }}
         appMetadata={{
           name: APP_NAME,
           description: "A marketplace for tokens and memes",
