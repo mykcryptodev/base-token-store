@@ -21,3 +21,7 @@ body {
     margin: 0;
   }
 }
+
+.btn {
+  @apply font-normal;
+}
