@@ -27,6 +27,7 @@ export const Connect: FC = () => {
       if (walletClient) {
         // adapt the walletClient to a thirdweb account
         const adaptedAccount = viemAdapter.walletClient.fromViem({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
           walletClient: walletClient as any, // accounts for wagmi/viem version mismatches
         });
         // create the thirdweb wallet with the adapted account
@@ -38,14 +39,14 @@ export const Connect: FC = () => {
             await disconnectAsync();
           },
           switchChain: async (chain) => {
-            await switchChainAsync({ chainId: chain.id as any });
+            await switchChainAsync({ chainId: chain.id });
           },
         });
-        setActiveWallet(thirdwebWallet);
+        void setActiveWallet(thirdwebWallet);
       }
     };
-    setActive();
-  }, [walletClient]);
+    void setActive();
+  }, [disconnectAsync, setActiveWallet, switchChainAsync, walletClient]);
 
   if (!isMounted) {
     return (

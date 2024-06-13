@@ -8,13 +8,12 @@ import { api } from '~/utils/api';
 import { useCapabilities } from "thirdweb/wallets/eip5792";
 import { useSendCalls } from 'wagmi/experimental'
 import { client } from '~/providers/Thirdweb';
-import { useActiveAccount, useActiveWallet } from 'thirdweb/react';
+import { useActiveAccount } from 'thirdweb/react';
 import { DEFAULT_CHAIN } from '~/constants/chain';
 
 const Cart: FC = () => {
   const { sendCalls } = useSendCalls()
   const { data: capabilities } = useCapabilities();
-  const wallet = useActiveWallet();
   const { cart, updateItem, deleteItem } = useCartContext();
   const account = useActiveAccount();
   const { data: etherPrice } = api.dex.getEtherPrice.useQuery({
@@ -38,13 +37,6 @@ const Cart: FC = () => {
         from: account?.address ?? ADDRESS_ZERO,
         to: account?.address ?? ADDRESS_ZERO,
       });
-      const calls = encodedData.map(swap => prepareTransaction({
-        to: swap.data.routerAddress as `0x${string}`,
-        data: swap.data.data as `0x${string}`,
-        value: BigInt(swap.data.amountIn),
-        chain: DEFAULT_CHAIN,
-        client,
-      }));
       sendCalls({
         calls: encodedData.map(swap => ({
           to: swap.data.routerAddress as `0x${string}`,
