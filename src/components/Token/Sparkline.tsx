@@ -50,7 +50,7 @@ export const Sparkline: FC<Props> = ({ data }) => {
       series={series} 
       type="line" 
       height={"100%"} 
-      width={50}
+      width={"100%"}
     />
   )
 }
