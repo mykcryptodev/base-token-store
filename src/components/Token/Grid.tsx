@@ -9,7 +9,7 @@ import useDebounce from "~/hooks/useDebounce";
 import Link from "next/link";
 
 export const TokenGrid: FC = () => {
-  const { data: tokens } = api.coingecko.getTokens.useQuery({
+  const { data: tokens, isLoading } = api.coingecko.getTokens.useQuery({
     category: 'base-meme-coins',
     sparkline: true,
   }, {
@@ -47,6 +47,21 @@ export const TokenGrid: FC = () => {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4 place-content-center">
         {filteredTokens?.map((token) => <TokenCard key={token.id} token={token as TokenListResponse} />)}
+        {isLoading && Array.from({ length: tokensPerPage }, (_, index) => (
+          <div key={index} className="card w-60 bg-base-100 h-80 shadow-xl raise-on-hover cursor-pointer">
+            <div className="bg-base-300 w-full h-52 rounded-t-lg animate-pulse" />
+            <div className="card-body p-4 animate-pulse">
+              <div className="bg-base-300 w-32 rounded h-6" />
+              <div className="flex w-full justify-between items-center gap-2">
+                <div className="bg-base-300 w-20 rounded h-6" />
+                <div className="bg-base-300 w-12 rounded h-6" />
+                <div className="bg-base-300 w-8 rounded h-6" />
+                <div className="bg-base-300 w-8 rounded h-6" />
+              </div>
+              <div className="bg-base-300 w-28 rounded-lg self-end h-12" />
+            </div>
+          </div>
+        ))}
       </div>
       <div className="flex w-full justify-end">
         <Link href="https://coingecko.com" target="_blank" rel="noopener noreferrer" className="flex gap-1 items-center">
