@@ -20,7 +20,7 @@ export const TokenCard: FC<Props> = ({ token }) => {
       <div className="absolute inset-0 bg-cover filter blur-lg" style={{ backgroundImage: `url(${token.image})`, transform: 'scale(2)', opacity: 0.15, pointerEvents: 'none' }}></div>
       <div className="card-body p-4">
         <div className="flex w-full justify-between items-center gap-2">
-          <Image src={token.image} alt={token.name} width={32} height={32} className="rounded-full" />
+          <Image src={token.image} alt={token.name} width={100} height={100} className="rounded-full w-12 h-12" />
           <div className="flex flex-col">
             <span>${token.current_price.toPrecision(2)}</span>
             <span 
