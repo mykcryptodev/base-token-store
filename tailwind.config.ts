@@ -23,6 +23,8 @@ export default {
           "base-content": "#011046",
           "secondary": "#ECEFFA",
           "secondary-content": "#011046",
+          "neutral": "#1E2025",
+          "neutral-content": "#FFFFFF",
           "--rounded-btn": "9999px",
         },
       }

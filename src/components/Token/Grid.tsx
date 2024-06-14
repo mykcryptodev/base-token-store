@@ -39,7 +39,7 @@ export const TokenGrid: FC = () => {
       <div className="flex justify-center">
         <input 
           type="text" 
-          placeholder="Search" 
+          placeholder="Search Base tokens..." 
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="input input-bordered w-full sm:w-2/3 md:w-4/6 lg:w-1/2"
@@ -80,7 +80,7 @@ export const TokenGrid: FC = () => {
           {Array.from({ length: totalPages }, (_, index) => (
             <button
               key={index + 1}
-              className={`join-item btn ${currentPage === index + 1 ? 'btn-active' : ''}`}
+              className={`join-item btn btn-secondary ${currentPage === index + 1 ? 'btn-active' : ''}`}
               onClick={() => paginate(index + 1)}
             >
               {index + 1}
