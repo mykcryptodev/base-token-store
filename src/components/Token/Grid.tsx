@@ -9,8 +9,13 @@ import useDebounce from "~/hooks/useDebounce";
 import Link from "next/link";
 
 export const TokenGrid: FC = () => {
+  const categories = [
+    'base-meme-coins',
+    'base-ecosystem',
+  ];
+  const [category, setCategory] = useState<string>('base-meme-coins');
   const { data: tokens, isLoading } = api.coingecko.getTokens.useQuery({
-    category: 'base-meme-coins',
+    category,
     sparkline: true,
   }, {
     refetchOnMount: false,
@@ -44,6 +49,18 @@ export const TokenGrid: FC = () => {
           onChange={(e) => setQuery(e.target.value)}
           className="input input-bordered w-full sm:w-2/3 md:w-4/6 lg:w-1/2"
         />
+      </div>
+      <div className="flex justify-center gap-4">
+        {categories.map((cat) => (
+          <button 
+            key={cat} 
+            onClick={() => setCategory(cat)}
+            className={`btn btn-secondary ${category === cat ? 'btn-active' : ''}`}
+          >
+            {/* replace base- and then uppercase first letter */}
+            {cat.replace('base-', '').replace('-', ' ').replace(/^\w/, (c) => c.toUpperCase())}
+          </button>
+        ))}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4 place-content-center">
         {filteredTokens?.map((token) => <TokenCard key={token.id} token={token as TokenListResponse} />)}
