@@ -1,14 +1,13 @@
 import { useEffect, type FC, useState } from "react";
-import Link from "next/link";
 import { ConnectButton, useActiveAccount, useSetActiveWallet } from "thirdweb/react";
 import { client } from "~/providers/Thirdweb";
 import { createWallet, createWalletAdapter } from "thirdweb/wallets";
 import { DEFAULT_CHAIN } from "~/constants/chain";
-import { APP_NAME } from "~/constants";
+import { APP_DESCRIPTION, APP_NAME } from "~/constants";
 import { useConnect, useAccount, useDisconnect, useWalletClient, useSwitchChain } from "wagmi";
 import { viemAdapter } from "thirdweb/adapters/viem";
 import { defineChain } from "thirdweb";
-import { ChartPieIcon } from "@heroicons/react/24/outline";
+import useShortenedAddress from "~/hooks/useShortenedAddress";
 
 export const Connect: FC = () => {
   const account = useActiveAccount();
@@ -19,6 +18,7 @@ export const Connect: FC = () => {
   const { data: walletClient } = useWalletClient();
   const setActiveWallet = useSetActiveWallet();
   const [isMounted, setIsMounted] = useState<boolean>(false);
+  const { getShortenedAddress } = useShortenedAddress();
 
   useEffect(() => setIsMounted(true), []);
   
@@ -51,10 +51,10 @@ export const Connect: FC = () => {
   if (!isMounted) {
     return (
       <button
-        className="btn btn-primary"
+        className="btn btn-secondary"
         disabled
       >
-        Connect Wallet
+        Connect wallet
       </button>
     )
   }
@@ -62,12 +62,20 @@ export const Connect: FC = () => {
   if (!wagmiAccount.isConnected) {
     const connector = connectors[0]!;
     return (
-      <button
-        className="btn btn-primary"
-        onClick={() => void connect({connector})}
-      >
-        Connect Wallet
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          className="btn btn-secondary lg:btn-lg"
+          onClick={() => void connect({connector})}
+        >
+          Connect wallet
+        </button>
+        <button
+          className="btn btn-neutral lg:btn-lg"
+          onClick={() => void connect({connector})}
+        >
+          Create wallet
+        </button>
+      </div>
     ); 
   }
 
@@ -78,15 +86,19 @@ export const Connect: FC = () => {
         chain={DEFAULT_CHAIN}
         theme="light"
         wallets={[createWallet("com.coinbase.wallet")]}
+        detailsButton={{
+          render: () => (
+            <button className="btn btn-secondary lg:btn-lg">
+              {getShortenedAddress(account?.address)}
+            </button>
+          )
+        }}
         appMetadata={{
           name: APP_NAME,
-          description: "A marketplace for tokens and memes",
+          description: APP_DESCRIPTION,
           logoUrl: "https://avatars.githubusercontent.com/u/108554348?s=200&v=4"
         }}
       />
-      <Link href={`/profile/${account?.address}`} className="btn btn-ghost flex h-10 items-center space-x-2">
-        <ChartPieIcon className="h-6 w-6" />
-      </Link>
     </div>
   )
 };

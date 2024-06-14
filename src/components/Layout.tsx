@@ -1,56 +1,59 @@
 import { type FC, type ReactNode } from "react"
 import Link from "next/link";
 import { Connect } from "~/components/Connect";
-import { ShoppingBagIcon } from "@heroicons/react/24/outline";
+import { ChartPieIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
 import Cart from "~/components/Cart";
 import Image from "next/image";
 import { APP_NAME } from "~/constants";
+import { Footer } from "~/components/Footer";
+import { useActiveAccount } from "thirdweb/react";
 
 interface LayoutProps {
   children: ReactNode
 }
 
 export const Layout: FC<LayoutProps> = ({ children }) => {
-  const fromBlue = "from-[#0052FF]";
-  const toTransparent = "to-transparent";
-  const viaBlue = "via-[#0052FF]";
+  const account = useActiveAccount();
 
   return (
-    <div className="drawer drawer-end">
+    <div className="drawer drawer-end tracking-tight">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         <div className="block">
-          <div className={`absolute bg-gradient-to-t ${fromBlue} ${toTransparent} rounded-full blur-3xl -top-[85%] -left-[45%] w-full h-full -z-10 opacity-30`} ></div>
-          <div className={`fixed bg-gradient-to-br ${fromBlue} ${viaBlue} ${toTransparent} rounded-full blur-3xl -bottom-0 -right-[100%] w-full h-full -z-10 opacity-30`}></div>
-          <div className={`fixed bg-gradient-to-br ${fromBlue} ${viaBlue} ${toTransparent} rounded-full blur-3xl -bottom-0 -left-[55%] w-1/2 h-full -z-10 opacity-30`}></div>
-          <div className={`fixed bg-gradient-to-bl ${fromBlue} ${viaBlue} rounded-full -top-[-85%] blur-3xl -left-[35%] w-full h-full -z-10 opacity-30`}></div>
-          <div className="overflow-x-hidden max-w-7xl mx-auto min-h-screen mt-10">
+          <div style={{ backgroundImage: `url('/images/full-width-text.svg')` }} className="w-full bg-center bg-no-repeat h-96 absolute -top-48 -z-10" ></div>
+          <div className="overflow-x-hidden max-w-7xl mx-auto min-h-screen mt-28">
             <div className="w-full justify-between items-center flex mr-4">
-              <div className="flex items-center gap-2">
-                <Link href="/" className="btn btn-ghost rounded-full text-neutral ml-4">
-                  <div className="sm:flex hidden">
-                    <Image src="/images/logo-horizontal.png" alt={APP_NAME} className="h-6 w-auto" width={200} height={200} priority /> 
-                  </div>
-                  <div className="sm:hidden flex">
-                    <Image src="/images/logo-vertical.png" alt={APP_NAME} className="h-12 w-auto" width={200} height={200} priority /> 
-                  </div>
+              <div className="w-full sm:flex hidden" />
+              <div className="sm:w-full w-fit flex items-center justify-start sm:justify-center gap-2">
+                <Link href="/">
+                  <Image src="/images/logo-horizontal.svg" alt={APP_NAME} className="lg:h-16 h-12 w-auto sm:flex hidden" width={200} height={200} priority />
                 </Link>
               </div>
-              <div className="flex items-center gap-2">
-                <Connect />
-                <div className="indicator">
-                  <label htmlFor="my-drawer" className="btn btn-ghost drawer-button">
-                    <ShoppingBagIcon className="h-6 w-6" /> 
-                  </label>
+              <div className="w-full flex items-center gap-2 justify-center sm:justify-end">
+                {account && (<div className="w-full sm:hidden flex" />)}
+                <div className="w-full flex justify-end">
+                  <Connect />
                 </div>
-
+                <div className="flex justfiy-end">
+                  {account && (
+                    <Link href={`/profile/${account?.address}`} className="btn btn-ghost flex h-10 items-center space-x-2">
+                      <ChartPieIcon className="h-6 w-6" />
+                    </Link>
+                  )}
+                  <div className="indicator">
+                    <label htmlFor="my-drawer" className="btn btn-ghost drawer-button">
+                      <ShoppingBagIcon className="h-6 w-6" /> 
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
             {children}
           </div>
+          <Footer />
         </div>
       </div> 
-      <div className="drawer-side">
+      <div className="drawer-side z-20">
         <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
         <ul className="menu p-4 min-w-96 w-3/5 min-h-full bg-base-200 text-base-content">
           <Cart />

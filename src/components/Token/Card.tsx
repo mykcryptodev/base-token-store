@@ -41,7 +41,7 @@ export const TokenCard: FC<Props> = ({ token }) => {
         </div>
         <div className="card-actions">
           <button 
-            className="btn btn-primary rounded-full"
+            className="btn btn-primary z-10"
             onClick={async () => {
               console.log({ token, cart });
               const alreadyInCart = cart.find((item) => item.id === token.id);
