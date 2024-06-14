@@ -1,7 +1,7 @@
 // hooks/useCart.ts
 import { useState, useEffect } from 'react';
 
-interface CartItem {
+export interface CartItem {
   id: string;
   address: string;
   decimals: number;
