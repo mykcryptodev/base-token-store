@@ -1,14 +1,12 @@
 import { useEffect, type FC, useState } from "react";
-import Link from "next/link";
 import { ConnectButton, useActiveAccount, useSetActiveWallet } from "thirdweb/react";
 import { client } from "~/providers/Thirdweb";
 import { createWallet, createWalletAdapter } from "thirdweb/wallets";
 import { DEFAULT_CHAIN } from "~/constants/chain";
-import { APP_NAME } from "~/constants";
+import { APP_DESCRIPTION, APP_NAME } from "~/constants";
 import { useConnect, useAccount, useDisconnect, useWalletClient, useSwitchChain } from "wagmi";
 import { viemAdapter } from "thirdweb/adapters/viem";
 import { defineChain } from "thirdweb";
-import { ChartPieIcon } from "@heroicons/react/24/outline";
 import useShortenedAddress from "~/hooks/useShortenedAddress";
 
 export const Connect: FC = () => {
@@ -97,13 +95,10 @@ export const Connect: FC = () => {
         }}
         appMetadata={{
           name: APP_NAME,
-          description: "A marketplace for tokens and memes",
+          description: APP_DESCRIPTION,
           logoUrl: "https://avatars.githubusercontent.com/u/108554348?s=200&v=4"
         }}
       />
-      <Link href={`/profile/${account?.address}`} className="btn btn-ghost flex h-10 items-center space-x-2">
-        <ChartPieIcon className="h-6 w-6" />
-      </Link>
     </div>
   )
 };
