@@ -1,19 +1,52 @@
 import { type FC } from "react";
 import { type TokenListResponse } from "~/types/coingecko";
+import { useState } from 'react'
 import Image from "next/image";
 import Sparkline from "~/components/Token/Sparkline";
 import { useCartContext } from "~/contexts/Cart";
 import { api } from "~/utils/api";
+import { CartItem } from "~/hooks/useCart";
 
 type Props = {
   token: TokenListResponse;
 }
 export const TokenCard: FC<Props> = ({ token }) => {
+  const [loading, setLoading] = useState(false)
   const { cart, addItem } = useCartContext();
   const { mutateAsync: getTokenInfo } = api.coingecko.getTokenById.useMutation();
   const price7dAgo = token.sparkline_in_7d.price[0] ?? 0;
   const priceNow = token.sparkline_in_7d.price[token.sparkline_in_7d.price.length - 1] ?? 0;
   const sevenDayPercentDiff = ((priceNow - price7dAgo) / price7dAgo) * 100;
+
+  const onAddToCart = async () => {
+    // Add logic check here for prevent race condition
+    if (loading) return;
+    setLoading(true);
+    console.log({ token, cart });
+    const alreadyInCart = cart.find((item: CartItem) => item.id === token.id);
+
+    const tokenInfo = await getTokenInfo({
+      id: token.id,
+    });
+    const baseAddress = tokenInfo.platforms?.base ?? cart.find((item: CartItem) => item.id === token.id)?.address;
+    const baseDecimals = tokenInfo.detail_platforms?.base?.decimal_place ?? 18;
+    if (!baseAddress) return setLoading(false);
+    if (!alreadyInCart) {
+      addItem({ 
+        id: token.id,
+        address: baseAddress,
+        decimals: baseDecimals,
+        symbol: token.symbol,
+        name: token.name,
+        usdAmountDesired: 1, 
+        price: token.current_price,
+        img: token.image,
+      });
+    }
+    setLoading(false);
+    // pop the side drawer
+    document.getElementById('my-drawer')?.click();
+  };
 
   return (
     <div className="card max-w-[236px] min-h-[300px] bg-base-100 raise-on-hover cursor-pointer overflow-hidden" key={token.id}>
@@ -41,32 +74,9 @@ export const TokenCard: FC<Props> = ({ token }) => {
         </div>
         <div className="card-actions">
           <button 
+            disabled={loading}
             className="btn btn-primary z-10"
-            onClick={async () => {
-              console.log({ token, cart });
-              const alreadyInCart = cart.find((item) => item.id === token.id);
-
-              const tokenInfo = await getTokenInfo({
-                id: token.id,
-              });
-              const baseAddress = tokenInfo.platforms?.base ?? cart.find((item) => item.id === token.id)?.address;
-              const baseDecimals = tokenInfo.detail_platforms?.base?.decimal_place ?? 18;
-              if (!baseAddress) return;
-              if (!alreadyInCart) {
-                addItem({ 
-                  id: token.id,
-                  address: baseAddress,
-                  decimals: baseDecimals,
-                  symbol: token.symbol,
-                  name: token.name,
-                  usdAmountDesired: 1, 
-                  price: token.current_price,
-                  img: token.image,
-                });
-              }
-              // pop the side drawer
-              document.getElementById('my-drawer')?.click();
-            }}
+            onClick={() => onAddToCart()}
           >Add to cart</button>
         </div>
       </div>
