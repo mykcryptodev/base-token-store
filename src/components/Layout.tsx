@@ -31,7 +31,7 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
               </div>
               <div className="w-full flex items-center gap-2 justify-center sm:justify-end">
                 {account && (<div className="w-full sm:hidden flex" />)}
-                <div className="w-full flex justify-end sm:mr-0 mr-[1.25rem]">
+                <div className="w-full flex justify-end">
                   <Connect />
                 </div>
                 <div className="flex justfiy-end">
