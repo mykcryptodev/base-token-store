@@ -48,17 +48,21 @@ export const TokenGrid: FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4 place-content-center">
         {filteredTokens?.map((token) => <TokenCard key={token.id} token={token as TokenListResponse} />)}
         {isLoading && Array.from({ length: tokensPerPage }, (_, index) => (
-          <div key={index} className="card w-60 bg-base-100 h-80 shadow-xl raise-on-hover cursor-pointer">
-            <div className="bg-base-300 w-full h-52 rounded-t-lg animate-pulse" />
+          <div key={index} className="card w-60 bg-base-200 h-96 raise-on-hover cursor-pointer">
             <div className="card-body p-4 animate-pulse">
-              <div className="bg-base-300 w-32 rounded h-6" />
-              <div className="flex w-full justify-between items-center gap-2">
-                <div className="bg-base-300 w-20 rounded h-6" />
-                <div className="bg-base-300 w-12 rounded h-6" />
-                <div className="bg-base-300 w-8 rounded h-6" />
-                <div className="bg-base-300 w-8 rounded h-6" />
+              <div className="flex items-center justify-between gap-2">
+                <div className="bg-base-300 w-14 rounded-full h-14" />
+                <div className="flex flex-col gap-2">
+                  <div className="bg-base-300 w-20 rounded h-4" />
+                  <div className="bg-base-300 w-20 rounded h-4" />
+                </div>
               </div>
-              <div className="bg-base-300 w-28 rounded-lg self-end h-12" />
+              <div className="flex flex-col gap-1">
+                <div className="bg-base-300 w-32 rounded h-6" />
+                <div className="bg-base-300 w-20 rounded h-4" />
+              </div>
+              <div className="bg-base-300 w-full h-44 rounded-lg" />
+              <div className="bg-base-300 w-28 rounded-full h-12" />
             </div>
           </div>
         ))}
