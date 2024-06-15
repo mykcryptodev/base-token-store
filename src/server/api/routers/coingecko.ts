@@ -135,6 +135,56 @@ export const coingeckoRouter = createTRPCRouter({
       const json = await res.json() as { image: { large: string } };
       return json.image.large ?? COINGECKO_UNKNOWN_IMG;
     }),
+  searchTokens: publicProcedure
+    .input(z.object({
+      query: z.string(),
+    }))
+    .query(async ({ input }) => {
+        const searchParams = new URLSearchParams({
+          query: input.query,
+          x_cg_demo_api_key: env.COINGECKO_API_KEY,
+        });
+        const res = await fetch(`https://api.coingecko.com/api/v3/search?${searchParams.toString()}`);
+        const idsJson = await res.json() as { coins: { id: string, name: string }[] };
+        const ids = idsJson.coins.filter(token => !token.name.includes('(OLD)') && !token.name.includes('[OLD]')).map((token) => token.id);
+
+        const platformAndStatusParams = new URLSearchParams({
+          include_platform: 'true',
+          status: 'active',
+          x_cg_demo_api_key: env.COINGECKO_API_KEY,
+        });
+        const platformAndStatusRes = await fetch(`https://api.coingecko.com/api/v3/coins/list?${platformAndStatusParams.toString()}`);
+        const platformAndStatusJson = await platformAndStatusRes.json() as { id: string, platforms: { base?: string } }[];
+        const baseTokens = platformAndStatusJson.filter((token) => ids.includes(token.id) && token.platforms?.base);
+
+        const basetTokenIds = ids.filter((id) => baseTokens.find((token) => token.id === id));
+        if (!basetTokenIds.length) return [];
+
+        const tokenDataParms = new URLSearchParams({
+          ids: basetTokenIds.map((id) => id).join(',') ?? '',
+          vs_currency: 'usd',
+          sparkline: 'true',
+          x_cg_demo_api_key: env.COINGECKO_API_KEY,
+        });
+        const tokenData = await fetch(`https://api.coingecko.com/api/v3/coins/markets?${tokenDataParms.toString()}`);
+        const tokenDataJson = await tokenData.json() as TokenListResponse[];
+        return tokenDataJson;
+    }),
+  getTokenCardDataById: publicProcedure
+    .input(z.object({
+      id: z.string(),
+    }))
+    .query(async ({ input }) => {
+      const tokenDataParms = new URLSearchParams({
+        ids: input.id,
+        vs_currency: 'usd',
+        sparkline: 'true',
+        x_cg_demo_api_key: env.COINGECKO_API_KEY,
+      });
+      const tokenData = await fetch(`https://api.coingecko.com/api/v3/coins/markets?${tokenDataParms.toString()}`);
+      const tokenDataJson = await tokenData.json() as TokenListResponse[];
+      return tokenDataJson[0];
+    }),
   getTokenById: publicProcedure
     .input(z.object({
       id: z.string(),

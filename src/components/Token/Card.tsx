@@ -9,8 +9,9 @@ import { type CartItem } from "~/hooks/useCart";
 
 type Props = {
   token: TokenListResponse;
+  overrideWidth?: string;
 }
-export const TokenCard: FC<Props> = ({ token }) => {
+export const TokenCard: FC<Props> = ({ token, overrideWidth }) => {
   const [loading, setLoading] = useState(false)
   const { cart, addItem } = useCartContext();
   const { mutateAsync: getTokenInfo } = api.coingecko.getTokenById.useMutation();
@@ -49,21 +50,28 @@ export const TokenCard: FC<Props> = ({ token }) => {
   };
 
   return (
-    <div className="card max-w-[236px] min-h-[300px] bg-base-100 raise-on-hover cursor-pointer overflow-hidden" key={token.id}>
+    <div className={`card max-w-[${overrideWidth ?? '236px'}] min-h-[300px] bg-base-100 raise-on-hover cursor-pointer overflow-hidden`} key={token.id}>
       <div className="absolute inset-0 bg-cover filter blur-lg" style={{ backgroundImage: `url(${token.image})`, transform: 'scale(2)', opacity: 0.15, pointerEvents: 'none' }}></div>
       <div className="card-body p-4">
         <div className="flex w-full justify-between items-center gap-2">
           <Image src={token.image} alt={token.name} width={100} height={100} className="rounded-full w-12 h-12" />
-          <div className="flex flex-col">
-            <span>${token.current_price.toPrecision(2)}</span>
-            <span 
-              className={`text-right ${sevenDayPercentDiff > 0 ? 'text-success' : 'text-error'}`}
-            >
-              {sevenDayPercentDiff > 0 && '+'}
-              {/* truncate % change to 1 decimal place */}
-              {sevenDayPercentDiff.toString().replace(/(\.\d{1})\d+/, "$1")}%
-            </span>
-          </div>
+          {token.current_price ? (
+            <div className="flex flex-col">
+              <span>${token.current_price?.toPrecision(2)}</span>
+              <span 
+                className={`text-right ${sevenDayPercentDiff > 0 ? 'text-success' : 'text-error'}`}
+              >
+                {sevenDayPercentDiff > 0 && '+'}
+                {/* truncate % change to 1 decimal place */}
+                {sevenDayPercentDiff.toString().replace(/(\.\d{1})\d+/, "$1")}%
+              </span>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1">
+              <span className="bg-base-200 w-20 h-6 rounded" />
+              <span className="bg-base-200 w-20 h-6 rounded" />
+            </div>
+          )}
         </div>
         <h2 className="card-title grid grid-rows-2 gap-0">
           <span>{token.name.replace("(Base)", "")}</span>
