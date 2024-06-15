@@ -82,7 +82,7 @@ export const TokenCard: FC<Props> = ({ token }) => {
         <div className="card-actions">
           <button 
             disabled={loading}
-            className="btn btn-primary z-10 cursor-pointer"
+            className="btn btn-primary z-10"
             onClick={() => onAddToCart()}
           >Add to cart</button>
         </div>
