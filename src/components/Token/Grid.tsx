@@ -59,7 +59,7 @@ export const TokenGrid: FC = () => {
   }, [tokens, searchedTokens]);
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="sm:max-w-5xl mx-auto">
       <div className="flex flex-col gap-8 min-w-full">
         <div className="flex justify-center">
           <input 
@@ -83,7 +83,7 @@ export const TokenGrid: FC = () => {
           ))}
         </div>
         <div 
-          className={`grid grid-cols-1 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4 place-content-center ${
+          className={`flex flex-wrap items-stretch w-full justify-center gap-4 ${
             !filteredTokens?.length && !searchedTokensNotInCategory.length && !searchIsLoading && !tokensIsLoading && !searchIsLoading ? 'hidden' : ''
           }`}>
           {filteredTokens?.map((token) => <TokenCard key={token.id} token={token as TokenListResponse} />)}
@@ -136,7 +136,7 @@ export const TokenGrid: FC = () => {
                 </div>
               </div>
             </div>
-            <TokenCard key={fallbackToken.id} token={fallbackToken} overrideWidth="300px" />
+            <TokenCard key={fallbackToken.id} token={fallbackToken} />
           </div>
         )}
         <div className="flex w-full justify-end">

@@ -9,9 +9,8 @@ import { type CartItem } from "~/hooks/useCart";
 
 type Props = {
   token: TokenListResponse;
-  overrideWidth?: string;
 }
-export const TokenCard: FC<Props> = ({ token, overrideWidth }) => {
+export const TokenCard: FC<Props> = ({ token }) => {
   const [loading, setLoading] = useState(false)
   const { cart, addItem } = useCartContext();
   const { mutateAsync: getTokenInfo } = api.coingecko.getTokenById.useMutation();
@@ -50,7 +49,7 @@ export const TokenCard: FC<Props> = ({ token, overrideWidth }) => {
   };
 
   return (
-    <div className={`card max-w-[${overrideWidth ?? '236px'}] min-h-[300px] bg-base-100 raise-on-hover cursor-pointer overflow-hidden`} key={token.id}>
+    <div className={`card max-w-[236px] min-h-[300px] bg-base-100 raise-on-hover cursor-pointer overflow-hidden`} key={token.id}>
       <div className="absolute inset-0 bg-cover filter blur-lg" style={{ backgroundImage: `url(${token.image})`, transform: 'scale(2)', opacity: 0.15, pointerEvents: 'none' }}></div>
       <div className="card-body p-4">
         <div className="flex w-full justify-between items-center gap-2">
@@ -74,7 +73,7 @@ export const TokenCard: FC<Props> = ({ token, overrideWidth }) => {
           )}
         </div>
         <h2 className="card-title grid grid-rows-2 gap-0">
-          <span>{token.name.replace("(Base)", "")}</span>
+          <span className="whitespace-nowrap truncate">{token.name.replace("(Base)", "")}</span>
           <span className="text-sm opacity-75 font-normal -mt-2">${token.symbol.toLowerCase()}</span>
         </h2>
         <div className="w-full h-42">
