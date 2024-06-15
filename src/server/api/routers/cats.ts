@@ -33,16 +33,6 @@ export const catsRouter = createTRPCRouter({
       }).toString();
     
       const catRes = await fetch(`https://cataas.com/cat/says/${urlEncodedText}?${params}`);
-      console.log(`
-      
-      
-      
-      === CAT PIC ===
-      
-      
-      
-      `)
-      console.log(catRes);
       const catArrayBuffer = await catRes.arrayBuffer();
       const catImage = Buffer.from(catArrayBuffer);
       return `data:${catRes.headers.get('content-type')};base64,${catImage.toString('base64')}`;
