@@ -181,7 +181,7 @@ export const kyberswapRouter = createTRPCRouter({
       }
 
       const deadline = input.deadline ?? new Date().getTime() + 20 * 60 * 1000;
-      const slippage = input.slippage ?? 600; // 6%
+      const slippage = input.slippage ?? 500; // 5%
 
       const tokenIn = NATIVE_TOKEN_ADDRESS;
       const chainName = CHAIN_NAME_MAP[chainId];
@@ -235,7 +235,7 @@ async function getSwapEncodedData (routeSummary: RouteSummary, chainName: string
     },
     body: JSON.stringify({
       "routeSummary": routeSummary,
-      "slippage": slippage,
+      "slippageTolerance": slippage,
       "deadline": deadline,
       "sender": from,
       "recipient": to,
