@@ -9,18 +9,20 @@ import Thirdweb from "~/providers/Thirdweb";
 import { CartProvider } from "~/contexts/Cart";
 import { ActiveChainProvider } from "~/contexts/ActiveChain";
 import { Wagmi } from "~/providers/Wagmi";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ['latin'] });
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
-    <main className={inter.className}>
+  <main className={inter.className}>
       <ActiveChainProvider>
         <Wagmi>
           <Thirdweb>
             <CartProvider>
               <Layout>
                 <Component {...pageProps} />
+                <Analytics />
               </Layout>
               <div id="portal" />
             </CartProvider>

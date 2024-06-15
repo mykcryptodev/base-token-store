@@ -5,7 +5,7 @@ import Image from "next/image";
 import Sparkline from "~/components/Token/Sparkline";
 import { useCartContext } from "~/contexts/Cart";
 import { api } from "~/utils/api";
-import { CartItem } from "~/hooks/useCart";
+import { type CartItem } from "~/hooks/useCart";
 
 type Props = {
   token: TokenListResponse;
