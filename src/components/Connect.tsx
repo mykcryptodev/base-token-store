@@ -8,6 +8,7 @@ import { useConnect, useAccount, useDisconnect, useWalletClient, useSwitchChain 
 import { viemAdapter } from "thirdweb/adapters/viem";
 import { defineChain } from "thirdweb";
 import useShortenedAddress from "~/hooks/useShortenedAddress";
+import { useTheme } from "next-themes";
 
 export const Connect: FC = () => {
   const account = useActiveAccount();
@@ -19,6 +20,7 @@ export const Connect: FC = () => {
   const setActiveWallet = useSetActiveWallet();
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const { getShortenedAddress } = useShortenedAddress();
+  const { theme } = useTheme();
 
   useEffect(() => setIsMounted(true), []);
   
@@ -84,7 +86,7 @@ export const Connect: FC = () => {
       <ConnectButton
         client={client}
         chain={DEFAULT_CHAIN}
-        theme="light"
+        theme={theme === 'dark' ? 'dark' : 'light'}
         wallets={[createWallet("com.coinbase.wallet")]}
         detailsButton={{
           render: () => (
