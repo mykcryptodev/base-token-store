@@ -67,13 +67,20 @@ export const Footer: FC = () => {
             ))}
           </div>
           <Link href="https://www.base.org/onchainsummer?utm_source=basetokenstore" target="_blank" rel="noreferrer">
-            <Image src="/images/onchainsummer.png" alt="Onchain Summer" className="h-16 w-fit" width={200} height={200} priority />
+            <Image src="/images/onchainsummer.png" alt="Onchain Summer" className="h-16 w-fit" width={200} height={200} />
           </Link>
           <Link href="https://github.com/mykcryptodev/base-token-store" className="flex items-center gap-2 text-sm" target="_blank" rel="noreferrer">
-            <Image src="/images/github.png" alt="Github" className="h-8 w-fit" width={50} height={50} priority />
+            <Image src="/images/github.png" alt="Github" className="h-8 w-fit" width={50} height={50} />
             <div className="flex flex-col">
               <span>Open source license</span>
               <span>Clone on GitHub</span>
+            </div>
+          </Link>
+          <Link href="https://github.com/mykcryptodev/base-token-store/issues/new" className="text-sm items-center flex gap-2" target="_blank" rel="noreferrer">
+            <Image src="/images/keren.webp" alt="Keren: Report an issue" className="h-8 w-fit" width={50} height={50} />
+            <div className="flex flex-col">
+              <span>Report an issue</span>
+              <span className="text-xs opacity-50">by $keren</span>
             </div>
           </Link>
           <Builders className="sm:hidden flex" />
