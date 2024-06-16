@@ -25,7 +25,7 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
           <div style={{ backgroundImage: `url('/images/full-width-text.svg')` }} className={`w-full bg-center bg-no-repeat h-96 absolute -top-48 -z-10 ${theme === 'dark' ? 'opacity-80' : ''}`} ></div>
           <div className="overflow-x-hidden max-w-7xl mx-auto min-h-screen mt-28">
             <div className="w-full justify-between items-center flex mr-4">
-              <div className="w-full">
+              <div className="sm:w-full sm:px-0 w-fit px-2">
                 <ThemeSwitch />
               </div>
               <div className="sm:w-full w-fit flex items-center justify-start sm:justify-center gap-2">

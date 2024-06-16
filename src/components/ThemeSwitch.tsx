@@ -31,7 +31,7 @@ const ThemeSwitch: FC<Props> = ({ toggle }) => {
   }
 
   return (
-    <div className="mx-auto w-full justify-center flex">
+    <div className="mx-auto w-fit justify-center flex">
       <label className="swap swap-rotate">
         <input type="checkbox" checked={theme === "winter"} onChange={() => setTheme(theme === "dark" ? "winter" : "dark")} />
         <div className="swap-on h-12 w-12 bg-gradient-to-b from-yellow-100 to-transparent rounded-full relative">
