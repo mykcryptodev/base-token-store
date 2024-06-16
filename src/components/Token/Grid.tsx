@@ -90,7 +90,7 @@ export const TokenGrid: FC = () => {
             <div className="flex w-full flex-col gap-2 justify-center">
               <div className="w-full flex items-center justify-center">
                 <div className="bg-warning w-14 rounded-full h-14 flex items-center justify-center">
-                  <ExclamationTriangleIcon className="h-8 w-8 stroke-2" />
+                  <ExclamationTriangleIcon className="h-8 w-8 stroke-2 text-warning-content" />
                 </div>
               </div>
               <div className="flex flex-col grow">

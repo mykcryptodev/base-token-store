@@ -2,8 +2,11 @@ import { type FC } from "react";
 import { APP_DESCRIPTION, APP_NAME } from "~/constants";
 import Image from "next/image";
 import Link from "next/link";
+import Logo from "~/components/Logo";
+import { useTheme } from "next-themes";
 
 export const Footer: FC = () => {
+  const { theme } = useTheme();
   const links = [
     {
       label: "About Smart Wallet",
@@ -43,7 +46,14 @@ export const Footer: FC = () => {
     <div className="overflow-hidden mx-auto bg-neutral text-neutral-content min-h-96 relative">
       <div className="flex sm:flex-row flex-col gap-4 justify-between w-full p-20 max-w-7xl mx-auto mb-40">
         <div className="flex flex-col gap-4">
-          <Image src="/images/logo-horizontal.svg" alt={APP_NAME} className="h-8 w-fit" width={200} height={200} priority />
+          <div className="w-full justify-start">
+            <Logo
+              shapesFill={`${theme === 'dark' ? '#C9CCD5' : '#FFFFFF'}`}
+              backgroundFill={`${theme === 'dark' ? '#000000' : '#1E4FFD'}`}
+              width={70}
+              height={25}
+            />
+          </div>
           <div className="text-4xl tracking-tighter">{APP_NAME}</div>
           <div className="text-sm -mt-3">{APP_DESCRIPTION}</div>
           <Builders className="sm:flex hidden" />
@@ -69,7 +79,7 @@ export const Footer: FC = () => {
           <Builders className="sm:hidden flex" />
         </div>
       </div>
-      <div style={{ backgroundImage: `url('/images/full-width-text.svg')` }} className="w-full bg-center bg-no-repeat h-40 absolute -bottom-5 z-10" ></div>
+      <div style={{ backgroundImage: `url('/images/full-width-text.svg')` }} className={`w-full bg-center bg-no-repeat h-40 absolute -bottom-5 z-10 ${theme === 'dark' ? 'opacity-80' : ''}`} ></div>
     </div>
   )
 };

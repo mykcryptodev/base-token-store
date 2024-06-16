@@ -27,6 +27,19 @@ export default {
           "neutral-content": "#FFFFFF",
           "--rounded-btn": "9999px",
         },
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        dark: {
+          // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/dot-notation, @typescript-eslint/no-unsafe-member-access
+          ...require("daisyui/src/theming/themes")["black"],
+          "primary": "#0033CC",
+          "primary-content": "#C9CCD5",
+          // "secondary": "#C9CCD5",
+          // "secondary-content": "#011046",
+          "warning": "#EFD7BB",
+          "warning-content": "#141414",
+          "--rounded-btn": "9999px",
+          "--rounded-box": "1rem",
+        },
       }
     ],
   },

@@ -3,10 +3,11 @@ import Link from "next/link";
 import { Connect } from "~/components/Connect";
 import { ChartPieIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
 import Cart from "~/components/Cart";
-import Image from "next/image";
-import { APP_NAME } from "~/constants";
 import { Footer } from "~/components/Footer";
 import { useActiveAccount } from "thirdweb/react";
+import ThemeSwitch from "./ThemeSwitch";
+import { useTheme } from "next-themes";
+import Logo from "~/components/Logo";
 
 interface LayoutProps {
   children: ReactNode
@@ -14,19 +15,27 @@ interface LayoutProps {
 
 export const Layout: FC<LayoutProps> = ({ children }) => {
   const account = useActiveAccount();
+  const { theme } = useTheme();
 
   return (
     <div className="drawer drawer-end tracking-tight">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         <div className="block">
-          <div style={{ backgroundImage: `url('/images/full-width-text.svg')` }} className="w-full bg-center bg-no-repeat h-96 absolute -top-48 -z-10" ></div>
+          <div style={{ backgroundImage: `url('/images/full-width-text.svg')` }} className={`w-full bg-center bg-no-repeat h-96 absolute -top-48 -z-10 ${theme === 'dark' ? 'opacity-80' : ''}`} ></div>
           <div className="overflow-x-hidden max-w-7xl mx-auto min-h-screen mt-28">
             <div className="w-full justify-between items-center flex mr-4">
-              <div className="w-full sm:flex hidden" />
+              <div className="w-full">
+                <ThemeSwitch />
+              </div>
               <div className="sm:w-full w-fit flex items-center justify-start sm:justify-center gap-2">
-                <Link href="/">
-                  <Image src="/images/logo-horizontal.svg" alt={APP_NAME} className="lg:h-16 h-12 w-auto sm:flex hidden" width={200} height={200} priority />
+                <Link href="/" className="sm:flex hidden">
+                  <Logo
+                    shapesFill={`${theme === 'dark' ? '#C9CCD5' : '#FFFFFF'}`}
+                    backgroundFill={`${theme === 'dark' ? '#000000' : '#1E4FFD'}`}
+                    width={200}
+                    height={50}
+                  />
                 </Link>
               </div>
               <div className="w-full flex items-center gap-2 justify-center sm:justify-end">
