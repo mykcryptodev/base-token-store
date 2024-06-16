@@ -16,6 +16,18 @@ const ThemeSwitch: FC<Props> = ({ toggle }) => {
     setMounted(true)
   }, []);
 
+  useEffect(() => {
+    if (theme === 'system') {
+      // find out if the user prefers dark or light
+      const darkQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      if (darkQuery.matches) {
+        setTheme('dark')
+      } else {
+        setTheme('winter')
+      }
+    }
+  }, [setTheme, theme]);
+
   if (!mounted) {
     return null
   }
@@ -33,7 +45,7 @@ const ThemeSwitch: FC<Props> = ({ toggle }) => {
   return (
     <div className="mx-auto w-fit justify-center flex">
       <label className="swap swap-rotate">
-        <input type="checkbox" checked={theme === "winter"} onChange={() => setTheme(theme === "dark" ? "winter" : "dark")} />
+        <input type="checkbox" checked={theme === 'winter'} onChange={() => setTheme(theme === "dark" ? "winter" : "dark")} />
         <div className="swap-on h-12 w-12 bg-gradient-to-b from-yellow-100 to-transparent rounded-full relative">
           <SunIcon className="h-4 w-4 text-yellow-500 absolute -top-.5 right-0 opacity-80" />
           <Image
