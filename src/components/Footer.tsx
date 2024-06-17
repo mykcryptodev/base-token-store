@@ -76,7 +76,7 @@ export const Footer: FC = () => {
               <span>Clone on GitHub</span>
             </div>
           </Link>
-          <Link href="https://github.com/mykcryptodev/base-token-store/issues/new" className="text-sm items-center flex gap-2" target="_blank" rel="noreferrer">
+          <Link href="https://www.complainonchain.xyz/mykcryptodev" className="text-sm items-center flex gap-2" target="_blank" rel="noreferrer">
             <Image src="/images/keren.webp" alt="Keren: Report an issue" className="h-8 w-fit" width={50} height={50} />
             <div className="flex flex-col">
               <span>Report an issue</span>
