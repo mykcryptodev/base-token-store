@@ -42,7 +42,7 @@ export const Sparkline: FC<Props> = ({ data }) => {
       min: Math.min(...data),
       max: Math.max(...data),
     },
-    colors: [trend === 'up' ? '#10B981' : '#EF4444'],
+    colors: [trend === 'up' ? '#10B981' : '#8a8d91'],
   } satisfies ApexOptions;
   return (
     <ReactApexChart 
