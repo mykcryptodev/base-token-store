@@ -7,8 +7,8 @@ import { APP_DESCRIPTION, APP_NAME } from "~/constants";
 import { useConnect, useAccount, useDisconnect, useWalletClient, useSwitchChain } from "wagmi";
 import { viemAdapter } from "thirdweb/adapters/viem";
 import { defineChain } from "thirdweb";
-import useShortenedAddress from "~/hooks/useShortenedAddress";
 import { useTheme } from "next-themes";
+import WalletName from "./WalletName";
 
 export const Connect: FC = () => {
   const account = useActiveAccount();
@@ -19,7 +19,6 @@ export const Connect: FC = () => {
   const { data: walletClient } = useWalletClient();
   const setActiveWallet = useSetActiveWallet();
   const [isMounted, setIsMounted] = useState<boolean>(false);
-  const { getShortenedAddress } = useShortenedAddress();
   const { theme } = useTheme();
 
   useEffect(() => setIsMounted(true), []);
@@ -91,7 +90,7 @@ export const Connect: FC = () => {
         detailsButton={{
           render: () => (
             <button className="btn btn-secondary lg:btn-lg">
-              {getShortenedAddress(account?.address)}
+              <WalletName address={account?.address} shorten />
             </button>
           )
         }}
