@@ -9,9 +9,9 @@ import { client } from "~/providers/Thirdweb";
 import { api } from "~/utils/api";
 import dynamic from "next/dynamic";
 import { type ApexOptions } from "apexcharts";
-import useShortenedAddress from "~/hooks/useShortenedAddress";
 import { useMemo } from "react";
 import { useActiveWallet, useDisconnect } from "thirdweb/react";
+import WalletName from "~/components/WalletName";
 
 const ReactApexChart = dynamic(
   () => import(
@@ -56,10 +56,9 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async (conte
 };
 
 
-export const Profile: NextPage<ProfileProps> = ({ address, ens, isValidAddress }) => {
+export const Profile: NextPage<ProfileProps> = ({ address, isValidAddress }) => {
   const { disconnect } = useDisconnect();
   const wallet = useActiveWallet();
-  const { getShortenedAddress } = useShortenedAddress();
 
   const { data: portfolio } = api.moralis.getPortfolioPositions.useQuery({
     address,
@@ -129,7 +128,7 @@ export const Profile: NextPage<ProfileProps> = ({ address, ens, isValidAddress }
       <main className="flex min-h-screen flex-col items-center justify-center">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
           <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem] flex items-center gap-4 flex-wrap">
-            {ens ?? getShortenedAddress(address)}
+            <WalletName address={address} shorten />
           </h1>
           {wallet && (
           <button 
