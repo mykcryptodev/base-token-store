@@ -10,7 +10,11 @@ import { defineChain } from "thirdweb";
 import { useTheme } from "next-themes";
 import WalletName from "./WalletName";
 
-export const Connect: FC = () => {
+type Props = {
+  fullWidth?: boolean;
+};
+
+export const Connect: FC<Props> = ({ fullWidth }) => {
   const account = useActiveAccount();
   const { connectors, connect } = useConnect();
   const wagmiAccount = useAccount();
@@ -51,12 +55,20 @@ export const Connect: FC = () => {
 
   if (!isMounted) {
     return (
-      <button
-        className="btn btn-secondary"
-        disabled
-      >
-        Connect wallet
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          className={`btn btn-secondary lg:btn-lg ${fullWidth ? 'w-1/2' : ''}`}
+          disabled
+        >
+          Connect wallet
+        </button>
+        <button
+          className={`btn btn-neutral lg:btn-lg ${fullWidth ? 'w-1/2' : ''}`}
+          disabled
+        >
+          Create wallet
+        </button>
+      </div>
     )
   }
 
@@ -65,13 +77,13 @@ export const Connect: FC = () => {
     return (
       <div className="flex items-center gap-2">
         <button
-          className="btn btn-secondary lg:btn-lg"
+          className={`btn btn-secondary lg:btn-lg ${fullWidth ? 'w-1/2' : ''}`}
           onClick={() => void connect({connector})}
         >
           Connect wallet
         </button>
         <button
-          className="btn btn-neutral lg:btn-lg"
+          className={`btn btn-neutral lg:btn-lg ${fullWidth ? 'w-1/2' : ''}`}
           onClick={() => void connect({connector})}
         >
           Create wallet

@@ -10,6 +10,7 @@ import { useSendCalls } from 'wagmi/experimental'
 import { client } from '~/providers/Thirdweb';
 import { useActiveAccount } from 'thirdweb/react';
 import { DEFAULT_CHAIN } from '~/constants/chain';
+import { Connect } from '~/components/Connect';
 
 const Cart: FC = () => {
   const { sendCalls } = useSendCalls()
@@ -122,7 +123,7 @@ const Cart: FC = () => {
         <span className="font-bold text-xl">Total: ${isNaN(cart.reduce((acc, item) => acc + item.usdAmountDesired, 0)) ? 0 : cart.reduce((acc, item) => acc + item.usdAmountDesired, 0).toLocaleString([], { currency: 'usd' })}</span>
       </div>
       <button 
-        disabled={checkoutIsLoading}
+        disabled={checkoutIsLoading || !account || cart.length === 0}
         className="btn btn-primary btn-block btn-lg mt-8"
         onClick={() => void checkout()}
       >
@@ -131,6 +132,11 @@ const Cart: FC = () => {
         )}
         Checkout
       </button>
+      {!account && (
+        <div className="mt-2">
+          <Connect fullWidth={true} />
+        </div>
+      )}
     </div>
   );
 };
