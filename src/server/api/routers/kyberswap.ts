@@ -83,6 +83,9 @@ const CHAIN_NAME_MAP = {
   [534352]: "scroll",
 } as Record<number, string>;
 
+const FEE_ADDRESS = "0x68112c0564C734eC7074979C5692e4429Ca481A3";
+const FEE_AMOUNT = "1" // 1 wei. smallest possible fee strictly for onchain tracking purposes
+
 export const kyberswapRouter = createTRPCRouter({
   getSwapRoute: publicProcedure
     .input(z.object({ 
@@ -98,7 +101,6 @@ export const kyberswapRouter = createTRPCRouter({
         tokenOut,
         amountIn,
       } = input;
-      console.log({ input })
       if (!chainId || !tokenIn || !tokenOut || !amountIn) {
         throw new Error('Missing required parameters');
       }
@@ -175,7 +177,6 @@ export const kyberswapRouter = createTRPCRouter({
     }))
     .mutation(async ({ input }) => {
       const { tokensToBuy, from, to, chainId } = input;
-      console.log({ input: tokensToBuy });
       if (!tokensToBuy || !from || !to || !chainId) {
         throw new Error('Missing required parameters');
       }
@@ -194,14 +195,13 @@ export const kyberswapRouter = createTRPCRouter({
       const swapRoutes = await Promise.all(tokensToBuy.map(async (token) => {
         const amountIn = token.amount;
         const tokenAddress = token.token;
-        const swapRoute = await getSwapRoute(chainName, tokenIn, tokenAddress, amountIn);
+        const swapRoute = await getSwapRoute(chainName, tokenIn, tokenAddress, amountIn, "currency_in");
         return swapRoute;
       }));
-      console.log({ swapRoutes })
 
       const swapEncodedData = await Promise.all(swapRoutes.map(async (swapRoute) => {
         const routeSummary = swapRoute.data.routeSummary;
-        const swapEncodedData = await getSwapEncodedData(routeSummary, chainName, slippage, deadline, from, to);
+        const swapEncodedData = await getSwapEncodedData(routeSummary, chainName, slippage, deadline, from, to, "currency_in");
         return swapEncodedData;
       }));
 
@@ -209,11 +209,15 @@ export const kyberswapRouter = createTRPCRouter({
     }),
 });
 
-async function getSwapRoute (chainName: string, tokenIn: string, tokenOut: string, amountIn: string) {
+async function getSwapRoute (chainName: string, tokenIn: string, tokenOut: string, amountIn: string, chargeFeeBy: string) {
   const srcSwapParams = new URLSearchParams({
     tokenIn,
     tokenOut,
     amountIn,
+    isInBps: "false",
+    chargeFeeBy,
+    feeReceiver: FEE_ADDRESS,
+    feeAmount: FEE_AMOUNT,
   }).toString();
 
   const swapRes = await fetch(`${KYBER_BASE_URL}/${chainName}/api/v1/routes?${srcSwapParams}`, {
@@ -225,8 +229,7 @@ async function getSwapRoute (chainName: string, tokenIn: string, tokenOut: strin
   return await swapRes.json() as KyberswapApiResponse;
 }
 
-async function getSwapEncodedData (routeSummary: RouteSummary, chainName: string, slippage: number, deadline: number, from: string, to: string) {
-  console.log({ routeSummary });
+async function getSwapEncodedData (routeSummary: RouteSummary, chainName: string, slippage: number, deadline: number, from: string, to: string, chargeFeeBy: string) {
   const srcChainSwapEncodedRes = await fetch(`${KYBER_BASE_URL}/${chainName}/api/v1/route/build`, {
     method: 'POST',
     headers: {
@@ -239,6 +242,10 @@ async function getSwapEncodedData (routeSummary: RouteSummary, chainName: string
       "deadline": deadline,
       "sender": from,
       "recipient": to,
+      "isInBps": false,
+      "chargeFeeBy": chargeFeeBy,
+      "feeReceiver": FEE_ADDRESS,
+      "feeAmount": FEE_AMOUNT,
     }),
   });
   const srcChainSwapEncodedData = await srcChainSwapEncodedRes.json() as RouteBuildApiResponse;
