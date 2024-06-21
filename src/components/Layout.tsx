@@ -45,7 +45,7 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
                 </div>
                 <div className="flex justfiy-end">
                   {account && (
-                    <Link href={`/profile/${account?.address}`} className="btn btn-ghost flex h-10 items-center space-x-2">
+                    <Link href={`https://wallet.coinbase.com/assets`} className="btn btn-ghost flex h-10 items-center space-x-2" target="_blank" rel="noopener">
                       <ChartPieIcon className="h-6 w-6" />
                     </Link>
                   )}
