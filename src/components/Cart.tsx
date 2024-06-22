@@ -59,10 +59,10 @@ const Cart: FC = () => {
         const seaportAddress = purchase.fulfillment_data.transaction.to as `0x${string}`;
         const abiItem = parseAbiItem(`function ${purchase.fulfillment_data.transaction.function}`);
         const parameters = flattenObject(purchase.fulfillment_data.transaction.input_data.parameters);
-        console.log({ abiItem, parameters })
+        const functionName = purchase.fulfillment_data.transaction.function.split('(')[0]!;
         const data = encodeFunctionData({
           abi: [abiItem],
-          functionName: "fulfillBasicOrder_efficient_6GL6yc",
+          functionName,
           args: [parameters]
         });
         return {
