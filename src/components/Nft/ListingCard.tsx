@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useMemo, useState, type FC } from "react";
-import { ZERO_ADDRESS, toEther, toTokens } from "thirdweb";
+import { ZERO_ADDRESS, toTokens } from "thirdweb";
 import { COINGECKO_UNKNOWN_IMG } from "~/constants/dex";
 import { type Order } from "~/types/openSea";
 import { api } from "~/utils/api";
@@ -30,6 +30,7 @@ type Props = {
 };
 
 export const NftListingCard: FC<Props> = ({ listing }) => {
+  console.log({ listing })
   const [addToCartIsLoading, setAddToCartIsLoading] = useState<boolean>(false)
   const { data: etherPrice } = api.dex.getEtherPrice.useQuery({}, {
     refetchOnMount: false,
@@ -73,7 +74,11 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
   if (
     !listingAsset || 
     // only show listings that are purchasable with ether
-    listing.taker_asset_bundle.assets[0]?.asset_contract.address !== ZERO_ADDRESS
+    listing.taker_asset_bundle.assets[0]?.asset_contract.address !== ZERO_ADDRESS ||
+    // only show listings that are selling 1 asset 
+    listing.maker_asset_bundle.assets.length !== 1 ||
+    // hide assets that are nsfw
+    listingAsset.is_nsfw
   ) return <></>;
 
   const onAddToCart = async () => {
