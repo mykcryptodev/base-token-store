@@ -40,7 +40,8 @@ export default function Home() {
           <div className="flex justify-center w-full">
             <input 
               type="text" 
-              placeholder="Search Base tokens..." 
+              placeholder={`${category === 'NFTs and collectibles' ? 'Searching NFTs not yet supported...' : 'Search Base tokens...'}`}
+              disabled={category === 'NFTs and collectibles'}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="input input-bordered w-full sm:w-2/3 md:w-4/6 lg:w-1/2 min-w-[300px]"
