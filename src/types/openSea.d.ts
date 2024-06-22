@@ -178,3 +178,70 @@ export type OpenSeaListingResponse = {
   previous: null | string;
   orders: Order[];
 };
+
+export type OpenSeaFulfillmentDataResponse = {
+  protocol: string;
+  fulfillment_data: {
+    transaction: {
+      function: string;
+      chain: number;
+      to: string;
+      value: number;
+      input_data: {
+        parameters: {
+          considerationToken: string;
+          considerationIdentifier: string;
+          considerationAmount: string;
+          offerer: string;
+          zone: string;
+          offerToken: string;
+          offerIdentifier: string;
+          offerAmount: string;
+          basicOrderType: number;
+          startTime: string;
+          endTime: string;
+          zoneHash: string;
+          salt: string;
+          offererConduitKey: string;
+          fulfillerConduitKey: string;
+          totalOriginalAdditionalRecipients: string;
+          additionalRecipients: Array<{
+            amount: string;
+            recipient: string;
+          }>;
+          signature: string;
+        };
+      };
+    };
+    orders: Array<{
+      parameters: {
+        offerer: string;
+        offer: Array<{
+          itemType: number;
+          token: string;
+          identifierOrCriteria: string;
+          startAmount: string;
+          endAmount: string;
+        }>;
+        consideration: Array<{
+          itemType: number;
+          token: string;
+          identifierOrCriteria: string;
+          startAmount: string;
+          endAmount: string;
+          recipient: string;
+        }>;
+        startTime: string;
+        endTime: string;
+        orderType: number;
+        zone: string;
+        zoneHash: string;
+        salt: string;
+        conduitKey: string;
+        totalOriginalConsiderationItems: number;
+        counter: number;
+      };
+      signature: string;
+    }>;
+  };
+};

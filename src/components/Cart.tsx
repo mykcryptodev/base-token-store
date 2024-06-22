@@ -56,7 +56,7 @@ const Cart: FC = () => {
         })
       ]);
       const nftPurchaseCalls = nftEncodedData.map((purchase) => {
-        const seaportAddress = purchase.fulfillment_data.transaction.to;
+        const seaportAddress = purchase.fulfillment_data.transaction.to as `0x${string}`;
         const abiItem = parseAbiItem(`function ${purchase.fulfillment_data.transaction.function}`);
         const parameters = flattenObject(purchase.fulfillment_data.transaction.input_data.parameters);
         console.log({ abiItem, parameters })
@@ -66,7 +66,7 @@ const Cart: FC = () => {
           args: [parameters]
         });
         return {
-          to: seaportAddress as `0x${string}`,
+          to: seaportAddress,
           data,
           value: BigInt(purchase.fulfillment_data.transaction.value),
         };
