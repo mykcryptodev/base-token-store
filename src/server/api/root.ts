@@ -3,6 +3,7 @@ import { coingeckoRouter } from "~/server/api/routers/coingecko";
 import { dexRouter } from "~/server/api/routers/dex";
 import { kyberswapRouter } from "~/server/api/routers/kyberswap";
 import { moralisRouter } from "~/server/api/routers/moralis";
+import { openSeaRouter } from "~/server/api/routers/opensea";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   dex: dexRouter,
   kyberswap: kyberswapRouter,
   moralis: moralisRouter,
+  openSea: openSeaRouter,
 });
 
 // export type definition of API

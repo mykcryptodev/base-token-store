@@ -1,51 +1,83 @@
 import { ShoppingBagIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { useState, type FC } from 'react';
-import { ADDRESS_ZERO, toWei } from 'thirdweb';
+import { ZERO_ADDRESS, toWei} from 'thirdweb';
 import { base } from 'thirdweb/chains';
 import { useCartContext } from '~/contexts/Cart';
 import { api } from '~/utils/api';
-import { useCapabilities } from "thirdweb/wallets/eip5792";
 import { useSendCalls } from 'wagmi/experimental'
 import { client } from '~/providers/Thirdweb';
-import { useActiveAccount } from 'thirdweb/react';
+import { useActiveAccount, useActiveWallet } from 'thirdweb/react';
 import { DEFAULT_CHAIN } from '~/constants/chain';
 import { Connect } from '~/components/Connect';
+import { parseAbiItem, encodeFunctionData } from "viem";
+import { flattenObject } from '~/helpers/flattenObject';
 
 const Cart: FC = () => {
   const { sendCalls } = useSendCalls()
-  const { data: capabilities } = useCapabilities();
   const { cart, updateItem, deleteItem } = useCartContext();
+  const wallet = useActiveWallet();
   const account = useActiveAccount();
   const { data: etherPrice } = api.dex.getEtherPrice.useQuery({
     chainId: base.id,
   });
   const { mutateAsync: getSwapEncodedData } = api.kyberswap.getCheckoutData.useMutation();
+  const { mutateAsync: getNftPurchaseEncodedData } = api.openSea.getPurchaseEncodedData.useMutation();
   const [checkoutIsLoading, setCheckoutIsLoading] = useState<boolean>(false);
 
   const checkout = async () => {
+    if (!wallet) return;
     setCheckoutIsLoading(true);
     try {
-      const encodedData = await getSwapEncodedData({
-        tokensToBuy: cart.map((item) => {
-          const amountInEther = item.usdAmountDesired / Number(etherPrice ?? 1);
-          return {
-            token: item.address,
-            amount: toWei(amountInEther.toString()).toString(),
-          };
+      const [nftEncodedData, encodedData] = await Promise.all([
+        getNftPurchaseEncodedData({
+          orders: cart.filter(item => item.isNft).map((item) => ({
+            listing: {
+              hash: item.nftOrderHash!,
+              chain: DEFAULT_CHAIN.name?.toLowerCase() ?? 'base',
+              protocol_address: item.nftExchangeAddress!,
+            },
+            fulfiller: {
+              address: account?.address ?? wallet.getAccount()?.address ?? ZERO_ADDRESS,
+            }
+          })),
         }),
-        chainId: base.id,
-        from: account?.address ?? ADDRESS_ZERO,
-        to: account?.address ?? ADDRESS_ZERO,
+        getSwapEncodedData({
+          tokensToBuy: cart.filter(item => !item.isNft).map((item) => {
+            const amountInEther = item.usdAmountDesired / Number(etherPrice ?? 1);
+            return {
+              token: item.address,
+              amount: toWei(amountInEther.toString()).toString(),
+            };
+          }),
+          chainId: base.id,
+          from: account?.address ?? ZERO_ADDRESS,
+          to: account?.address ?? ZERO_ADDRESS,
+        })
+      ]);
+      const nftPurchaseCalls = nftEncodedData.map((purchase) => {
+        const seaportAddress = purchase.fulfillment_data.transaction.to as `0x${string}`;
+        const abiItem = parseAbiItem(`function ${purchase.fulfillment_data.transaction.function}`);
+        const parameters = flattenObject(purchase.fulfillment_data.transaction.input_data.parameters);
+        const functionName = purchase.fulfillment_data.transaction.function.split('(')[0]!;
+        const data = encodeFunctionData({
+          abi: [abiItem],
+          functionName,
+          args: [parameters]
+        });
+        return {
+          to: seaportAddress,
+          data,
+          value: BigInt(purchase.fulfillment_data.transaction.value),
+        };
       });
       sendCalls({
         calls: encodedData.map(swap => ({
           to: swap.data.routerAddress as `0x${string}`,
           data: swap.data.data as `0x${string}`,
           value: BigInt(swap.data.amountIn),
-        })),
+        })).concat(nftPurchaseCalls),
         capabilities: {
-          ...capabilities,
           auxiliaryFunds: {
             supported: true
           },
@@ -87,31 +119,55 @@ const Cart: FC = () => {
                   alt={item.name}
                   height={40}
                   width={40}
-                  className="rounded-full w-full max-w-10 h-full max-h-10"
+                  className={`${item.isNft ? 'rounded-lg' : 'rounded-full'} w-full max-w-10 h-full max-h-10`}
                 />
                 <div className="flex flex-col">
                   <span className="font-bold">{item.name}</span>
-                  <span className="text-xs">${item.price.toPrecision(2)}</span>
+                  <span className="text-xs">${item.price.toLocaleString([], {
+                      currency: 'usd',
+                      maximumFractionDigits: 2,
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-col justify-end grow">
                 <div className="flex items-center justify-end gap-1">
-                  <button className="btn btn-xs btn-ghost sm:block hidden" onClick={() => updateItem(item.id, { usdAmountDesired: item.usdAmountDesired - 1 })}>-</button>
+                  <button 
+                    className={`btn btn-xs btn-ghost ${item.isNft ? 'invisible' : 'block'}`}
+                    onClick={() => updateItem(item.id, { usdAmountDesired: item.usdAmountDesired - 1 })}
+                  >
+                    -
+                  </button>
                   <div className="relative">
                     <input
                       type="number"
-                      value={item.usdAmountDesired}
-                      onChange={(e) => updateItem(item.id, { usdAmountDesired: parseInt(e.target.value) })}
+                      value={item.usdAmountDesired.toString().replace(/(\.\d{2})\d+/, "$1")}
+                      onChange={(e) => item.isNft ? {} : updateItem(item.id, { usdAmountDesired: parseInt(e.target.value) })}
                       className="input input-bordered w-32 text-center"
                     />
                     <span className="absolute opacity-50 left-4 top-3.5 uppercase">$</span>
                   </div>
-                  <button className="btn btn-xs btn-ghost sm:block hidden" onClick={() => updateItem(item.id, { usdAmountDesired: item.usdAmountDesired + 1 })}>+</button>
+                  <button 
+                    className={`btn btn-xs btn-ghost ${item.isNft ? 'invisible' : 'block'}`}
+                    onClick={() => updateItem(item.id, { usdAmountDesired: item.usdAmountDesired + 1 })}
+                  >
+                    +
+                  </button>
                   <button className="btn btn-xs btn-ghost" onClick={() => deleteItem(item.id)}>
                     <TrashIcon className="h-4 w-4" />
                   </button>
                 </div>
-                <span className="text-xs text-end opacity-30 sm:mr-16 mr-10 mt-1 uppercase">{isNaN(item.price * item.usdAmountDesired) ? 0 : (item.price * item.usdAmountDesired).toLocaleString([], { currency: 'usd' })} ${item.symbol}</span>
+                <span 
+                  className="text-xs text-end opacity-30 sm:mr-16 mr-10 mt-1 uppercase"
+                >
+                  {isNaN(item.price * item.usdAmountDesired) 
+                    ? 0 
+                    : item.isNft 
+                      ? '1' 
+                      : (item.usdAmountDesired / item.price).toLocaleString([], { currency: 'usd' })}
+                      &nbsp;{item.isNft ? `${item.nftCollectionName}` : `$${item.symbol}`}
+                </span>
               </div>
             </div>
           </li>

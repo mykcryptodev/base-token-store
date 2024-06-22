@@ -10,6 +10,10 @@ export interface CartItem {
   name: string;
   usdAmountDesired: number;
   price: number;
+  isNft?: boolean;
+  nftCollectionName?: string;
+  nftOrderHash?: string;
+  nftExchangeAddress?: string;
 }
 
 const useCart = () => {

@@ -22,7 +22,6 @@ export const TokenCard: FC<Props> = ({ token }) => {
     // Add logic check here for prevent race condition
     if (loading) return;
     setLoading(true);
-    console.log({ token, cart });
     const alreadyInCart = cart.find((item: CartItem) => item.id === token.id);
 
     const tokenInfo = await getTokenInfo({

@@ -1,5 +1,5 @@
 import { Token, TokenAmount } from "@uniswap/sdk";
-import { ADDRESS_ZERO, createThirdwebClient, getContract} from "thirdweb";
+import { ZERO_ADDRESS, createThirdwebClient, getContract} from "thirdweb";
 import { base, baseSepolia, ethereum, sepolia } from "thirdweb/chains";
 import { z } from "zod";
 
@@ -18,10 +18,10 @@ const client = createThirdwebClient({
 export const dexRouter = createTRPCRouter({
   getEtherPrice: publicProcedure
     .input(z.object({
-      chainId: z.number(),
+      chainId: z.number().optional(),
     }))
     .query(async ({ input }) => {
-      const chain = SUPPORTED_CHAINS.find(c => c.id === input.chainId);
+      const chain = SUPPORTED_CHAINS.find(c => c.id === input.chainId) ?? DEFAULT_CHAIN;
       if (!chain) return null;
       const NATIVE_ASSET_PRICE_ORACLES: Record<number, string> = {
         [ethereum.id]: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // ETH / USD
@@ -32,7 +32,7 @@ export const dexRouter = createTRPCRouter({
       const contract = getContract({
         client,
         chain: ethereum,
-        address: NATIVE_ASSET_PRICE_ORACLES[input.chainId] ?? NATIVE_ASSET_PRICE_ORACLES[DEFAULT_CHAIN.id]!,
+        address: NATIVE_ASSET_PRICE_ORACLES[chain.id] ?? NATIVE_ASSET_PRICE_ORACLES[DEFAULT_CHAIN.id]!,
       });
       try {
         const [decimalsInPrice, latestRound] = await Promise.all([
@@ -40,8 +40,8 @@ export const dexRouter = createTRPCRouter({
           latestRoundData({ contract }),
         ]);
         const usd = new Token(
-          input.chainId,
-          ADDRESS_ZERO,
+          chain.id,
+          ZERO_ADDRESS,
           decimalsInPrice,
           "USD",
           "US Dollar",
