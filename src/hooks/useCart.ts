@@ -11,6 +11,9 @@ export interface CartItem {
   usdAmountDesired: number;
   price: number;
   isNft?: boolean;
+  nftCollectionName?: string;
+  nftOrderHash?: string;
+  nftExchangeAddress?: string;
 }
 
 const useCart = () => {

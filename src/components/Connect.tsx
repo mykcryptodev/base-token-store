@@ -8,7 +8,7 @@ import { useConnect, useAccount, useDisconnect, useWalletClient, useSwitchChain 
 import { viemAdapter } from "thirdweb/adapters/viem";
 import { defineChain } from "thirdweb";
 import { useTheme } from "next-themes";
-import WalletName from "./WalletName";
+import WalletName from "~/components/WalletName";
 
 type Props = {
   fullWidth?: boolean;

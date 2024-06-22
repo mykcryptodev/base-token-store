@@ -102,6 +102,8 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
         price: typeof priceInUsd === 'number' ? priceInUsd : 0,
         img: listingAsset.image_url ?? listingAsset.image_thumbnail_url,
         isNft: true,
+        nftOrderHash: listing.order_hash,
+        nftExchangeAddress: listing.protocol_address,
       });
     }
     setAddToCartIsLoading(false);

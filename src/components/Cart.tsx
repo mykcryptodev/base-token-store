@@ -1,7 +1,7 @@
 import { ShoppingBagIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { useState, type FC } from 'react';
-import { ZERO_ADDRESS, toWei } from 'thirdweb';
+import { ZERO_ADDRESS, toWei} from 'thirdweb';
 import { base } from 'thirdweb/chains';
 import { useCartContext } from '~/contexts/Cart';
 import { api } from '~/utils/api';
@@ -10,6 +10,8 @@ import { client } from '~/providers/Thirdweb';
 import { useActiveAccount, useActiveWallet } from 'thirdweb/react';
 import { DEFAULT_CHAIN } from '~/constants/chain';
 import { Connect } from '~/components/Connect';
+import { parseAbiItem, encodeFunctionData } from "viem";
+import { flattenObject } from '~/helpers/flattenObject';
 
 const Cart: FC = () => {
   const { sendCalls } = useSendCalls()
@@ -20,30 +22,61 @@ const Cart: FC = () => {
     chainId: base.id,
   });
   const { mutateAsync: getSwapEncodedData } = api.kyberswap.getCheckoutData.useMutation();
+  const { mutateAsync: getNftPurchaseEncodedData } = api.openSea.getPurchaseEncodedData.useMutation();
   const [checkoutIsLoading, setCheckoutIsLoading] = useState<boolean>(false);
 
   const checkout = async () => {
     if (!wallet) return;
     setCheckoutIsLoading(true);
     try {
-      const encodedData = await getSwapEncodedData({
-        tokensToBuy: cart.map((item) => {
-          const amountInEther = item.usdAmountDesired / Number(etherPrice ?? 1);
-          return {
-            token: item.address,
-            amount: toWei(amountInEther.toString()).toString(),
-          };
+      const [nftEncodedData, encodedData] = await Promise.all([
+        getNftPurchaseEncodedData({
+          orders: cart.filter(item => item.isNft).map((item) => ({
+            listing: {
+              hash: item.nftOrderHash!,
+              chain: DEFAULT_CHAIN.name?.toLowerCase() ?? 'base',
+              protocol_address: item.nftExchangeAddress!,
+            },
+            fulfiller: {
+              address: account?.address ?? wallet.getAccount()?.address ?? ZERO_ADDRESS,
+            }
+          })),
         }),
-        chainId: base.id,
-        from: account?.address ?? ZERO_ADDRESS,
-        to: account?.address ?? ZERO_ADDRESS,
+        getSwapEncodedData({
+          tokensToBuy: cart.filter(item => !item.isNft).map((item) => {
+            const amountInEther = item.usdAmountDesired / Number(etherPrice ?? 1);
+            return {
+              token: item.address,
+              amount: toWei(amountInEther.toString()).toString(),
+            };
+          }),
+          chainId: base.id,
+          from: account?.address ?? ZERO_ADDRESS,
+          to: account?.address ?? ZERO_ADDRESS,
+        })
+      ]);
+      const nftPurchaseCalls = nftEncodedData.map((purchase) => {
+        const seaportAddress = purchase.fulfillment_data.transaction.to;
+        const abiItem = parseAbiItem(`function ${purchase.fulfillment_data.transaction.function}`);
+        const parameters = flattenObject(purchase.fulfillment_data.transaction.input_data.parameters);
+        console.log({ abiItem, parameters })
+        const data = encodeFunctionData({
+          abi: [abiItem],
+          functionName: "fulfillBasicOrder_efficient_6GL6yc",
+          args: [parameters]
+        });
+        return {
+          to: seaportAddress as `0x${string}`,
+          data,
+          value: BigInt(purchase.fulfillment_data.transaction.value),
+        };
       });
       sendCalls({
         calls: encodedData.map(swap => ({
           to: swap.data.routerAddress as `0x${string}`,
           data: swap.data.data as `0x${string}`,
           value: BigInt(swap.data.amountIn),
-        })),
+        })).concat(nftPurchaseCalls),
         capabilities: {
           auxiliaryFunds: {
             supported: true

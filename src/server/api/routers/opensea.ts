@@ -6,7 +6,7 @@ import {
   createTRPCRouter,
   publicProcedure,
 } from "~/server/api/trpc";
-import { type OpenSeaListingResponse } from "~/types/openSea";
+import { type OpenSeaFulfillmentDataResponse, type OpenSeaListingResponse } from "~/types/openSea";
 
 export const openSeaRouter = createTRPCRouter({
   getCollections: publicProcedure
@@ -61,5 +61,35 @@ export const openSeaRouter = createTRPCRouter({
       });
       const data = await response.json() as OpenSeaListingResponse;
       return { ...data, nextCursor: data.next };
+    }),
+  getPurchaseEncodedData: publicProcedure
+    .input(z.object({
+      orders: z.array(z.object({
+        listing: z.object({
+          hash: z.string(),
+          chain: z.string(),
+          protocol_address: z.string(),
+        }),
+        fulfiller: z.object({
+          address: z.string(),
+        }),
+      })),
+    }))
+    .mutation(async ({ input }) => {
+      const { orders } = input;
+      const url = new URL('https://api.opensea.io/api/v2/listings/fulfillment_data');
+      const promises = orders.map(order => 
+        fetch(url.toString(), {
+          method: 'POST',
+          headers: {
+            'accept': 'application/json',
+            'content-type': 'application/json',
+            'x-api-key': env.OPENSEA_API_KEY,
+          },
+          body: JSON.stringify(order),
+        }).then(response => response.json() as Promise<OpenSeaFulfillmentDataResponse>)
+      );
+      const data = await Promise.all(promises);
+      return data;
     }),
 });
