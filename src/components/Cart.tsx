@@ -86,31 +86,55 @@ const Cart: FC = () => {
                   alt={item.name}
                   height={40}
                   width={40}
-                  className="rounded-full w-full max-w-10 h-full max-h-10"
+                  className={`${item.isNft ? 'rounded-lg' : 'rounded-full'} w-full max-w-10 h-full max-h-10`}
                 />
                 <div className="flex flex-col">
                   <span className="font-bold">{item.name}</span>
-                  <span className="text-xs">${item.price.toPrecision(2)}</span>
+                  <span className="text-xs">${item.price.toLocaleString([], {
+                      currency: 'usd',
+                      maximumFractionDigits: 2,
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-col justify-end grow">
                 <div className="flex items-center justify-end gap-1">
-                  <button className="btn btn-xs btn-ghost sm:block hidden" onClick={() => updateItem(item.id, { usdAmountDesired: item.usdAmountDesired - 1 })}>-</button>
+                  <button 
+                    className={`btn btn-xs btn-ghost ${item.isNft ? 'invisible' : 'block'}`}
+                    onClick={() => updateItem(item.id, { usdAmountDesired: item.usdAmountDesired - 1 })}
+                  >
+                    -
+                  </button>
                   <div className="relative">
                     <input
                       type="number"
-                      value={item.usdAmountDesired}
-                      onChange={(e) => updateItem(item.id, { usdAmountDesired: parseInt(e.target.value) })}
+                      value={item.usdAmountDesired.toString().replace(/(\.\d{2})\d+/, "$1")}
+                      onChange={(e) => item.isNft ? {} : updateItem(item.id, { usdAmountDesired: parseInt(e.target.value) })}
                       className="input input-bordered w-32 text-center"
                     />
                     <span className="absolute opacity-50 left-4 top-3.5 uppercase">$</span>
                   </div>
-                  <button className="btn btn-xs btn-ghost sm:block hidden" onClick={() => updateItem(item.id, { usdAmountDesired: item.usdAmountDesired + 1 })}>+</button>
+                  <button 
+                    className={`btn btn-xs btn-ghost ${item.isNft ? 'invisible' : 'block'}`}
+                    onClick={() => updateItem(item.id, { usdAmountDesired: item.usdAmountDesired + 1 })}
+                  >
+                    +
+                  </button>
                   <button className="btn btn-xs btn-ghost" onClick={() => deleteItem(item.id)}>
                     <TrashIcon className="h-4 w-4" />
                   </button>
                 </div>
-                <span className="text-xs text-end opacity-30 sm:mr-16 mr-10 mt-1 uppercase">{isNaN(item.price * item.usdAmountDesired) ? 0 : (item.price * item.usdAmountDesired).toLocaleString([], { currency: 'usd' })} ${item.symbol}</span>
+                <span 
+                  className="text-xs text-end opacity-30 sm:mr-16 mr-10 mt-1 uppercase"
+                >
+                  {isNaN(item.price * item.usdAmountDesired) 
+                    ? 0 
+                    : item.isNft 
+                      ? '1' 
+                      : (item.usdAmountDesired / item.price).toLocaleString([], { currency: 'usd' })}
+                      &nbsp;{item.isNft ? `${item.nftCollectionName}` : `$${item.symbol}`}
+                </span>
               </div>
             </div>
           </li>

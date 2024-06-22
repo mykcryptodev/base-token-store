@@ -2,6 +2,8 @@ import Image from "next/image";
 import { useMemo, useState, type FC } from "react";
 import { ZERO_ADDRESS, toTokens } from "thirdweb";
 import { COINGECKO_UNKNOWN_IMG } from "~/constants/dex";
+import { useCartContext } from "~/contexts/Cart";
+import { type CartItem } from "~/hooks/useCart";
 import { type Order } from "~/types/openSea";
 import { api } from "~/utils/api";
 
@@ -30,8 +32,8 @@ type Props = {
 };
 
 export const NftListingCard: FC<Props> = ({ listing }) => {
-  console.log({ listing })
-  const [addToCartIsLoading, setAddToCartIsLoading] = useState<boolean>(false)
+  const [addToCartIsLoading, setAddToCartIsLoading] = useState<boolean>(false);
+  const { cart, addItem } = useCartContext();
   const { data: etherPrice } = api.dex.getEtherPrice.useQuery({}, {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
@@ -85,7 +87,23 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
     // Add logic check here for prevent race condition
     if (addToCartIsLoading) return;
     setAddToCartIsLoading(true);
-    // TODO: Add to cart logic
+    const id = listingAsset.asset_contract.address + listingAsset.id;
+    const alreadyInCart = cart.find((item: CartItem) => item.id === id);
+
+    if (!alreadyInCart) {
+      addItem({ 
+        id,
+        address: listingAsset.asset_contract.address,
+        decimals: 18,
+        symbol: "ETH",
+        name: listingAsset.name,
+        nftCollectionName: listingAsset.collection.name,
+        usdAmountDesired: typeof priceInUsd === 'number' ? priceInUsd : 0, 
+        price: typeof priceInUsd === 'number' ? priceInUsd : 0,
+        img: listingAsset.image_url ?? listingAsset.image_thumbnail_url,
+        isNft: true,
+      });
+    }
     setAddToCartIsLoading(false);
     // pop the side drawer
     document.getElementById('my-drawer')?.click();
