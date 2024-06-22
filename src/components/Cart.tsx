@@ -1,21 +1,20 @@
 import { ShoppingBagIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { useState, type FC } from 'react';
-import { ADDRESS_ZERO, toWei } from 'thirdweb';
+import { ZERO_ADDRESS, toWei } from 'thirdweb';
 import { base } from 'thirdweb/chains';
 import { useCartContext } from '~/contexts/Cart';
 import { api } from '~/utils/api';
-import { useCapabilities } from "thirdweb/wallets/eip5792";
 import { useSendCalls } from 'wagmi/experimental'
 import { client } from '~/providers/Thirdweb';
-import { useActiveAccount } from 'thirdweb/react';
+import { useActiveAccount, useActiveWallet } from 'thirdweb/react';
 import { DEFAULT_CHAIN } from '~/constants/chain';
 import { Connect } from '~/components/Connect';
 
 const Cart: FC = () => {
   const { sendCalls } = useSendCalls()
-  const { data: capabilities } = useCapabilities();
   const { cart, updateItem, deleteItem } = useCartContext();
+  const wallet = useActiveWallet();
   const account = useActiveAccount();
   const { data: etherPrice } = api.dex.getEtherPrice.useQuery({
     chainId: base.id,
@@ -24,6 +23,7 @@ const Cart: FC = () => {
   const [checkoutIsLoading, setCheckoutIsLoading] = useState<boolean>(false);
 
   const checkout = async () => {
+    if (!wallet) return;
     setCheckoutIsLoading(true);
     try {
       const encodedData = await getSwapEncodedData({
@@ -35,8 +35,8 @@ const Cart: FC = () => {
           };
         }),
         chainId: base.id,
-        from: account?.address ?? ADDRESS_ZERO,
-        to: account?.address ?? ADDRESS_ZERO,
+        from: account?.address ?? ZERO_ADDRESS,
+        to: account?.address ?? ZERO_ADDRESS,
       });
       sendCalls({
         calls: encodedData.map(swap => ({
@@ -45,7 +45,6 @@ const Cart: FC = () => {
           value: BigInt(swap.data.amountIn),
         })),
         capabilities: {
-          ...capabilities,
           auxiliaryFunds: {
             supported: true
           },
