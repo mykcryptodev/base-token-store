@@ -48,7 +48,7 @@ export default function Home() {
             />
           </div>
           <div className="sm:max-w-5xl mx-auto">
-            <div className="flex flex-col gap-8 min-w-full">
+            <div className="flex flex-col gap-2 min-w-full">
               <div className="flex justify-center gap-4 overflow-x-auto sm:pl-0 pl-12">
                 {categories.map((cat) => (
                   <button 

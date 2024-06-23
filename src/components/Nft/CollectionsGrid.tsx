@@ -14,12 +14,16 @@ export const CollectionsGrid: FC = () => {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
 
+  const categories = ['top', 'trending', 'new'];
+  const [category, setCategory] = useState<'new' | 'trending' | 'top' | undefined>('top');
+
   const { 
     data: collectionsData, 
     isLoading: collectionsIsLoading 
   } = api.simpleHash.getCollections.useQuery({
     chain: 'base',
     limit: COLLECTIONS_PER_PAGE,
+    category,
     cursor,
   }, {
     refetchOnMount: false,
@@ -82,6 +86,20 @@ export const CollectionsGrid: FC = () => {
       <div className="flex flex-col gap-8 min-w-full">
         {!selectedCollection && (
           <>
+            <div className="flex justify-center gap-4 overflow-x-auto">
+              {categories.map((cat) => (
+                <button 
+                  key={cat} 
+                  onClick={() => {
+                    setCollections([]);
+                    setCategory(cat as 'new' | 'trending' | 'top');
+                  }}
+                  className={`btn btn-outline btn-neutral btn-sm ${category === cat ? 'btn-active' : ''}`}
+                >
+                  {cat.replace(/^\w/, (c) => c.toUpperCase())}
+                </button>
+              ))}
+            </div>
             <div 
               className={`flex flex-wrap items-stretch w-full justify-center gap-4`}>
               {collections.map((c, index) => 

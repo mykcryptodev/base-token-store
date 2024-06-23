@@ -13,14 +13,17 @@ export const simpleHashRouter = createTRPCRouter({
     .input(z.object({
       chain: z.string(),
       limit: z.number().max(100).optional(),
+      category: z.enum(['new', 'trending', 'top']).optional(),
       cursor: z.string().optional(),
     }))
     .query(async ({ input }) => {
-      const { chain, limit = 50, cursor } = input;
-      const url = new URL(`https://api.simplehash.com/api/v0/nfts/collections/trending`);
+      const { chain, limit = 50, cursor, category = 'new' } = input;
+      const baseUrl = `https://api.simplehash.com/api/v0/nfts/collections`;
+      const url = new URL(category === 'top' ? `${baseUrl}/top_v2` : `${baseUrl}/trending`);
+      const timePeriod = category === 'new' ? '24h' : '30d';
       url.searchParams.append('chains', chain);
       url.searchParams.append('limit', limit.toString());
-      url.searchParams.append('time_period', '7d');
+      url.searchParams.append('time_period', timePeriod);
       url.searchParams.append('include_top_contract_details', '1');
       if (cursor) {
         url.searchParams.append('cursor', cursor);
