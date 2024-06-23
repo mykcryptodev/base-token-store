@@ -9,6 +9,9 @@ export default {
         sans: ["var(--font-geist-sans)", ...fontFamily.sans],
         inter: ['Inter', 'sans-serif'],
       },
+      fontSize: {
+        'fit': ['fit-content', '1rem'],
+      }
     },
   },
   daisyui: {

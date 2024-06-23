@@ -1,3 +1,4 @@
+import { SparklesIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import { useMemo, useState, type FC } from "react";
 import { ZERO_ADDRESS, toEther } from "thirdweb";
@@ -129,15 +130,15 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
                 maximumFractionDigits: 2,
                 minimumFractionDigits: 2,
               })}</span>
-              <span className="flex items-center">
-                <Image src={priceInCurrency.icon ?? COINGECKO_UNKNOWN_IMG} alt={priceInCurrency.name} width={16} height={16} />
+              {nft.rarity.rank && (
                 <span 
-                  className={`text-right text-xs`}
+                  className="tooltip tooltip-left flex items-center text-sm gap-1 cursor-pointer" 
+                  data-tip={`Rarity out of ${nft.collection.total_quantity.toLocaleString()}`}
                 >
-                  {/* truncate % change to 4 decimal place */}
-                  {priceInCurrency.priceInEther.toString().replace(/(\.\d{4})\d+/, "$1")}
+                  <SparklesIcon className="h-4 w-4" />
+                  {nft.rarity.rank.toLocaleString()}
                 </span>
-              </span>
+              )}
             </div>
           ) : (
             <div className="flex flex-col gap-1">
@@ -146,13 +147,15 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
             </div>
           )}
         </div>
-        <h2 className="card-title grid grid-rows-2 gap-0">
-          <span className="whitespace-nowrap truncate">{nft.collection.name}</span>
-          <span className="text-sm opacity-75 font-normal -mt-2 whitespace-nowrap truncate">{nft.name}</span>
+        <h2 className="card-title flex flex-col items-start gap-0">
+          <span className="">{nft.name}</span>
+          <span className="text-sm opacity-75 font-normal whitespace-nowrap truncate">
+            
+          </span>
         </h2>
         <div className="w-full h-42">
           <Image
-            src={nft.image_url ?? nft.previews.image_small_url}
+            src={nft.previews.image_medium_url ?? nft.previews.image_small_url}
             alt={nft.name}
             width={250}
             height={250}

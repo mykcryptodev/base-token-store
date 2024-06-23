@@ -23,8 +23,6 @@ export const ListingsGrid: FC<Props> = ({ collectionSlug }) => {
     refetchOnWindowFocus: false,
   });
 
-  console.log({ listingsData, listings });
-
   useEffect(() => {
     if (listingsData) {
       setListings(prevListings => {

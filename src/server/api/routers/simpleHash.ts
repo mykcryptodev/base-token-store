@@ -6,7 +6,7 @@ import {
   createTRPCRouter,
   publicProcedure,
 } from "~/server/api/trpc";
-import { type HistoricalFloorPriceApiResponse, type CollectionsApiResponse, NftApiResponse } from "~/types/simpleHash";
+import { type HistoricalFloorPriceApiResponse, type CollectionsApiResponse, type NftApiResponse } from "~/types/simpleHash";
 
 export const simpleHashRouter = createTRPCRouter({
   getCollections: publicProcedure
