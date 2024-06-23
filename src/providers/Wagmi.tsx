@@ -5,9 +5,9 @@ import { coinbaseWallet } from "wagmi/connectors";
 
 export const config = createConfig({
   chains: [
+    base,
     arbitrum,
     avalanche,
-    base,
     bsc,
     optimism,
     polygon,
@@ -19,9 +19,9 @@ export const config = createConfig({
     preference: "smartWalletOnly",
   })],
   transports: {
+    [base.id]: http(),
     [arbitrum.id]: http(),
     [avalanche.id]: http(),
-    [base.id]: http(),
     [bsc.id]: http(),
     [optimism.id]: http(),
     [polygon.id]: http(),
