@@ -9,6 +9,7 @@ import ThemeSwitch from "./ThemeSwitch";
 import { useTheme } from "next-themes";
 import Logo from "~/components/Logo";
 import CreditCard from "~/components/CreditCard";
+import { useCartContext } from "~/contexts/Cart";
 
 interface LayoutProps {
   children: ReactNode
@@ -17,6 +18,7 @@ interface LayoutProps {
 export const Layout: FC<LayoutProps> = ({ children }) => {
   const account = useActiveAccount();
   const { theme } = useTheme();
+  const { cart } = useCartContext();
 
   return (
     <div className="drawer drawer-end tracking-tight">
@@ -55,7 +57,10 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
                   )}
                   <div className="indicator">
                     <label htmlFor="my-drawer" className="btn sm:btn-md btn-sm btn-ghost drawer-button">
-                      <ShoppingBagIcon className="sm:h-6 sm:w-6 w-4 h-4" /> 
+                      <ShoppingBagIcon className="sm:h-6 sm:w-6 w-4 h-4" />
+                      <span className={`indicator-item badge badge-sm rounded-full badge-primary translate-x-0 translate-y-0 ${cart.length === 0 ? 'hidden' : ''}`}>
+                        {cart.length}
+                      </span>
                     </label>
                   </div>
                 </div>
