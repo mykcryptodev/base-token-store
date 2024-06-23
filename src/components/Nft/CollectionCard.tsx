@@ -1,7 +1,5 @@
 import Image from "next/image";
 import { useMemo, type FC } from "react";
-import { ZERO_ADDRESS, toEther } from "thirdweb";
-import { COINGECKO_UNKNOWN_IMG } from "~/constants/dex";
 import { type Collection } from "~/types/simpleHash";
 import { api } from "~/utils/api";
 import Sparkline from "../Token/Sparkline";
@@ -37,22 +35,6 @@ export const NftCollectionCard: FC<Props> = ({ collection, onCollectionSelected 
       price.marketplace_id === 'opensea'
     ),
   [collection]);
-  const priceInCurrency = useMemo(() => {
-    if (!collection || !openSeaFloorPrice) return {
-      priceInEther: '0',
-      name: 'Ether',
-      symbol: 'ETH',
-      icon: '/images/eth.svg',
-      address: ZERO_ADDRESS,
-    };
-    return {
-      priceInEther: toEther(BigInt(openSeaFloorPrice.value)),
-      name: openSeaFloorPrice.payment_token.name,
-      symbol: openSeaFloorPrice.payment_token.symbol,
-      icon: openSeaFloorPrice.payment_token.address === null ? '/images/eth.svg' : COINGECKO_UNKNOWN_IMG,
-      address: openSeaFloorPrice.payment_token.address ?? ZERO_ADDRESS,
-    };
-  }, [collection, openSeaFloorPrice]);
   const priceInUsd = useMemo(() => {
     if (!collection || !openSeaFloorPrice) return 0;
     return openSeaFloorPrice.value_usd_cents / 100;
