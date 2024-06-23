@@ -13,6 +13,7 @@ export const env = createEnv({
     KYBERSWAP_CLIENT_ID: z.string(),
     COINGECKO_API_KEY: z.string(),
     OPENSEA_API_KEY: z.string(),
+    SIMPLEHASH_API_KEY: z.string(),
   },
 
   /**
@@ -37,6 +38,7 @@ export const env = createEnv({
     KYBERSWAP_CLIENT_ID: process.env.KYBERSWAP_CLIENT_ID,
     COINGECKO_API_KEY: process.env.COINGECKO_API_KEY,
     OPENSEA_API_KEY: process.env.OPENSEA_API_KEY,
+    SIMPLEHASH_API_KEY: process.env.SIMPLEHASH_API_KEY,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

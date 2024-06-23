@@ -3,6 +3,7 @@ import Head from "next/head";
 import { useState } from "react";
 import Logo from "~/components/Logo";
 import NftListingsGrid from "~/components/Nft/ListingsGrid";
+import NftCollectionsGrid from "~/components/Nft/CollectionsGrid";
 import TokenGrid from "~/components/Token/Grid";
 import useDebounce from "~/hooks/useDebounce";
 
@@ -62,7 +63,10 @@ export default function Home() {
                 ))}
               </div>
               {category === 'NFTs and collectibles' ? (
-                <NftListingsGrid />
+                <>
+                  <NftCollectionsGrid />
+                  <NftListingsGrid />
+                </>
               ) : (
                 <TokenGrid category={category} query={debouncedQuery} />
               )}
