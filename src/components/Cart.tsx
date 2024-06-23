@@ -178,7 +178,7 @@ const Cart: FC = () => {
         {checkoutIsLoading && (
           <div className="loading loading-spinner" />
         )}
-        Checkout ${isNaN(cart.reduce((acc, item) => acc + item.usdAmountDesired, 0)) ? 0 : cart.reduce((acc, item) => acc + item.usdAmountDesired, 0).toLocaleString([], { currency: 'usd' }).replace(/(\.\d{2})\d+/, "$1")}
+        Checkout ${isNaN(cart.reduce((acc, item) => acc + item.usdAmountDesired, 0)) ? 0 : cart.reduce((acc, item) => acc + item.usdAmountDesired, 0).toLocaleString([], { currency: 'usd', minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </button>
       {!account && (
         <div className="mt-2">
