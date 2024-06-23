@@ -2,7 +2,7 @@ import { useTheme } from "next-themes";
 import Head from "next/head";
 import { useState } from "react";
 import Logo from "~/components/Logo";
-import NftListingsGrid from "~/components/Nft/ListingsGrid";
+import NftCollectionsGrid from "~/components/Nft/CollectionsGrid";
 import TokenGrid from "~/components/Token/Grid";
 import useDebounce from "~/hooks/useDebounce";
 
@@ -48,7 +48,7 @@ export default function Home() {
             />
           </div>
           <div className="sm:max-w-5xl mx-auto">
-            <div className="flex flex-col gap-8 min-w-full">
+            <div className="flex flex-col gap-2 min-w-full">
               <div className="flex justify-center gap-4 overflow-x-auto sm:pl-0 pl-12">
                 {categories.map((cat) => (
                   <button 
@@ -61,11 +61,12 @@ export default function Home() {
                   </button>
                 ))}
               </div>
-              {category === 'NFTs and collectibles' ? (
-                <NftListingsGrid />
-              ) : (
+              <div className={`${category === 'NFTs and collectibles' ? 'flex' : 'hidden'}`}>
+                <NftCollectionsGrid />
+              </div>
+              <div className={`${category === 'NFTs and collectibles' ? 'hidden' : 'flex'}`}>
                 <TokenGrid category={category} query={debouncedQuery} />
-              )}
+              </div>
             </div>
           </div>
         </div>

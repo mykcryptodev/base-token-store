@@ -62,6 +62,42 @@ export const openSeaRouter = createTRPCRouter({
       const data = await response.json() as OpenSeaListingResponse;
       return { ...data, nextCursor: data.next };
     }),
+  getBestlistingsByCollection: publicProcedure
+    .input(z.object({
+      collection: z.string(),
+      limit: z.number().max(100).optional(),
+      cursor: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      const { collection, limit = 100, cursor } = input;
+      const url = new URL(`https://api.opensea.io/api/v2/listings/collection/${collection}/best`);
+      // url params for limit and next
+      url.searchParams.append('limit', limit.toString());
+      if (cursor) {
+        url.searchParams.append('next', cursor);
+      }
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'x-api-key': env.OPENSEA_API_KEY,
+        },
+      });
+      const data = await response.json() as OpenSeaListingResponse;
+      return {
+        ...data,
+        listings: data.listings.filter(listing => 
+          // only return basic listings that can be bought right away
+          listing.type === 'basic' &&
+          // only return listings that are selling one item at a time
+          listing.protocol_data.parameters.offer.length === 1 &&
+          // only return listings that are charging in eth
+          listing.protocol_data.parameters.consideration.every(
+            consideration => consideration.itemType === 0
+          )
+        ),
+      };
+    }),
   getPurchaseEncodedData: publicProcedure
     .input(z.object({
       orders: z.array(z.object({

@@ -18,6 +18,7 @@ export const TokenGrid: FC<Props> = ({ category, query }) => {
     category,
     sparkline: true,
   }, {
+    enabled: category !== "NFTs and collectibles",
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
@@ -130,7 +131,7 @@ export const TokenGrid: FC<Props> = ({ category, query }) => {
 
   return (
     <>
-      <div className="sm:max-w-5xl mx-auto">
+      <div className="sm:max-w-5xl mx-auto mt-4">
         <div className="flex flex-col gap-8 min-w-full">
           <div 
             className={`flex flex-wrap items-stretch w-full justify-center gap-4 ${

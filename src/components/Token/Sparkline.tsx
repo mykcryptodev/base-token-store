@@ -41,6 +41,9 @@ export const Sparkline: FC<Props> = ({ data }) => {
     yaxis: {
       min: Math.min(...data),
       max: Math.max(...data),
+      labels: {
+        show: false,
+      },
     },
     colors: [trend === 'up' ? '#10B981' : '#8a8d91'],
   } satisfies ApexOptions;
