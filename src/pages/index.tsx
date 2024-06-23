@@ -61,13 +61,12 @@ export default function Home() {
                   </button>
                 ))}
               </div>
-              {category === 'NFTs and collectibles' ? (
-                <>
-                  <NftCollectionsGrid />
-                </>
-              ) : (
+              <div className={`${category === 'NFTs and collectibles' ? 'flex' : 'hidden'}`}>
+                <NftCollectionsGrid />
+              </div>
+              <div className={`${category === 'NFTs and collectibles' ? 'hidden' : 'flex'}`}>
                 <TokenGrid category={category} query={debouncedQuery} />
-              )}
+              </div>
             </div>
           </div>
         </div>

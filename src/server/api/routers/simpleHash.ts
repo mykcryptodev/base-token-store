@@ -21,6 +21,7 @@ export const simpleHashRouter = createTRPCRouter({
       url.searchParams.append('chains', chain);
       url.searchParams.append('limit', limit.toString());
       url.searchParams.append('time_period', '7d');
+      url.searchParams.append('include_top_contract_details', '1');
       if (cursor) {
         url.searchParams.append('cursor', cursor);
       }

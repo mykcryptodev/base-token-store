@@ -18,6 +18,7 @@ export const TokenGrid: FC<Props> = ({ category, query }) => {
     category,
     sparkline: true,
   }, {
+    enabled: category !== "NFTs and collectibles",
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });

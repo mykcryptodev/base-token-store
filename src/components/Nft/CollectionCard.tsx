@@ -40,6 +40,13 @@ export const NftCollectionCard: FC<Props> = ({ collection, onCollectionSelected 
     return openSeaFloorPrice.value_usd_cents / 100;
   }, [collection, openSeaFloorPrice]);
 
+  const symbol = useMemo(() => {
+    const ticker = collection?.collection_details.top_contract_details?.find(
+      contract => contract.chain === 'base'
+    )?.symbol;
+    return ticker ? '$' + ticker.toLowerCase(): '';
+  }, [collection]);
+
   const { data: historicalFloorPrices } = api.simpleHash.getHistoricalFloorPrices.useQuery({
     collectionId: collection?.collection_id,
   }, {
@@ -91,7 +98,7 @@ export const NftCollectionCard: FC<Props> = ({ collection, onCollectionSelected 
         </div>
         <h2 className="card-title grid grid-rows-2 gap-0">
           <span className="whitespace-nowrap truncate">{collection.collection_details.name}</span>
-          <span className="text-sm opacity-75 font-normal -mt-2 whitespace-nowrap truncate">{collection.collection_details.description}</span>
+          <span className="text-sm opacity-75 font-normal -mt-2 whitespace-nowrap truncate">{symbol}</span>
         </h2>
         <div className="w-full h-42">
           <Sparkline data={(historicalFloorPrices?.floor_prices ?? []).filter(price => price.floor_price !== null).map(price => price.floor_price).reverse()} />

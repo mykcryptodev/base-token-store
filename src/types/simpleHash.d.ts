@@ -49,6 +49,19 @@ type CollectionDetails = {
   metaplex_first_verified_creator: string | null;
   floor_prices: FloorPrice[];
   top_bids: unknown[];
+  top_contract_details: {
+    chain: string;
+    contract_address: string;
+    deployed_by: string;
+    deployed_via_contract: string | null;
+    deployment_date: string;
+    distinct_nft_count: number;
+    has_multiple_collections: boolean;
+    name: string;
+    owned_by: string;
+    symbol: string;
+    type: string;
+  }[];
   distinct_owner_count: number;
   distinct_nft_count: number;
   total_quantity: number;
