@@ -2,7 +2,6 @@ import { useTheme } from "next-themes";
 import Head from "next/head";
 import { useState } from "react";
 import Logo from "~/components/Logo";
-import NftListingsGrid from "~/components/Nft/ListingsGrid";
 import NftCollectionsGrid from "~/components/Nft/CollectionsGrid";
 import TokenGrid from "~/components/Token/Grid";
 import useDebounce from "~/hooks/useDebounce";

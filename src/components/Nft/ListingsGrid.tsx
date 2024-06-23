@@ -27,7 +27,17 @@ export const ListingsGrid: FC<Props> = ({ collectionSlug }) => {
 
   useEffect(() => {
     if (listingsData) {
-      setListings(prevListings => [...prevListings, ...listingsData.listings]);
+      setListings(prevListings => {
+        // Combine previous and new listings
+        const combinedListings = [...prevListings, ...listingsData.listings];
+        // Filter out duplicates
+        const uniqueListings = combinedListings.filter((listing, index, self) =>
+          index === self.findIndex((t) => (
+            t.order_hash === listing.order_hash
+          ))
+        );
+        return uniqueListings;
+      });
     }
   }, [listingsData]);
 
@@ -48,6 +58,7 @@ export const ListingsGrid: FC<Props> = ({ collectionSlug }) => {
           {/* Add Load More button here */}
           {!listingsIsLoading && listingsData?.next && (
             <button 
+              disabled={listingsIsLoading || !listingsData?.next}
               onClick={() => setCursor(listingsData?.next)}
               className="btn btn-lg btn-neutral w-fit mx-auto mt-8"
             >

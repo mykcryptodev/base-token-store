@@ -69,7 +69,12 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
     if (priceInCurrency?.address !== ZERO_ADDRESS) return '--.--';
     return priceInCurrency.priceInEther * Number(etherPrice ?? 0);
   }, [priceInCurrency, etherPrice]);
-  if (!listing) {
+
+  const itemIsInCart = useMemo(() => {
+    return cart.find((item: CartItem) => item.id === nft?.nft_id);
+  }, [cart, nft]);
+  
+  if (!listing || nftIsLoading) {
     return <TokenLoadingCard />
   }
   
@@ -155,11 +160,19 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
           />
         </div>
         <div className="card-actions h-full items-end">
-          <button 
-            disabled={addToCartIsLoading}
-            className="btn btn-secondary shadow-none hover:btn-primary hover:shadow z-10"
-            onClick={() => onAddToCart()}
-          >Add to cart</button>
+          {itemIsInCart ? (
+            <button 
+              disabled={addToCartIsLoading}
+              className="btn btn-neutral shadow-none hover:btn-primary hover:shadow z-10"
+              onClick={() => void document.getElementById('my-drawer')?.click()}
+            >View in cart</button>
+          ) : (
+            <button 
+              disabled={addToCartIsLoading}
+              className="btn btn-secondary shadow-none hover:btn-primary hover:shadow z-10"
+              onClick={() => onAddToCart()}
+            >Add to cart</button>
+          )}
         </div>
       </div>
     </div>
