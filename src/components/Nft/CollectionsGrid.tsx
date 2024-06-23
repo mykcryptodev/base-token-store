@@ -54,7 +54,7 @@ export const CollectionsGrid: FC = () => {
             <ArrowLeftIcon className="h-4 w-4" />
             Back
           </button>
-          <div className="relative">
+          <div className="relative min-h-48">
             <Image
               src={selectedCollection.collection_details.banner_image_url ?? selectedCollection.collection_details.image_url}
               alt={selectedCollection.collection_details.name}
@@ -63,7 +63,7 @@ export const CollectionsGrid: FC = () => {
               layout="responsive"
               className="rounded-lg object-cover max-h-96"
             />
-            <div className="absolute inset-0 flex flex-col justify-end items-start sm:-mb-8 ml-8 gap-4">
+            <div className="absolute inset-0 flex flex-col justify-end items-start -mb-8 ml-8 gap-4">
               <Image
                 src={selectedCollection.collection_details.image_url}
                 alt={selectedCollection.collection_details.name}
@@ -73,7 +73,7 @@ export const CollectionsGrid: FC = () => {
               />
             </div>
           </div>
-          <div className="mt-4 p-8 pb-0">
+          <div className="sm:mt-4 p-8 pb-0">
             <h1 className="text-3xl font-bold mb-2">{selectedCollection.collection_details.name}</h1>
             <p className="break-words max-w-xs sm:max-w-none">
               <Markdown>
