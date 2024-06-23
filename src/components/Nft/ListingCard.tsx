@@ -55,11 +55,11 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
       icon: '',
       address: '',
     };
-    const priceInEther = Number(toEther(BigInt(listing.price.current.value)));
+    const priceInEther = Number(toEther(BigInt(listing.price?.current.value ?? '0')));
     return {
       priceInEther,
       name: "Ether",
-      symbol: listing.price.current.currency,
+      symbol: listing.price?.current.currency ?? 'ETH',
       icon: "/images/eth.svg",
       address: ZERO_ADDRESS,
     }

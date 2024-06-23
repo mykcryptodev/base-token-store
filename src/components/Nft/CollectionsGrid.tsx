@@ -75,7 +75,7 @@ export const CollectionsGrid: FC = () => {
           </div>
           <div className="mt-4 p-8 pb-0">
             <h1 className="text-3xl font-bold mb-2">{selectedCollection.collection_details.name}</h1>
-            <p className="prose">
+            <p className="break-words max-w-xs sm:max-w-none">
               <Markdown>
                 {selectedCollection.collection_details.description}
               </Markdown>
