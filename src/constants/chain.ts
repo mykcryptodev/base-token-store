@@ -1,8 +1,16 @@
-import { base, type ChainMetadata } from "thirdweb/chains";
+import { arbitrum, avalanche, base, bsc, ethereum, optimism, polygon, type ChainMetadata } from "thirdweb/chains";
 
 export const DEFAULT_CHAIN = process.env.NODE_ENV === 'production' ? base : base;
 
-export const SUPPORTED_CHAINS = [base];
+export const SUPPORTED_CHAINS = [
+  arbitrum,
+  avalanche,
+  base,
+  bsc,
+  ethereum,
+  optimism,
+  polygon,
+];
 
 export const DEFAULT_CHAIN_METADATA: ChainMetadata = {
   name: "Base",

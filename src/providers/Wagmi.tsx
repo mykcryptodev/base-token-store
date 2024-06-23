@@ -1,10 +1,18 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, http, createConfig } from "wagmi";
-import { base, baseSepolia } from "wagmi/chains";
+import { arbitrum, avalanche, base, bsc, mainnet, optimism, polygon } from "wagmi/chains";
 import { coinbaseWallet } from "wagmi/connectors";
 
 export const config = createConfig({
-  chains: [base, baseSepolia],
+  chains: [
+    base,
+    arbitrum,
+    avalanche,
+    bsc,
+    optimism,
+    polygon,
+    mainnet,
+  ],
   connectors: [coinbaseWallet({
     appName: "Base Token Store",
     appLogoUrl: "https://avatars.githubusercontent.com/u/108554348?s=200&v=4",
@@ -12,7 +20,12 @@ export const config = createConfig({
   })],
   transports: {
     [base.id]: http(),
-    [baseSepolia.id]: http(),
+    [arbitrum.id]: http(),
+    [avalanche.id]: http(),
+    [bsc.id]: http(),
+    [optimism.id]: http(),
+    [polygon.id]: http(),
+    [mainnet.id]: http(),
   },
 });
 

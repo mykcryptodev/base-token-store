@@ -26,7 +26,7 @@ export default function Home() {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center">
         <div className="container flex flex-col items-center justify-center gap-2 px-4 pb-16 ">
-          <div className="sm:hidden flex mt-8">
+          <div className="lg:hidden flex mt-8">
             <Logo
               shapesFill={`${theme === 'dark' ? '#C9CCD5' : '#FFFFFF'}`}
               backgroundFill={`${theme === 'dark' ? '#000000' : '#1E4FFD'}`}
