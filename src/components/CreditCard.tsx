@@ -17,7 +17,7 @@ export const CreditCard: FC = () => {
 
     <input type="checkbox" id="credit-card-modal" className="modal-toggle" />
     <div className="modal modal-bottom sm:modal-middle" role="dialog">
-      <div className="modal-box p-0 sm:p-4">
+      <div className="modal-box overflow-x-hidden p-0 sm:p-4">
         <div className="absolute right-4 top-4">
           <label htmlFor="credit-card-modal" className="btn btn-sm btn-circle btn-ghost ">
             <XMarkIcon className="h-6 w-6" />
