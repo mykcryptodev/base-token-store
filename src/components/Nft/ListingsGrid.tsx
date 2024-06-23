@@ -9,13 +9,13 @@ type Props = {
 };
 
 export const ListingsGrid: FC<Props> = ({ collectionSlug }) => {
-  const COLLECTIONS_PER_PAGE = 20;
+  const LISTINGS_PER_PAGE = 12;
   const [cursor, setCursor] = useState<string>();
   const [listings, setListings] = useState<Order[]>([])
 
   const { data: listingsData, isLoading: listingsIsLoading } = api.openSea.getBestlistingsByCollection.useQuery({
     collection: collectionSlug ?? '',
-    limit: COLLECTIONS_PER_PAGE,
+    limit: LISTINGS_PER_PAGE,
     cursor,
   }, {
     enabled: !!collectionSlug,
@@ -49,7 +49,7 @@ export const ListingsGrid: FC<Props> = ({ collectionSlug }) => {
             {listings.map((listing, index) => 
               <ListingsCard key={index} listing={listing} />
             )}
-            {(listingsIsLoading) && Array.from({ length: COLLECTIONS_PER_PAGE }, (_, index) => (
+            {(listingsIsLoading) && Array.from({ length: LISTINGS_PER_PAGE }, (_, index) => (
               <ListingsCard key={index} />
             ))}
           </div>

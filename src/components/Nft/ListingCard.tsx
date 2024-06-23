@@ -2,7 +2,6 @@ import { SparklesIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import { useMemo, useState, type FC } from "react";
 import { ZERO_ADDRESS, toEther } from "thirdweb";
-import { COINGECKO_UNKNOWN_IMG } from "~/constants/dex";
 import { useCartContext } from "~/contexts/Cart";
 import { type CartItem } from "~/hooks/useCart";
 import { type Order } from "~/types/openSea";

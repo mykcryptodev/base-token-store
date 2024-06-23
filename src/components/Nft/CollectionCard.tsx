@@ -65,12 +65,16 @@ export const NftCollectionCard: FC<Props> = ({ collection, onCollectionSelected 
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
+  
+  const oldestPrice = historicalFloorPrices?.floor_prices[historicalFloorPrices.floor_prices.length - 1]?.floor_price ?? 0;
+  const newestPrice = historicalFloorPrices?.floor_prices[0]?.floor_price ?? 0;
+  const percentPriceDiff = ((newestPrice - oldestPrice) / oldestPrice) * 100;
 
   if (!collection) {
     return <TokenLoadingCard />
   }
 
-  if (!collection.collection_details.image_url) return <></>
+  if (!collection.collection_details.image_url || !openSeaFloorPrice) return <></>
 
   return (
     <div className={`card max-w-[236px] min-h-[300px] raise-on-hover overflow-hidden`} key={collection.collection_id}>
@@ -84,36 +88,31 @@ export const NftCollectionCard: FC<Props> = ({ collection, onCollectionSelected 
             height={100}
             className="rounded-full w-12 h-12 object-cover"
           />
-          {openSeaFloorPrice ? (
-            <div className="flex flex-col">
-              <span className="text-right">${priceInUsd?.toLocaleString([], {
-                currency: 'usd',
-                maximumFractionDigits: 2,
-                minimumFractionDigits: 2,
-              })}</span>
-              <span className="flex items-center">
-                <Image src={priceInCurrency.icon ?? COINGECKO_UNKNOWN_IMG} alt={priceInCurrency.name} width={16} height={16} />
-                <span 
-                  className={`text-right text-xs`}
-                >
-                  {/* truncate % change to 4 decimal place */}
-                  {priceInCurrency.priceInEther.toString().replace(/(\.\d{4})\d+/, "$1")}
-                </span>
+          <div className="flex flex-col">
+            <span className="text-right">${priceInUsd?.toLocaleString([], {
+              currency: 'usd',
+              maximumFractionDigits: 2,
+              minimumFractionDigits: 2,
+            })}</span>
+            {percentPriceDiff === Infinity ? (
+              <span className="w-20 h-6 rounded" />
+            ) : (
+              <span 
+                className={`text-right ${percentPriceDiff > 0 ? 'text-success' : 'text-[#8a8d91]'}`}
+              >
+                {percentPriceDiff > 0 && ('+')}
+                {/* truncate % change to 1 decimal place */}
+                {percentPriceDiff.toString().replace(/(\.\d{1})\d+/, "$1") }%
               </span>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-1">
-              <span className="bg-base-200 w-20 h-6 rounded" />
-              <span className="bg-base-200 w-20 h-6 rounded" />
-            </div>
-          )}
+            )}
+          </div>
         </div>
         <h2 className="card-title grid grid-rows-2 gap-0">
           <span className="whitespace-nowrap truncate">{collection.collection_details.name}</span>
           <span className="text-sm opacity-75 font-normal -mt-2 whitespace-nowrap truncate">{collection.collection_details.description}</span>
         </h2>
         <div className="w-full h-42">
-          <Sparkline data={(historicalFloorPrices?.floor_prices ?? []).filter(price => price.floor_price !== null).map(price => price.floor_price)} />
+          <Sparkline data={(historicalFloorPrices?.floor_prices ?? []).filter(price => price.floor_price !== null).map(price => price.floor_price).reverse()} />
         </div>
         <div className="card-actions h-full items-end">
           <button 
