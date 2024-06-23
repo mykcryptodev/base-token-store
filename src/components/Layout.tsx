@@ -1,13 +1,14 @@
 import { type FC, type ReactNode } from "react"
 import Link from "next/link";
 import { Connect } from "~/components/Connect";
-import { ChartPieIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
+import { ShoppingBagIcon, WalletIcon } from "@heroicons/react/24/outline";
 import Cart from "~/components/Cart";
 import { Footer } from "~/components/Footer";
 import { useActiveAccount } from "thirdweb/react";
 import ThemeSwitch from "./ThemeSwitch";
 import { useTheme } from "next-themes";
 import Logo from "~/components/Logo";
+import CreditCard from "~/components/CreditCard";
 
 interface LayoutProps {
   children: ReactNode
@@ -28,8 +29,8 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
               <div className="sm:w-full sm:px-0 w-fit px-2">
                 <ThemeSwitch />
               </div>
-              <div className="sm:w-full w-fit flex items-center justify-start sm:justify-center gap-2">
-                <Link href="/" className="sm:flex hidden">
+              <div className="lg:w-full w-fit flex items-center justify-start sm:justify-center gap-2">
+                <Link href="/" className="lg:flex hidden">
                   <Logo
                     shapesFill={`${theme === 'dark' ? '#C9CCD5' : '#FFFFFF'}`}
                     backgroundFill={`${theme === 'dark' ? '#000000' : '#1E4FFD'}`}
@@ -39,19 +40,22 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
                 </Link>
               </div>
               <div className="w-full flex items-center gap-2 justify-center sm:justify-end">
-                {account && (<div className="w-full sm:hidden flex" />)}
+                {account && (<div className="lg:hidden w-0 flex" />)}
                 <div className="w-full flex justify-end">
                   <Connect />
                 </div>
-                <div className="flex justfiy-end">
+                <div className="flex items-center justfiy-end">
                   {account && (
-                    <Link href={`https://wallet.coinbase.com/assets`} className="btn btn-ghost flex h-10 items-center space-x-2" target="_blank" rel="noopener">
-                      <ChartPieIcon className="h-6 w-6" />
-                    </Link>
+                    <div className="flex items-center">
+                      <Link href={`https://wallet.coinbase.com/assets`} className="btn sm:btn-md btn-sm btn-ghost flex items-center space-x-2" target="_blank" rel="noopener">
+                        <WalletIcon className="sm:h-6 sm:w-6 w-4 h-4" />
+                      </Link>
+                      <CreditCard />
+                    </div>
                   )}
                   <div className="indicator">
-                    <label htmlFor="my-drawer" className="btn btn-ghost drawer-button">
-                      <ShoppingBagIcon className="h-6 w-6" /> 
+                    <label htmlFor="my-drawer" className="btn sm:btn-md btn-sm btn-ghost drawer-button">
+                      <ShoppingBagIcon className="sm:h-6 sm:w-6 w-4 h-4" /> 
                     </label>
                   </div>
                 </div>
