@@ -64,7 +64,7 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
       </div> 
       <div className="drawer-side z-20">
         <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
-        <ul className="menu p-4 min-w-96 w-3/5 min-h-full bg-base-200 text-base-content">
+        <ul className="p-4 min-w-96 w-2/5 min-h-full bg-base-200 text-base-content">
           <Cart />
         </ul>
       </div>

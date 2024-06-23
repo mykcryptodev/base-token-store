@@ -109,29 +109,28 @@ const Cart: FC = () => {
           <XMarkIcon className="h-6 w-6" />
         </button>
       </div>
-      <ul className="menu p-4 w-full min-h-full bg-base-200 text-base-content">
+      <ul className="p-4 w-full min-h-full bg-base-200 text-base-content">
         {cart.map((item) => (
           <li key={item.id}>
-            <div className="flex sm:flex-row flex-col flex-nowrap w-full">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col flex-nowrap w-full">
+              <div className="flex items-start gap-2">
                 <Image
                   src={item.img}
                   alt={item.name}
-                  height={40}
-                  width={40}
-                  className={`${item.isNft ? 'rounded-lg' : 'rounded-full'} w-full max-w-10 h-full max-h-10`}
+                  height={100}
+                  width={100}
+                  className={`${item.isNft ? 'rounded-lg' : 'rounded-full'} w-full max-w-20 h-full max-h-20`}
                 />
-                <div className="flex flex-col">
+                <div className="flex flex-col grow">
                   <span className="font-bold">{item.name}</span>
-                  <span className="text-xs">${item.price.toLocaleString([], {
-                      currency: 'usd',
-                      maximumFractionDigits: 2,
-                      minimumFractionDigits: 2,
-                    })}
+                  <span className="text-xs">${item.usdAmountDesired.toString().replace(/(\.\d{2})\d+/, "$1")}
                   </span>
                 </div>
+                <button className="btn btn-xs btn-ghost shrink" onClick={() => deleteItem(item.id)}>
+                  <TrashIcon className="h-4 w-4" />
+                </button>
               </div>
-              <div className="flex flex-col justify-end grow">
+              <div className="flex flex-col w-full justify-end">
                 <div className="flex items-center justify-end gap-1">
                   <button 
                     className={`btn btn-xs btn-ghost ${item.isNft ? 'invisible' : 'block'}`}
@@ -154,12 +153,9 @@ const Cart: FC = () => {
                   >
                     +
                   </button>
-                  <button className="btn btn-xs btn-ghost" onClick={() => deleteItem(item.id)}>
-                    <TrashIcon className="h-4 w-4" />
-                  </button>
                 </div>
                 <span 
-                  className="text-xs text-end opacity-30 sm:mr-16 mr-10 mt-1 uppercase"
+                  className="text-xs text-end opacity-30 sm:mr-8 mr-10 mt-1 uppercase"
                 >
                   {isNaN(item.price * item.usdAmountDesired) 
                     ? 0 
@@ -170,23 +166,19 @@ const Cart: FC = () => {
                 </span>
               </div>
             </div>
+            <div className="divider" />
           </li>
         ))}
       </ul>
-      {/* print the total of the cart */}
-      <div className="divider mt-0 px-4" />
-      <div className="flex justify-end">
-        <span className="font-bold text-xl">Total: ${isNaN(cart.reduce((acc, item) => acc + item.usdAmountDesired, 0)) ? 0 : cart.reduce((acc, item) => acc + item.usdAmountDesired, 0).toLocaleString([], { currency: 'usd' })}</span>
-      </div>
       <button 
         disabled={checkoutIsLoading || !account || cart.length === 0}
-        className="btn btn-primary btn-block btn-lg mt-8"
+        className="btn btn-primary btn-block btn-lg mt-2"
         onClick={() => void checkout()}
       >
         {checkoutIsLoading && (
           <div className="loading loading-spinner" />
         )}
-        Checkout
+        Checkout ${isNaN(cart.reduce((acc, item) => acc + item.usdAmountDesired, 0)) ? 0 : cart.reduce((acc, item) => acc + item.usdAmountDesired, 0).toLocaleString([], { currency: 'usd' }).replace(/(\.\d{2})\d+/, "$1")}
       </button>
       {!account && (
         <div className="mt-2">
