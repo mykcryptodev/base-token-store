@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useMemo, useState, type FC } from "react";
-import { ZERO_ADDRESS, toTokens } from "thirdweb";
+import { ZERO_ADDRESS, toEther } from "thirdweb";
 import { COINGECKO_UNKNOWN_IMG } from "~/constants/dex";
 import { useCartContext } from "~/contexts/Cart";
 import { type CartItem } from "~/hooks/useCart";
@@ -38,6 +38,15 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
+
+  const { data: nft, isLoading: nftIsLoading } = api.simpleHash.getNft.useQuery({
+    nftId: `base.${listing?.protocol_data.parameters.offer[0]!.token}.${listing?.protocol_data.parameters.offer[0]!.identifierOrCriteria}`,
+  }, {
+    enabled: !!listing,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+
   const priceInCurrency = useMemo(() => {
     if (!listing || !etherPrice) return {
       priceInEther: 0,
@@ -46,21 +55,13 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
       icon: '',
       address: '',
     };
-    const purchaseAsset = listing.taker_asset_bundle.assets[0];
-    if (!purchaseAsset?.decimals || purchaseAsset.asset_contract.asset_contract_type !== 'fungible') return {
-      priceInEther: 0,
-      name: '',
-      symbol: '',
-      icon: '',
-      address: '',
-    };
-    const priceInEther = Number(toTokens(BigInt(listing.current_price ?? '0'), Number(purchaseAsset.decimals)));
+    const priceInEther = Number(toEther(BigInt(listing.price.current.value)));
     return {
       priceInEther,
-      name: purchaseAsset.name,
-      symbol: purchaseAsset.asset_contract.symbol,
-      icon: purchaseAsset.image_thumbnail_url,
-      address: purchaseAsset.asset_contract.address,
+      name: "Ether",
+      symbol: listing.price.current.currency,
+      icon: "/images/eth.svg",
+      address: ZERO_ADDRESS,
     }
   }, [listing, etherPrice]);
   const priceInUsd = useMemo(() => {
@@ -71,36 +72,27 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
   if (!listing) {
     return <TokenLoadingCard />
   }
-  const listingAsset = listing.maker_asset_bundle.assets[0];
   
-  if (
-    !listingAsset || 
-    // only show listings that are purchasable with ether
-    listing.taker_asset_bundle.assets[0]?.asset_contract.address !== ZERO_ADDRESS ||
-    // only show listings that are selling 1 asset 
-    listing.maker_asset_bundle.assets.length !== 1 ||
-    // hide assets that are nsfw
-    listingAsset.is_nsfw
-  ) return <></>;
+  if (!nft) return <></>;
 
   const onAddToCart = async () => {
     // Add logic check here for prevent race condition
     if (addToCartIsLoading) return;
     setAddToCartIsLoading(true);
-    const id = listingAsset.asset_contract.address + listingAsset.id;
+    const id = nft.nft_id;
     const alreadyInCart = cart.find((item: CartItem) => item.id === id);
 
     if (!alreadyInCart) {
       addItem({ 
         id,
-        address: listingAsset.asset_contract.address,
+        address: nft.contract_address,
         decimals: 18,
         symbol: "ETH",
-        name: listingAsset.name,
-        nftCollectionName: listingAsset.collection.name,
+        name: nft.name,
+        nftCollectionName: nft.collection.name,
         usdAmountDesired: typeof priceInUsd === 'number' ? priceInUsd : 0, 
         price: typeof priceInUsd === 'number' ? priceInUsd : 0,
-        img: listingAsset.image_url ?? listingAsset.image_thumbnail_url,
+        img: nft.image_url ?? nft.previews.image_small_url,
         isNft: true,
         nftOrderHash: listing.order_hash,
         nftExchangeAddress: listing.protocol_address,
@@ -111,21 +103,21 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
     document.getElementById('my-drawer')?.click();
   };
 
-  if (!listingAsset.image_url ?? !listingAsset.image_thumbnail_url) return <></>
+  if (!nft.image_url ?? !nft.previews.image_small_url) return <></>
 
   return (
-    <div className={`card max-w-[236px] min-h-[300px] raise-on-hover overflow-hidden`} key={listingAsset.asset_contract.address + listingAsset.id}>
-      <div className="absolute inset-0 bg-cover filter blur-lg" style={{ backgroundImage: `url(${listingAsset.image_preview_url})`, transform: 'scale(2)', opacity: 0.2, pointerEvents: 'none' }}></div>
+    <div className={`card max-w-[236px] min-h-[300px] raise-on-hover overflow-hidden`} key={nft.nft_id}>
+      <div className="absolute inset-0 bg-cover filter blur-lg" style={{ backgroundImage: `url(${nft.image_url ?? nft.collection.image_url})`, transform: 'scale(2)', opacity: 0.2, pointerEvents: 'none' }}></div>
       <div className="card-body p-4">
         <div className="flex w-full justify-between items-center gap-2">
           <Image
-            src={listingAsset.collection.image_url ?? listingAsset.image_thumbnail_url}
-            alt={listingAsset.name}
+            src={nft.collection.image_url ?? nft.collection.banner_image_url}
+            alt={nft.name}
             width={100}
             height={100}
             className="rounded-full w-12 h-12"
           />
-          {listing.current_price ? (
+          {listing.price ? (
             <div className="flex flex-col">
               <span className="text-right">${priceInUsd?.toLocaleString([], {
                 currency: 'usd',
@@ -150,13 +142,13 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
           )}
         </div>
         <h2 className="card-title grid grid-rows-2 gap-0">
-          <span className="whitespace-nowrap truncate">{listingAsset.collection.name}</span>
-          <span className="text-sm opacity-75 font-normal -mt-2 whitespace-nowrap truncate">{listingAsset.name}</span>
+          <span className="whitespace-nowrap truncate">{nft.collection.name}</span>
+          <span className="text-sm opacity-75 font-normal -mt-2 whitespace-nowrap truncate">{nft.name}</span>
         </h2>
         <div className="w-full h-42">
           <Image
-            src={listingAsset.image_url}
-            alt={listingAsset.name}
+            src={nft.image_url ?? nft.previews.image_small_url}
+            alt={nft.name}
             width={250}
             height={250}
             className="rounded-lg"

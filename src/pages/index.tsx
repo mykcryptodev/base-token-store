@@ -65,7 +65,6 @@ export default function Home() {
               {category === 'NFTs and collectibles' ? (
                 <>
                   <NftCollectionsGrid />
-                  <NftListingsGrid />
                 </>
               ) : (
                 <TokenGrid category={category} query={debouncedQuery} />

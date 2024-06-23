@@ -88,11 +88,16 @@ type Asset = {
 }
 
 export type Order = {
-  created_date: string;
-  closing_date: string;
-  listing_time: number;
-  expiration_time: number;
   order_hash: string;
+  chain: string;
+  type: string;
+  price: {
+    current: {
+      currency: string;
+      decimals: number;
+      value: string;
+    };
+  };
   protocol_data: {
     parameters: {
       offerer: string;
@@ -124,59 +129,53 @@ export type Order = {
     signature: null | string;
   };
   protocol_address: string;
-  current_price: string;
-  maker: {
-    user: number;
-    profile_img_url: string;
-    address: string;
-    config: string;
-  };
-  taker: null | string;
-  maker_fees: Array<{
-    account: {
-      user: null | number;
-      profile_img_url: string;
-      address: string;
-      config: string;
-    };
-    basis_points: string;
-  }>;
-  taker_fees: Array<unknown>;
-  side: string;
-  order_type: string;
-  cancelled: boolean;
-  finalized: boolean;
-  marked_invalid: boolean;
-  remaining_quantity: number;
-  criteria_proof: null | string;
-  maker_asset_bundle: {
-    assets: Array<Asset>;
-    maker: null | string;
-    slug: null | string;
-    name: null | string;
-    description: null | string;
-    external_link: null | string;
-    asset_contract: null | string;
-    permalink: null | string;
-    seaport_sell_orders: null | string;
-  };
-  taker_asset_bundle: {
-    assets: Array<Asset>;
-    maker: null | string;
-    slug: null | string;
-    name: null | string;
-    description: null | string;
-    external_link: null | string;
-    asset_contract: null | string;
-    permalink: null | string;
-    seaport_sell_orders: null | string;
-  };
 };
 
 export type OpenSeaListingResponse = {
-  next: string;
-  previous: null | string;
-  orders: Order[];
+  next: string | undefined;
+  listings: {
+    order_hash: string;
+    chain: string;
+    type: string;
+    price: {
+      current: {
+        currency: string;
+        decimals: number;
+        value: string;
+      };
+    };
+    protocol_data: {
+      parameters: {
+        offerer: string;
+        offer: Array<{
+          itemType: number;
+          token: string;
+          identifierOrCriteria: string;
+          startAmount: string;
+          endAmount: string;
+        }>;
+        consideration: Array<{
+          itemType: number;
+          token: string;
+          identifierOrCriteria: string;
+          startAmount: string;
+          endAmount: string;
+          recipient: string;
+        }>;
+        startTime: string;
+        endTime: string;
+        orderType: number;
+        zone: string;
+        zoneHash: string;
+        salt: string;
+        conduitKey: string;
+        totalOriginalConsiderationItems: number;
+        counter: number;
+      };
+      signature: null | string;
+    };
+    protocol_address: string;
+  }[];
 };
 
 export type OpenSeaFulfillmentDataResponse = {

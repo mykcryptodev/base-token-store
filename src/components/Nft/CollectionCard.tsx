@@ -28,9 +28,10 @@ const TokenLoadingCard: FC = () => (
 
 type Props = {
   collection?: Collection;
+  onCollectionSelected?: (collection: Collection | null) => void;
 };
 
-export const NftCollectionCard: FC<Props> = ({ collection }) => {
+export const NftCollectionCard: FC<Props> = ({ collection, onCollectionSelected }) => {
   const openSeaFloorPrice = useMemo(() => 
     collection?.collection_details.floor_prices.find(price => 
       price.marketplace_id === 'opensea'
@@ -64,8 +65,6 @@ export const NftCollectionCard: FC<Props> = ({ collection }) => {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
-
-  console.log({ historicalFloorPrices });
 
   if (!collection) {
     return <TokenLoadingCard />
@@ -119,6 +118,7 @@ export const NftCollectionCard: FC<Props> = ({ collection }) => {
         <div className="card-actions h-full items-end">
           <button 
             className="btn btn-secondary shadow-none hover:btn-primary hover:shadow z-10"
+            onClick={() => onCollectionSelected?.(collection)}
           >View</button>
         </div>
       </div>
