@@ -67,7 +67,7 @@ export const Footer: FC = () => {
             ))}
           </div>
           <Link href="https://www.base.org/onchainsummer?utm_source=basetokenstore" target="_blank" rel="noreferrer">
-            <Image src="/images/onchainsummer.png" alt="Onchain Summer" className="h-16 w-fit" width={200} height={200} />
+            <Image src="/images/onchainsummer.png" alt="Onchain Summer" className="h-16 min-w-[200px] w-fit" width={200} height={200} />
           </Link>
           <Link href="https://github.com/mykcryptodev/base-token-store" className="flex items-center gap-2 text-sm" target="_blank" rel="noreferrer">
             <Image src="/images/github.png" alt="Github" className="h-8 w-fit" width={50} height={50} />
