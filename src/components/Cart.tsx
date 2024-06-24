@@ -1,4 +1,4 @@
-import { ShoppingBagIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ShoppingBagIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { useState, type FC } from 'react';
 import { ZERO_ADDRESS, toWei} from 'thirdweb';
@@ -127,7 +127,7 @@ const Cart: FC = () => {
                   </span>
                 </div>
                 <button className="btn btn-xs btn-ghost shrink" onClick={() => deleteItem(item.id)}>
-                  <TrashIcon className="h-4 w-4" />
+                  <XCircleIcon className="h-5 w-5" />
                 </button>
               </div>
               <div className="flex flex-col w-full justify-end">
