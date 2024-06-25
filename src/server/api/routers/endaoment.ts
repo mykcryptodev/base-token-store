@@ -188,16 +188,17 @@ async function createSwapCalldata ({
 
   // create the multicall data to pass to the swap
   const multicallAbiItem = parseAbiItem(
-    "function multicall(bytes[] calldata data) external payable returns (bytes[] memory)"
+    "function multicall(uint256 deadline, bytes[] calldata data) external payable returns (bytes[] memory)"
   );
 
   // Multicall parameters
   const calls = [uniswapExactInputSingleData];
+  const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
 
   const multicallData = encodeFunctionData({
     abi: [multicallAbiItem],
     functionName: "multicall",
-    args: [calls],
+    args: [BigInt(deadline), calls],
   });
 
   // endaoment swap params
