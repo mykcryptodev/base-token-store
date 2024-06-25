@@ -175,7 +175,7 @@ async function createSwapCalldata ({
     tokenIn: WETH,
     tokenOut: baseTokenAddress,
     fee: 3000, // Common pool fee
-    recipient: recipient,
+    recipient,
     amountIn: BigInt(amountIn),
     amountOutMinimum: BigInt(0), // take what we can get for now
     sqrtPriceLimitX96: BigInt(0), // optional
@@ -201,21 +201,5 @@ async function createSwapCalldata ({
     args: [BigInt(deadline), calls],
   });
 
-  // endaoment swap params
-  const swapAbiItem = parseAbiItem(
-    `function swap(address _tokenIn, address _tokenOut, address _recipient, uint256 _amount, bytes calldata _data) external payable returns (uint256)`
-  );
-  const swapData = encodeFunctionData({
-    abi: [swapAbiItem],
-    functionName: "swap",
-    args: [
-      NATIVE_TOKEN_ADDRESS,
-      baseTokenAddress,
-      recipient,
-      BigInt(amountIn),
-      multicallData,
-    ],
-  });
-
-  return swapData;
+  return multicallData;
 }
