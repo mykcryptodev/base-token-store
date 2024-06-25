@@ -1,6 +1,6 @@
 import { ShoppingBagIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
-import { useState, type FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 import { ZERO_ADDRESS, toWei} from 'thirdweb';
 import { base } from 'thirdweb/chains';
 import { useCartContext } from '~/contexts/Cart';
@@ -23,6 +23,26 @@ const Cart: FC = () => {
   });
   const { mutateAsync: getSwapEncodedData } = api.kyberswap.getCheckoutData.useMutation();
   const { mutateAsync: getNftPurchaseEncodedData } = api.openSea.getPurchaseEncodedData.useMutation();
+  const { mutateAsync: getDonationEncodedData } = api.endaoment.getDonationTransaction.useMutation();
+
+  // TESTING PURPOSES: donate a little bit of eth to a charity
+  const [dono, setDono] = useState<{ to: `0x${string}`, data: `0x${string}`, value: bigint }>();
+  useEffect(() => {
+    const getDonationData = async () => {
+      const data = await getDonationEncodedData({
+        ein: '111666852',
+        donationAmountInWei: toWei('0.0001').toString(),
+      });
+      console.log({ data })
+      setDono({
+        to: data.to as `0x${string}`,
+        data: data.data,
+        value: BigInt(data.value),
+      });
+    }
+    void getDonationData();
+  }, [getDonationEncodedData]);
+  
   const [checkoutIsLoading, setCheckoutIsLoading] = useState<boolean>(false);
 
   const checkout = async () => {
@@ -76,7 +96,7 @@ const Cart: FC = () => {
           to: swap.data.routerAddress as `0x${string}`,
           data: swap.data.data as `0x${string}`,
           value: BigInt(swap.data.amountIn),
-        })).concat(nftPurchaseCalls),
+        })).concat(...nftPurchaseCalls, dono ? [dono] : []),
         capabilities: {
           auxiliaryFunds: {
             supported: true

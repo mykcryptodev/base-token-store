@@ -1,4 +1,4 @@
-import { useEffect, useMemo, type FC } from "react";
+import { useMemo, type FC } from "react";
 import { api } from "~/utils/api";
 import Image from "next/image";
 
@@ -43,19 +43,6 @@ export const TokenGrid: FC<Props> = ({ category, query }) => {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
-
-  const { mutateAsync: getDonationEncodedData } = api.endaoment.getDonationTransaction.useMutation();
-
-  useEffect(() => {
-    const getDonationData = async () => {
-      const data = await getDonationEncodedData({
-        ein: '111666852',
-        donationAmountInWei: '1000000000000000000',
-      });
-      console.log({ data })
-    }
-    void getDonationData();
-  }, [getDonationEncodedData]);
 
   const { data: fallbackToken } = api.coingecko.getTokenCardDataById.useQuery({
     id: 'pawthereum-2',
