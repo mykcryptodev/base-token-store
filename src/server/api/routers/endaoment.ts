@@ -18,6 +18,7 @@ const client = createThirdwebClient({
 
 const SWAP_WRAPPER = "0x45a36C872B5E2D709A0e7B6C767Ec67f7169bb02";
 const ORG_FACTORY = "0x3d7bba3AEE1CFADC730F42Ca716172F94BBBa488";
+const WETH = "0x4200000000000000000000000000000000000006";
 
 export const endaomentRouter = createTRPCRouter({
   search: publicProcedure
@@ -104,7 +105,7 @@ export const endaomentRouter = createTRPCRouter({
             arg_0: orgAddress,
           }),
         ]) as [`0x${string}`, boolean];
-        const callData = createSwapCalldata({
+        const callData = await createSwapCalldata({
           amountIn: donationAmountInWei,
           baseTokenAddress,
           recipient: orgAddress,
@@ -158,7 +159,7 @@ export const endaomentRouter = createTRPCRouter({
     }),
 });
 
-function createSwapCalldata ({
+async function createSwapCalldata ({
   amountIn,
   baseTokenAddress,
   recipient,
@@ -167,7 +168,39 @@ function createSwapCalldata ({
   baseTokenAddress: `0x${string}`;
   recipient: `0x${string}`;
 }) {
-  // create the swap calldata
+  const routerAbiItem = parseAbiItem(
+    "function exactInputSingle((address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96)) external payable returns (uint256 amountOut)"
+  );
+  const uniswapParams = {
+    tokenIn: WETH,
+    tokenOut: baseTokenAddress,
+    fee: 3000, // Common pool fee
+    recipient: recipient,
+    amountIn: BigInt(amountIn),
+    amountOutMinimum: BigInt(0), // take what we can get for now
+    sqrtPriceLimitX96: BigInt(0), // optional
+  };
+  const uniswapExactInputSingleData = encodeFunctionData({
+    abi: [routerAbiItem],
+    functionName: "exactInputSingle",
+    args: [uniswapParams],
+  });
+
+  // create the multicall data to pass to the swap
+  const multicallAbiItem = parseAbiItem(
+    "function multicall(bytes[] calldata data) external payable returns (bytes[] memory)"
+  );
+
+  // Multicall parameters
+  const calls = [uniswapExactInputSingleData];
+
+  const multicallData = encodeFunctionData({
+    abi: [multicallAbiItem],
+    functionName: "multicall",
+    args: [calls],
+  });
+
+  // endaoment swap params
   const swapAbiItem = parseAbiItem(
     `function swap(address _tokenIn, address _tokenOut, address _recipient, uint256 _amount, bytes calldata _data) external payable returns (uint256)`
   );
@@ -179,23 +212,9 @@ function createSwapCalldata ({
       baseTokenAddress,
       recipient,
       BigInt(amountIn),
-      '0x' as `0x${string}`,
+      multicallData,
     ],
   });
-  // create the multicall data to pass to the swap
-  const multicallAbiItem = parseAbiItem(
-    "function multicall(uint256 deadline, bytes[] calldata data) external payable returns (bytes[] memory)"
-  );
 
-  // Multicall parameters
-  const deadline = Math.floor(Date.now() / 1000) + 1200;  // 20 minutes from now
-  const calls = [swapData];
-
-  const multicallData = encodeFunctionData({
-    abi: [multicallAbiItem],
-    functionName: "multicall",
-    args: [BigInt(deadline), calls],
-  });
-
-  return multicallData;
+  return swapData;
 }
