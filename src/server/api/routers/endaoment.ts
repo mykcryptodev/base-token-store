@@ -1,4 +1,4 @@
-import { NATIVE_TOKEN_ADDRESS, createThirdwebClient, getContract } from "thirdweb";
+import { NATIVE_TOKEN_ADDRESS, createThirdwebClient, getContract, prepareTransaction, simulateTransaction } from "thirdweb";
 import { z } from "zod";
 import { stringToBytes, toHex } from "thirdweb/utils";
 import { base } from "thirdweb/chains";
@@ -177,7 +177,7 @@ async function createSwapCalldata ({
   const routerAbiItem = parseAbiItem(
     "function exactInputSingle((address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96)) external payable returns (uint256 amountOut)"
   );
-  const uniswapParams = {
+  const uniswapParamsWithoutAmountOutLimit = {
     tokenIn: WETH,
     tokenOut: baseTokenAddress,
     fee: 3000, // Common pool fee
@@ -186,6 +186,34 @@ async function createSwapCalldata ({
     amountOutMinimum: BigInt(0), // take what we can get for now
     sqrtPriceLimitX96: BigInt(0), // optional
   };
+  const uniswapExactInputSingleDataWithoutAmountOutLimit = encodeFunctionData({
+    abi: [routerAbiItem],
+    functionName: "exactInputSingle",
+    args: [uniswapParamsWithoutAmountOutLimit],
+  });
+
+  // simulate the transaction to get the amountOut
+  const simulatedAmountOutHex = await simulateTransaction({
+    transaction: prepareTransaction({
+      client,
+      chain: base,
+      to: "0x2626664c2603336E57B271c5C0b26F421741e481",
+      data: uniswapExactInputSingleDataWithoutAmountOutLimit,
+      value: BigInt(amountIn),
+    }),
+  }) as string;
+  const decimalValue = parseInt(simulatedAmountOutHex, 16);
+  const simulatedAmountOut = BigInt(decimalValue);
+
+  // the min amount out will be 98% of the simulated amount out (slippage)
+  const minAmountOut = simulatedAmountOut * BigInt(98) / BigInt(100);
+  
+  // add the amountOut to the call data
+  const uniswapParams = {
+    ...uniswapParamsWithoutAmountOutLimit,
+    amountOutMinimum: BigInt(minAmountOut),
+  };
+
   const uniswapExactInputSingleData = encodeFunctionData({
     abi: [routerAbiItem],
     functionName: "exactInputSingle",
