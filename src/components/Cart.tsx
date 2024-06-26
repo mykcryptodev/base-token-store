@@ -26,31 +26,13 @@ const Cart: FC = () => {
   const { mutateAsync: getNftPurchaseEncodedData } = api.openSea.getPurchaseEncodedData.useMutation();
   const { mutateAsync: getDonationEncodedData } = api.endaoment.getDonationTransaction.useMutation();
 
-  // TESTING PURPOSES: donate a little bit of eth to a charity
-  const [dono, setDono] = useState<{ to: `0x${string}`, data: `0x${string}`, value: bigint }>();
-  useEffect(() => {
-    const getDonationData = async () => {
-      const data = await getDonationEncodedData({
-        ein: '111666852',
-        donationAmountInWei: toWei('0.0001').toString(),
-      });
-      console.log({ data })
-      setDono({
-        to: data.to as `0x${string}`,
-        data: data.data,
-        value: BigInt(data.value),
-      });
-    }
-    void getDonationData();
-  }, [getDonationEncodedData]);
-  
   const [checkoutIsLoading, setCheckoutIsLoading] = useState<boolean>(false);
 
   const checkout = async () => {
     if (!wallet) return;
     setCheckoutIsLoading(true);
     try {
-      const [nftEncodedData, encodedData] = await Promise.all([
+      const [nftEncodedData, encodedData, donationEncodedData] = await Promise.all([
         getNftPurchaseEncodedData({
           orders: cart.filter(item => item.isNft).map((item) => ({
             listing: {
@@ -74,6 +56,14 @@ const Cart: FC = () => {
           chainId: base.id,
           from: account?.address ?? ZERO_ADDRESS,
           to: account?.address ?? ZERO_ADDRESS,
+        }),
+        getDonationEncodedData({
+          donations: cart.filter(item => item.isDonation).map((item) => ({
+            ein: item.symbol,
+            donationAmountInWei: toWei(
+              etherPrice ? (item.usdAmountDesired / Number(etherPrice)).toString() : '0'
+            ).toString(),
+          })),
         })
       ]);
       const nftPurchaseCalls = nftEncodedData.map((purchase) => {
@@ -92,12 +82,19 @@ const Cart: FC = () => {
           value: BigInt(purchase.fulfillment_data.transaction.value),
         };
       });
+      const donationCalls = donationEncodedData.map((donation) => {
+        return {
+          to: donation.to,
+          data: donation.data,
+          value: BigInt(donation.value),
+        };
+      });
       sendCalls({
         calls: encodedData.map(swap => ({
           to: swap.data.routerAddress as `0x${string}`,
           data: swap.data.data as `0x${string}`,
           value: BigInt(swap.data.amountIn),
-        })).concat(...nftPurchaseCalls, dono ? [dono] : []),
+        })).concat(...nftPurchaseCalls, ...donationCalls),
         capabilities: {
           auxiliaryFunds: {
             supported: true
@@ -144,7 +141,12 @@ const Cart: FC = () => {
                 />
                 <div className="flex flex-col grow">
                   <span className="font-bold">{item.name}</span>
-                  <span className={`text-xs opacity-50 ${item.isDonation ? 'hidden' : ''}`}>${item.price.toPrecision(2)} per token
+                  <span className={`text-xs opacity-50`}>
+                    {item.isDonation ? (
+                      'Donation'
+                    ) : (
+                      `$${item.price.toPrecision(2)} per token`
+                    )}
                   </span>
                 </div>
                 <button className="btn btn-xs btn-ghost shrink" onClick={() => deleteItem(item.id)}>
@@ -177,9 +179,9 @@ const Cart: FC = () => {
                 </div>
                 {item.isDonation && (
                   <span 
-                    className={`text-xs text-end opacity-30 sm:mr-8 mr-10 mt-1 uppercase`}
+                    className={`text-xs text-end opacity-30 sm:mr-8 mr-10 mt-1`}
                   >
-                    Donation
+                    {`you're awesome`}
                   </span>
                 )}
                 <span 

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useCartContext } from "~/contexts/Cart";
 import { type EndaomentOrg } from "~/types/endaoment";
+import Link from "next/link";
 
 export const Donation: FC = () => {
   const { cart, addItem } = useCartContext();
@@ -40,6 +41,13 @@ export const Donation: FC = () => {
   return (
     <>
       <label htmlFor="donation_modal" className="btn btn-ghost btn-sm">
+        <Image
+          src={`/images/endaoment.png`}
+          alt="Endaoment"
+          width={20}
+          height={20}
+          className="rounded-full"
+        />
         Give $1 to {cart.some(item => item.isDonation) ? 'another' : 'a'} cause?
       </label>
 
@@ -51,9 +59,18 @@ export const Donation: FC = () => {
               <XMarkIcon className="h-6 w-6" />
             </label>
 
-            <h3 className="text-lg font-bold">Give to a cause!</h3>
-            <p className="py-4">
-              Select a cause that matters to you!
+            <h3 className="text-xl font-bold flex items-center gap-2">
+              <Image
+                src={`/images/endaoment.png`}
+                alt="Endaoment"
+                width={20}
+                height={20}
+                className="rounded-full"
+              />
+              Give to a cause!
+            </h3>
+            <p className="pt-4 pb-2 text-sm">
+              Search for a cause that matters to you!
             </p>
             <div className="form-control mb-4">
               <input
@@ -64,8 +81,17 @@ export const Donation: FC = () => {
                 onChange={(e) => setQuery(e.target.value)}
               />
             </div>
-            {causesIsLoading && <p>Loading...</p>}
             <div className="flex flex-col gap-6">
+              {causesIsLoading && (Array.from({ length: 5 }, (_, i) => (
+                <div key={i} className="flex items-start gap-2 w-full">
+                  <div className="bg-base-300 w-14 rounded-full h-14" />
+                  <div className="flex flex-col gap-2">
+                    <div className="bg-base-300 w-20 rounded h-6" />
+                    <div className="bg-base-300 rounded h-4 w-80" />
+                  </div>
+                  <div className="bg-base-300 rounded-xl h-8 w-20" />
+                </div>
+              )))}
               {causes?.map((cause) => (
                 <div key={cause.id} className="w-full max-h-40">
                   <div className="flex items-start gap-2">
@@ -94,6 +120,18 @@ export const Donation: FC = () => {
                 </div>
               ))}
             </div>
+            <div className="modal-action">
+              <Link href="https://endaoment.org" target="_blank" rel="noreferrer" className="btn btn-sm btn-ghost">
+                <Image
+                  src={`/images/endaoment.png`}
+                  alt="Endaoment"
+                  width={20}
+                  height={20}
+                  className="rounded-full"
+                />
+                <span className="text-xs">Powered by Endaoment</span>
+              </Link>
+          </div>
           </div>
         </div>
       </Portal>

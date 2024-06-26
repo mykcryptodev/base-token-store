@@ -61,95 +61,107 @@ export const endaomentRouter = createTRPCRouter({
     }),
   getDonationTransaction: publicProcedure
     .input(z.object({
-      ein: z.string(),
-      donationAmountInWei: z.string(),
+      donations: z.array(z.object({
+        ein: z.string(),
+        donationAmountInWei: z.string(),
+      })),
     }))
     .mutation(async ({ input }) => {
-      const { ein, donationAmountInWei } = input;
-      if (!ein || !donationAmountInWei) {
-        throw new Error('Missing required parameters');
+      type Transaction = {
+        to: `0x${string}`;
+        value: string;
+        data: `0x${string}`;
       }
-      try {
-        // strip dashes from ein and format to bytes32
-        const einBytes32 = toHex(stringToBytes(ein.replace(/-/g, ''), {
-          size: 32
-        }));
-        // get the org address from the factory
-        const endaomentOrgFactory = getContract({
-          client,
-          chain: base,
-          address: ORG_FACTORY,
-        });
-        const orgAddress = await computeOrgAddress({
-          contract: endaomentOrgFactory,
-          orgId: einBytes32,
-        }) as `0x${string}`;
-        // check if the org is an active entity
-        const endaomentRegistry = getContract({
-          client,
-          chain: base,
-          address: "0x713023b628cC1a7eB5b9DEC2b58127909A7c9760",
-        });
-        const [baseTokenAddress, orgIsDeployed] = await Promise.all([
-          baseToken({
-            contract: endaomentRegistry,
-          }),
-          isActiveEntity({
-            contract: endaomentRegistry,
-            arg_0: orgAddress,
-          }),
-        ]) as [`0x${string}`, boolean];
-        const callData = await createSwapCalldata({
-          amountIn: donationAmountInWei,
-          baseTokenAddress,
-          recipient: orgAddress,
-        });
-        // if the org is deployed, we can build a donate tx
-        if (orgIsDeployed) {
-          const swapAndDonateAbiItem = parseAbiItem(
-            "function swapAndDonate(address _swapWrapper, address _tokenIn, uint256 _amountIn, bytes calldata _data) external payable returns (uint256)"
+      const donationTransactions: Transaction[] = [];
+      for (const donation of input.donations) {
+        if (!donation.ein || !donation.donationAmountInWei) {
+          throw new Error('Missing required parameters');
+        }
+        const { ein, donationAmountInWei } = donation;
+        try {
+          // strip dashes from ein and format to bytes32
+          const einBytes32 = toHex(stringToBytes(ein.replace(/-/g, ''), {
+            size: 32
+          }));
+          // get the org address from the factory
+          const endaomentOrgFactory = getContract({
+            client,
+            chain: base,
+            address: ORG_FACTORY,
+          });
+          const orgAddress = await computeOrgAddress({
+            contract: endaomentOrgFactory,
+            orgId: einBytes32,
+          }) as `0x${string}`;
+          // check if the org is an active entity
+          const endaomentRegistry = getContract({
+            client,
+            chain: base,
+            address: "0x713023b628cC1a7eB5b9DEC2b58127909A7c9760",
+          });
+          const [baseTokenAddress, orgIsDeployed] = await Promise.all([
+            baseToken({
+              contract: endaomentRegistry,
+            }),
+            isActiveEntity({
+              contract: endaomentRegistry,
+              arg_0: orgAddress,
+            }),
+          ]) as [`0x${string}`, boolean];
+          const callData = await createSwapCalldata({
+            amountIn: donationAmountInWei,
+            baseTokenAddress,
+            recipient: orgAddress,
+          });
+          // if the org is deployed, we can build a donate tx
+          if (orgIsDeployed) {
+            const swapAndDonateAbiItem = parseAbiItem(
+              "function swapAndDonate(address _swapWrapper, address _tokenIn, uint256 _amountIn, bytes calldata _data) external payable returns (uint256)"
+            );
+            const data = encodeFunctionData({
+              abi: [swapAndDonateAbiItem],
+              functionName: "swapAndDonate",
+              args: [
+                SWAP_WRAPPER,
+                NATIVE_TOKEN_ADDRESS,
+                BigInt(donationAmountInWei),
+                callData,
+              ],
+            });
+            donationTransactions.push({
+              to: orgAddress,
+              value: donationAmountInWei,
+              data,
+            });
+            continue;
+          }
+          // if the org is not deployed, we need to build a deployAndDonate tx
+          const deployOrgAndSwapAndDonateAbiItem = parseAbiItem(
+            "function deployOrgSwapAndDonate(bytes32 _orgId, address _swapWrapper, address _tokenIn, uint256 _amountIn, bytes calldata _data) external payable returns (Org _org)"
           );
           const data = encodeFunctionData({
-            abi: [swapAndDonateAbiItem],
-            functionName: "swapAndDonate",
+            abi: [deployOrgAndSwapAndDonateAbiItem],
+            functionName: "deployOrgSwapAndDonate",
             args: [
+              einBytes32,
               SWAP_WRAPPER,
               NATIVE_TOKEN_ADDRESS,
               BigInt(donationAmountInWei),
               callData,
             ],
           });
-          return {
-            to: orgAddress,
+          donationTransactions.push({
+            to: ORG_FACTORY,
             value: donationAmountInWei,
             data,
-          };
+          });
+        } catch (e) {
+          const error = e as Error;
+          console.log({ error });
+          throw new Error(error.message);
         }
-        // if the org is not deployed, we need to build a deployAndDonate tx
-        const deployOrgAndSwapAndDonateAbiItem = parseAbiItem(
-          "function deployOrgSwapAndDonate(bytes32 _orgId, address _swapWrapper, address _tokenIn, uint256 _amountIn, bytes calldata _data) external payable returns (Org _org)"
-        );
-        const data = encodeFunctionData({
-          abi: [deployOrgAndSwapAndDonateAbiItem],
-          functionName: "deployOrgSwapAndDonate",
-          args: [
-            einBytes32,
-            SWAP_WRAPPER,
-            NATIVE_TOKEN_ADDRESS,
-            BigInt(donationAmountInWei),
-            callData,
-          ],
-        });
-        return {
-          to: ORG_FACTORY,
-          value: donationAmountInWei,
-          data,
-        }
-      } catch (e) {
-        const error = e as Error;
-        console.log({ error });
-        throw new Error(error.message);
       }
+      return donationTransactions;
     }),
 });
 
