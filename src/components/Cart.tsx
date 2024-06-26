@@ -143,7 +143,7 @@ const Cart: FC = () => {
                 />
                 <div className="flex flex-col grow">
                   <span className="font-bold">{item.name}</span>
-                  <span className="text-xs">${item.usdAmountDesired.toString().replace(/(\.\d{2})\d+/, "$1")}
+                  <span className="text-xs">${item.price.toPrecision(2)}
                   </span>
                 </div>
                 <button className="btn btn-xs btn-ghost shrink" onClick={() => deleteItem(item.id)}>
