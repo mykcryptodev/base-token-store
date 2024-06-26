@@ -205,8 +205,8 @@ async function createSwapCalldata ({
   const decimalValue = parseInt(simulatedAmountOutHex, 16);
   const simulatedAmountOut = BigInt(decimalValue);
 
-  // the min amount out will be 98% of the simulated amount out (slippage)
-  const minAmountOut = simulatedAmountOut * BigInt(98) / BigInt(100);
+  // the min amount out will be 95% of the simulated amount out (slippage)
+  const minAmountOut = simulatedAmountOut * BigInt(95) / BigInt(100);
   
   // add the amountOut to the call data
   const uniswapParams = {

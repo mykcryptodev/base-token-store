@@ -8,6 +8,7 @@ import { useCartContext } from "~/contexts/Cart";
 import { type EndaomentOrg } from "~/types/endaoment";
 import Link from "next/link";
 import usePrevious from "~/hooks/usePrevious";
+import { COINGECKO_UNKNOWN_IMG } from "~/constants/dex";
 
 export const Donation: FC = () => {
   const { cart, addItem } = useCartContext();
@@ -68,7 +69,7 @@ export const Donation: FC = () => {
       <div className="w-full">
         <div className="flex items-start gap-2 overflow-x-auto">
           <Image
-            src={cause.logoUrl}
+            src={cause.logoUrl ?? COINGECKO_UNKNOWN_IMG}
             alt={cause.name}
             width={40}
             height={40}
