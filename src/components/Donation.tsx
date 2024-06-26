@@ -10,15 +10,14 @@ import Link from "next/link";
 
 export const Donation: FC = () => {
   const { cart, addItem } = useCartContext();
-  const [query, setQuery] = useState<string>('paws');
+  const [query, setQuery] = useState<string>();
   const debounceQuery = useDebounce(query, 500);
   const { data: causes, isLoading: causesIsLoading } = api.endaoment.search.useQuery({
-    searchTerm: debounceQuery,
+    searchTerm: debounceQuery ?? 'paws',
     claimedStatus: 'claimed',
     count: 5,
     offset: 0,
   }, {
-    enabled: !!debounceQuery,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
@@ -37,6 +36,43 @@ export const Donation: FC = () => {
       isDonation: true,
     });
   };
+
+  const Cause: FC<{ cause: EndaomentOrg }> = ({ cause }) => {
+    const [isExpanded, setIsExpanded] = useState<boolean>(false);
+
+    return (
+      <div className="w-full">
+        <div className="flex items-start gap-2 overflow-x-auto">
+          <Image
+            src={cause.logoUrl}
+            alt={cause.name}
+            width={40}
+            height={40}
+            className="rounded-full"
+          />
+          <div 
+            className="flex overflow-x-auto flex-col cursor-pointer"
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            <span className="font-bold">{cause.name}</span>
+            <span className={`text-sm ${isExpanded ? '' : 'truncate'}`}>
+              {cause.description}
+            </span>
+          </div>
+          <button 
+            className="btn btn-sm"
+            onClick={() => {
+              addToCart(cause);
+              // close the modal
+              document.getElementById('donation_modal')?.click();
+            }}
+          >
+            Donate
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -81,7 +117,7 @@ export const Donation: FC = () => {
                 onChange={(e) => setQuery(e.target.value)}
               />
             </div>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 h-40 overflow-y-auto">
               {causesIsLoading && (Array.from({ length: 5 }, (_, i) => (
                 <div key={i} className="flex items-start gap-2 w-full">
                   <div className="bg-base-300 w-14 rounded-full h-14" />
@@ -93,34 +129,10 @@ export const Donation: FC = () => {
                 </div>
               )))}
               {causes?.map((cause) => (
-                <div key={cause.id} className="w-full max-h-40">
-                  <div className="flex items-start gap-2">
-                    <Image
-                      src={cause.logoUrl}
-                      alt={cause.name}
-                      width={40}
-                      height={40}
-                      className="rounded-full"
-                    />
-                    <div className="flex flex-col overflow-x-hidden">
-                      <span className="font-bold">{cause.name}</span>
-                      <span className="text-sm truncate">{cause.description}</span>
-                    </div>
-                    <button 
-                      className="btn btn-sm"
-                      onClick={() => {
-                        addToCart(cause);
-                        // close the modal
-                        document.getElementById('donation_modal')?.click();
-                      }}
-                    >
-                      Donate
-                    </button>
-                  </div>
-                </div>
+                <Cause key={cause.id} cause={cause} />
               ))}
             </div>
-            <div className="modal-action">
+            <div className="modal-action mt-3">
               <Link href="https://endaoment.org" target="_blank" rel="noreferrer" className="btn btn-sm btn-ghost">
                 <Image
                   src={`/images/endaoment.png`}

@@ -1,6 +1,6 @@
 import { ShoppingBagIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
-import { useEffect, useState, type FC } from 'react';
+import { useState, type FC } from 'react';
 import { ZERO_ADDRESS, toWei} from 'thirdweb';
 import { base } from 'thirdweb/chains';
 import { useCartContext } from '~/contexts/Cart';
