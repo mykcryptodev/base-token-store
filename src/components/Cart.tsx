@@ -12,6 +12,7 @@ import { DEFAULT_CHAIN } from '~/constants/chain';
 import { Connect } from '~/components/Connect';
 import { parseAbiItem, encodeFunctionData } from "viem";
 import { flattenObject } from '~/helpers/flattenObject';
+import Donation from '~/components/Donation';
 
 const Cart: FC = () => {
   const { sendCalls } = useSendCalls()
@@ -23,13 +24,15 @@ const Cart: FC = () => {
   });
   const { mutateAsync: getSwapEncodedData } = api.kyberswap.getCheckoutData.useMutation();
   const { mutateAsync: getNftPurchaseEncodedData } = api.openSea.getPurchaseEncodedData.useMutation();
+  const { mutateAsync: getDonationEncodedData } = api.endaoment.getDonationTransaction.useMutation();
+
   const [checkoutIsLoading, setCheckoutIsLoading] = useState<boolean>(false);
 
   const checkout = async () => {
     if (!wallet) return;
     setCheckoutIsLoading(true);
     try {
-      const [nftEncodedData, encodedData] = await Promise.all([
+      const [nftEncodedData, encodedData, donationEncodedData] = await Promise.all([
         getNftPurchaseEncodedData({
           orders: cart.filter(item => item.isNft).map((item) => ({
             listing: {
@@ -43,7 +46,7 @@ const Cart: FC = () => {
           })),
         }),
         getSwapEncodedData({
-          tokensToBuy: cart.filter(item => !item.isNft).map((item) => {
+          tokensToBuy: cart.filter(item => !item.isNft && !item.isDonation).map((item) => {
             const amountInEther = item.usdAmountDesired / Number(etherPrice ?? 1);
             return {
               token: item.address,
@@ -53,6 +56,14 @@ const Cart: FC = () => {
           chainId: base.id,
           from: account?.address ?? ZERO_ADDRESS,
           to: account?.address ?? ZERO_ADDRESS,
+        }),
+        getDonationEncodedData({
+          donations: cart.filter(item => item.isDonation).map((item) => ({
+            ein: item.symbol,
+            donationAmountInWei: toWei(
+              etherPrice ? (item.usdAmountDesired / Number(etherPrice)).toString() : '0'
+            ).toString(),
+          })),
         })
       ]);
       const nftPurchaseCalls = nftEncodedData.map((purchase) => {
@@ -71,12 +82,19 @@ const Cart: FC = () => {
           value: BigInt(purchase.fulfillment_data.transaction.value),
         };
       });
+      const donationCalls = donationEncodedData.map((donation) => {
+        return {
+          to: donation.to,
+          data: donation.data,
+          value: BigInt(donation.value),
+        };
+      });
       sendCalls({
         calls: encodedData.map(swap => ({
           to: swap.data.routerAddress as `0x${string}`,
           data: swap.data.data as `0x${string}`,
           value: BigInt(swap.data.amountIn),
-        })).concat(nftPurchaseCalls),
+        })).concat(...nftPurchaseCalls, ...donationCalls),
         capabilities: {
           auxiliaryFunds: {
             supported: true
@@ -109,8 +127,8 @@ const Cart: FC = () => {
           <XMarkIcon className="h-6 w-6" />
         </button>
       </div>
-      <ul className="p-4 w-full min-h-full bg-base-200 text-base-content">
-        {cart.map((item) => (
+      <ul className="p-4 pb-2 w-full min-h-full bg-base-200 text-base-content">
+        {cart.map((item, index) => (
           <li key={item.id}>
             <div className="flex flex-col flex-nowrap w-full">
               <div className="flex items-start gap-2">
@@ -123,7 +141,12 @@ const Cart: FC = () => {
                 />
                 <div className="flex flex-col grow">
                   <span className="font-bold">{item.name}</span>
-                  <span className="text-xs">${item.usdAmountDesired.toString().replace(/(\.\d{2})\d+/, "$1")}
+                  <span className={`text-xs opacity-50`}>
+                    {item.isDonation ? (
+                      'Donation'
+                    ) : (
+                      `$${item.price.toPrecision(2)} per token`
+                    )}
                   </span>
                 </div>
                 <button className="btn btn-xs btn-ghost shrink" onClick={() => deleteItem(item.id)}>
@@ -145,7 +168,7 @@ const Cart: FC = () => {
                       onChange={(e) => item.isNft ? {} : updateItem(item.id, { usdAmountDesired: parseInt(e.target.value) })}
                       className="input input-bordered w-32 text-center"
                     />
-                    <span className="absolute opacity-50 left-4 top-3.5 uppercase">$</span>
+                    <span className="absolute opacity-50 left-4 top-3 uppercase">$</span>
                   </div>
                   <button 
                     className={`btn btn-xs btn-ghost ${item.isNft ? 'invisible' : 'block'}`}
@@ -154,8 +177,15 @@ const Cart: FC = () => {
                     +
                   </button>
                 </div>
+                {item.isDonation && (
+                  <span 
+                    className={`text-xs text-end opacity-30 sm:mr-8 mr-10 mt-1`}
+                  >
+                    {`you're awesome`}
+                  </span>
+                )}
                 <span 
-                  className="text-xs text-end opacity-30 sm:mr-8 mr-10 mt-1 uppercase"
+                  className={`text-xs text-end opacity-30 sm:mr-8 mr-10 mt-1 uppercase ${item.isDonation ? 'hidden' : ''}`}
                 >
                   {isNaN(item.price * item.usdAmountDesired) 
                     ? 0 
@@ -166,13 +196,14 @@ const Cart: FC = () => {
                 </span>
               </div>
             </div>
-            <div className="divider" />
+            <div className={`divider ${index === cart.length - 1 ? 'mb-0' : ''}`} />
           </li>
         ))}
       </ul>
+      <Donation />
       <button 
         disabled={checkoutIsLoading || !account || cart.length === 0}
-        className="btn btn-primary btn-block btn-lg mt-2"
+        className="btn btn-primary btn-block btn-lg mt-4"
         onClick={() => void checkout()}
       >
         {checkoutIsLoading && (
