@@ -11,6 +11,7 @@ import {
 import { computeOrgAddress } from "~/thirdweb/8453/0x3d7bba3aee1cfadc730f42ca716172f94bbba488";
 import { baseToken, isActiveEntity } from "~/thirdweb/8453/0x713023b628cc1a7eb5b9dec2b58127909a7c9760";
 import { encodeFunctionData, parseAbiItem } from "viem";
+import { type EndaomentOrg } from "~/types/endaoment";
 
 const client = createThirdwebClient({
   secretKey: env.THIRDWEB_SECRET_KEY,
@@ -24,8 +25,8 @@ export const endaomentRouter = createTRPCRouter({
   search: publicProcedure
     .input(z.object({
       searchTerm: z.string(),
-      deployedStatus: z.string(),
-      claimedStatus: z.string(),
+      deployedStatus: z.string().optional(),
+      claimedStatus: z.string().optional(),
       count: z.number(),
       offset: z.number(),
     }))
@@ -37,29 +38,22 @@ export const endaomentRouter = createTRPCRouter({
 
       const params = new URLSearchParams({
         searchTerm,
-        deployedStatus,
-        claimedStatus,
         count: count.toString(),
         offset: offset.toString(),
       });
+
+      if (deployedStatus) {
+        params.set("deployedStatus", deployedStatus);
+      }
+      if (claimedStatus) {
+        params.set("claimedStatus", claimedStatus);
+      }
 
       const searchRes = await fetch(`https://api.endaoment.org/v1/sdk/orgs/search?${params.toString()}`, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-
-      type EndaomentOrg = {
-        id: string;
-        name: string;
-        ein: string;
-        logoUrl: string;
-        nteeCode: string;
-        nteeDescription: string;
-        endaomentUrl: string;
-        description: string;
-        contractAddress: string;
-      };
 
       const data = await searchRes.json() as EndaomentOrg[];
 

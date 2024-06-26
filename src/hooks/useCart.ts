@@ -14,6 +14,7 @@ export interface CartItem {
   nftCollectionName?: string;
   nftOrderHash?: string;
   nftExchangeAddress?: string;
+  isDonation?: boolean;
 }
 
 const useCart = () => {

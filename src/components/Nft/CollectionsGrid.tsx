@@ -30,8 +30,6 @@ export const CollectionsGrid: FC = () => {
     refetchOnWindowFocus: false,
   });
 
-  console.log({ selectedCollection })
-
   useEffect(() => {
     if (collectionsData) {
       setCollections(prev => {
