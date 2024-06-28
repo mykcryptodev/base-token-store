@@ -134,7 +134,7 @@ export const TokenGrid: FC<Props> = ({ category, query }) => {
       <div className="sm:max-w-5xl mx-auto mt-4 min-h-[732px]">
         <div className="flex flex-col gap-8 min-w-full">
           <div 
-            className={`flex flex-wrap items-stretch w-full justify-center gap-4 ${
+            className={`grid grid-cols-2 sm:flex sm:flex-wrap items-stretch w-full justify-center gap-4 ${
               !filteredTokens?.length && !searchedTokensNotInCategory.length && !searchIsLoading && !tokensIsLoading && !searchIsLoading ? 'hidden' : ''
             }`}>
             {filteredTokens?.map((token) => <TokenCard key={token.id} token={token as TokenListResponse} />)}
