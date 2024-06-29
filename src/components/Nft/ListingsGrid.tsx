@@ -45,7 +45,7 @@ export const ListingsGrid: FC<Props> = ({ collectionSlug }) => {
         <div className="flex flex-col gap-8 min-w-full">
           <div 
             id="listings-grid"
-            className={`flex flex-wrap items-stretch w-full justify-center gap-4`}>
+            className={`grid grid-cols-2 sm:flex sm:flex-wrap items-stretch w-full justify-center gap-4`}>
             {listings.map((listing, index) => 
               <ListingsCard key={index} listing={listing} />
             )}
