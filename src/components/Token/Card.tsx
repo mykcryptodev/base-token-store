@@ -75,7 +75,7 @@ export const TokenCard: FC<Props> = ({ token }) => {
           <span className="whitespace-nowrap truncate">{token.name.replace("(Base)", "")}</span>
           <span className="text-sm opacity-75 font-normal -mt-2">${token.symbol.toLowerCase()}</span>
         </h2>
-        <div className="w-full h-42">
+        <div className="w-full h-28 sm:h-42">
           <Sparkline data={token.sparkline_in_7d.price} />
         </div>
         <div className="card-actions">
