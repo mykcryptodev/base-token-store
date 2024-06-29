@@ -5,7 +5,7 @@ import { api } from "~/utils/api";
 import Sparkline from "../Token/Sparkline";
 
 const TokenLoadingCard: FC = () => (
-  <div className="card w-60 bg-base-200 h-96 raise-on-hover cursor-pointer">
+  <div className="card max-w-[236px] bg-base-200 raise-on-hover cursor-pointer">
     <div className="card-body p-4 animate-pulse">
       <div className="flex items-center justify-between gap-2">
         <div className="bg-base-300 w-14 rounded-full h-14" />
@@ -100,7 +100,7 @@ export const NftCollectionCard: FC<Props> = ({ collection, onCollectionSelected 
           <span className="whitespace-nowrap truncate">{collection.collection_details.name}</span>
           <span className="text-sm opacity-75 font-normal -mt-2 whitespace-nowrap truncate">{symbol}</span>
         </h2>
-        <div className="w-full h-42">
+        <div className="w-full h-28 sm:h-44">
           <Sparkline data={(historicalFloorPrices?.floor_prices ?? []).filter(price => price.floor_price !== null).map(price => price.floor_price).reverse()} />
         </div>
         <div className="card-actions h-full items-end">

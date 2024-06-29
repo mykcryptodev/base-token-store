@@ -99,7 +99,8 @@ export const CollectionsGrid: FC = () => {
               ))}
             </div>
             <div 
-              className={`flex flex-wrap items-stretch w-full justify-center gap-4`}>
+              className={`grid grid-cols-2 sm:flex sm:flex-wrap items-stretch w-full justify-center gap-4`}
+            >
               {collections.map((c, index) => 
                 <NftCollectionCard 
                   key={index} 

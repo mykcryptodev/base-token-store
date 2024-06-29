@@ -57,7 +57,7 @@ export const TokenGrid: FC<Props> = ({ category, query }) => {
   }, [tokens, searchedTokens]);
 
   const TokenLoadingCard: FC = () => (
-    <div className="card w-60 bg-base-200 h-96 raise-on-hover cursor-pointer">
+    <div className="card max-w-[236px] bg-base-200 raise-on-hover cursor-pointer">
       <div className="card-body p-4 animate-pulse">
         <div className="flex items-center justify-between gap-2">
           <div className="bg-base-300 w-14 rounded-full h-14" />
@@ -70,7 +70,7 @@ export const TokenGrid: FC<Props> = ({ category, query }) => {
           <div className="bg-base-300 w-32 rounded h-6" />
           <div className="bg-base-300 w-20 rounded h-4" />
         </div>
-        <div className="bg-base-300 w-full h-44 rounded-lg" />
+        <div className="bg-base-300 w-full h-28 sm:h-42 rounded-lg" />
         <div className="bg-base-300 w-28 rounded-full h-12" />
       </div>
     </div>
@@ -134,7 +134,7 @@ export const TokenGrid: FC<Props> = ({ category, query }) => {
       <div className="sm:max-w-5xl mx-auto mt-4 min-h-[732px]">
         <div className="flex flex-col gap-8 min-w-full">
           <div 
-            className={`flex flex-wrap items-stretch w-full justify-center gap-4 ${
+            className={`grid grid-cols-2 sm:flex sm:flex-wrap items-stretch w-full justify-center gap-4 ${
               !filteredTokens?.length && !searchedTokensNotInCategory.length && !searchIsLoading && !tokensIsLoading && !searchIsLoading ? 'hidden' : ''
             }`}>
             {filteredTokens?.map((token) => <TokenCard key={token.id} token={token as TokenListResponse} />)}
