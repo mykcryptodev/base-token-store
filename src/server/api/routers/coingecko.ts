@@ -194,6 +194,15 @@ export const coingeckoRouter = createTRPCRouter({
       const json = await res.json() as TokenDetailResponse;
       return json;
     }),
+  getTokenByIdQuery: publicProcedure
+    .input(z.object({
+      id: z.string(),
+    }))
+    .query(async ({ input }) => {
+      const res = await fetch(`https://api.coingecko.com/api/v3/coins/${input.id}`);
+      const json = await res.json() as TokenDetailResponse;
+      return json;
+    }),
   getTokens: publicProcedure
     .input(z.object({
       category: z.string().optional(),

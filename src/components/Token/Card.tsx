@@ -6,6 +6,7 @@ import Sparkline from "~/components/Token/Sparkline";
 import { useCartContext } from "~/contexts/Cart";
 import { api } from "~/utils/api";
 import { type CartItem } from "~/hooks/useCart";
+import TokenInfoModal from "~/components/Token/InfoModal";
 
 type Props = {
   token: TokenListResponse;
@@ -27,6 +28,7 @@ export const TokenCard: FC<Props> = ({ token }) => {
     const tokenInfo = await getTokenInfo({
       id: token.id,
     });
+    console.log({ tokenInfo });
     const baseAddress = tokenInfo.platforms?.base ?? cart.find((item: CartItem) => item.id === token.id)?.address;
     const baseDecimals = tokenInfo.detail_platforms?.base?.decimal_place ?? 18;
     if (!baseAddress) return setLoading(false);
@@ -78,12 +80,13 @@ export const TokenCard: FC<Props> = ({ token }) => {
         <div className="w-full h-28 sm:h-44">
           <Sparkline data={token.sparkline_in_7d.price} />
         </div>
-        <div className="card-actions">
+        <div className="card-actions flex flex-nowrap items-center justify-between">
           <button 
             disabled={loading}
             className="btn btn-secondary shadow-none hover:btn-primary hover:shadow z-10"
             onClick={() => onAddToCart()}
           >Add to cart</button>
+          <TokenInfoModal token={token} />
         </div>
       </div>
     </div>
