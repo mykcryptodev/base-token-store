@@ -108,7 +108,7 @@ export const MintReferralCode: FC<Props> = ({ onMint }) => {
                 id="name" 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="input input-bordered"
+                className="input input-lg input-bordered"
               />
               <div className="label">
                 <span className="label-text-alt" />
@@ -119,22 +119,19 @@ export const MintReferralCode: FC<Props> = ({ onMint }) => {
 
             </div>
             <div className="flex flex-col gap-2 mt-4">
-              {!account ? (
-                <Connect fullWidth />
-              ) : (
-                <button 
-                  className="btn btn-secondary shadow-none hover:btn-primary hover:shadow z-10"
-                  onClick={() => {
-                    void handleMint();
-                  }}
-                  disabled={isLoading}
-                >
-                  {isLoading && (
-                    <div className="loading loading-spinner" />
-                  )}
-                  {isLoading ? "Minting..." : "Mint"}
-                </button>
-              )}
+              <button 
+                className="btn btn-lg btn-secondary shadow-none hover:btn-primary hover:shadow z-10"
+                onClick={() => {
+                  void handleMint();
+                }}
+                disabled={isLoading || !account}
+              >
+                {isLoading && (
+                  <div className="loading loading-spinner" />
+                )}
+                {isLoading ? "Minting..." : "Mint"}
+              </button>
+              {!account && <Connect fullWidth />}
             </div>
           </div>
         </div>

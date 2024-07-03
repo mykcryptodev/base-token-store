@@ -14,7 +14,6 @@ type Props = {
 }
 
 export const TokenGrid: FC<Props> = ({ category, query, address }) => {
-  console.log({ address })
   const { data: tokens, isLoading: tokensIsLoading } = api.coingecko.getTokens.useQuery({
     category,
     sparkline: true,
@@ -34,7 +33,7 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
   
   const { 
     data: tokensOwnedByAddress, 
-    isFetching: tokensOwnedByAddressIsLoading 
+    isLoading: tokensOwnedByAddressIsLoading 
   } = api.simpleHash.getFungibles.useQuery({
     address,
     chain: 'base',
@@ -83,8 +82,8 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
 
   const searchedTokensNotInCategory = useMemo(() => {
     if (!searchedTokens) return [];
-    return searchedTokens.filter((token) => !tokens?.find((t) => t.id === token.id));
-  }, [tokens, searchedTokens]);
+    return searchedTokens.filter((token) => tokensInScope?.find((t) => t.id === token.id));
+  }, [tokensInScope, searchedTokens]);
 
   const TokenLoadingCard: FC = () => (
     <div className="card max-w-[236px] bg-base-200 raise-on-hover cursor-pointer">
@@ -113,14 +112,14 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
     });
     if (address) {
       return (
-        <div>
-          Not holding
+        <div className="w-full bg-base-200 p-4 m-4 rounded-xl text-center">
+          Not holding any of the tokens offerred on the store
         </div>
       )
     }
     return (
       <div className="flex flex-col w-full items-center justify-center gap-2">
-        <div className="card max-w-xs bg-base-200 text-center justify-center flex raise-on-hover cursor-pointer">
+        <div className="card max-w-xs bg-base-200 text-center justify-center flex sm:raise-on-hover cursor-pointer">
           <div className="card-body p-4">
             <div className="flex w-full flex-col gap-2 justify-center">
               <div className="w-full flex items-center justify-center">
@@ -169,20 +168,20 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
   return (
     <>
       <div className={`max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-5xl mx-auto ${address ? '' : 'min-h-[732px]'}`}>
+        {!tokensOwnedByAddressIsLoading && !tokensIsLoading && !searchIsLoading && tokensOwnedByAddress?.length === 0 && filteredTokens?.length === 0 && searchedTokensNotInCategory?.length === 0 && fallbackToken && (
+          <TokenNotFound />
+        )}
         <div className="flex flex-col overflow-x-auto min-w-full">
           <div 
             className={`flex flex-nowrap items-stretch w-full gap-4 pb-6 pt-2 ${
-              !filteredTokens?.length && !searchedTokensNotInCategory.length && !searchIsLoading && !tokensIsLoading && !searchIsLoading ? 'hidden' : ''
+              !filteredTokens?.length && !searchedTokensNotInCategory.length && !searchIsLoading && !tokensIsLoading && !tokensOwnedByAddress && !searchIsLoading ? 'hidden' : ''
             }`}>
             {filteredTokens?.map((token) => <TokenCard key={token.id} token={token} />)}
             {searchedTokensNotInCategory?.map((token) => <TokenCard key={token.id} token={token} />)}
-            {(tokensIsLoading || searchIsLoading || tokensOwnedByAddressIsLoading) && Array.from({ length: tokensPerPage }, (_, index) => (
+            {(tokensOwnedByAddressIsLoading || tokensIsLoading || searchIsLoading || tokensOwnedByAddressIsLoading) && Array.from({ length: tokensPerPage }, (_, index) => (
               <TokenLoadingCard key={index} />
             ))}
           </div>
-          {!tokensIsLoading && !searchIsLoading && filteredTokens?.length === 0 && searchedTokensNotInCategory?.length === 0 && fallbackToken && !address && (
-            <TokenNotFound />
-          )}
         </div>
         <div className="flex flex-col overflow-x-auto min-w-full">
           <div className={`flex w-full justify-end ${address ? 'hidden' : ''}`}>

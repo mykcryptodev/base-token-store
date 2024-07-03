@@ -119,7 +119,7 @@ export default function Home({ referralNft }: { referralNft: NFT | null }) {
                 {referralNft?.owner && (
                   <div className="flex flex-col gap-2">
                     <div className="font-bold text-lg">
-                      {`Tokens ${referralNft.metadata.name} is holding`}
+                      {`${referralNft.metadata.name}'s holdings`}
                     </div>
                     <TokenGrid
                       address={referralNft.owner} 

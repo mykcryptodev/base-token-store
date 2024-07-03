@@ -94,7 +94,7 @@ export const RefferedBanner: FC<Props> = ({ referralNft }) => {
           <div className="font-bold text-xl">Welcome to the store!</div>
           <Link 
             href={`${base.blockExplorers![0]?.url}/address/${referralNft.owner}`} 
-            className="flex items-center gap-1"
+            className="flex items-center gap-0.5"
             target="_blank"
             rel="noreferrer"
           >
@@ -103,7 +103,7 @@ export const RefferedBanner: FC<Props> = ({ referralNft }) => {
               client={client}
               src={referralNft.metadata.image}
               alt={referralNft.metadata.name}
-              className="rounded-full !w-6 !h-6"
+              className={`rounded-full !w-6 !h-6 mx-1`}
             />
             <div>{referralNft.metadata.name}</div>
           </Link>
@@ -125,10 +125,12 @@ export const RefferedBanner: FC<Props> = ({ referralNft }) => {
           />
         </div>
       )}
-      <XMarkIcon 
-        className="h-6 w-6 cursor-pointer mr-4"
-        onClick={() => setIsBannerVisible(false)}
-      />
+      <div className="absolute top-4 right-4">
+        <XMarkIcon 
+          className="h-4 w-4 cursor-pointer"
+          onClick={() => setIsBannerVisible(false)}
+        />
+      </div>
     </div>
   );
 };
