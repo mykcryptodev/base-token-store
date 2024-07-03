@@ -168,10 +168,10 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
 
   return (
     <>
-      <div className={`sm:max-w-5xl mx-auto ${address ? '' : 'min-h-[732px]'}`}>
-        <div className="flex flex-col gap-8 min-w-full">
+      <div className={`max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-5xl mx-auto ${address ? '' : 'min-h-[732px]'}`}>
+        <div className="flex flex-col overflow-x-auto min-w-full">
           <div 
-            className={`grid grid-cols-2 sm:flex sm:flex-wrap items-stretch w-full justify-center gap-4 ${
+            className={`flex flex-nowrap items-stretch w-full gap-4 pb-6 pt-2 ${
               !filteredTokens?.length && !searchedTokensNotInCategory.length && !searchIsLoading && !tokensIsLoading && !searchIsLoading ? 'hidden' : ''
             }`}>
             {filteredTokens?.map((token) => <TokenCard key={token.id} token={token} />)}
@@ -183,25 +183,27 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
           {!tokensIsLoading && !searchIsLoading && filteredTokens?.length === 0 && searchedTokensNotInCategory?.length === 0 && fallbackToken && (
             <TokenNotFound />
           )}
-          <div className="flex w-full justify-end">
+        </div>
+        <div className="flex flex-col overflow-x-auto min-w-full">
+          <div className={`flex w-full justify-end ${address ? 'hidden' : ''}`}>
             <Link href="https://coingecko.com" target="_blank" rel="noopener noreferrer" className="flex gap-1 items-center">
               <span className="text-xs opacity-90">Token data provided by</span><Image src="/images/coingecko.webp" alt="Powered by CoinGecko" width={85} height={85} />
             </Link>
           </div>
-          {!query && (
-            <div className="flex justify-center mt-4">
+          {!query && !address && (
+            <div className="flex items-center justify-center mt-4">
               <button 
-                className="btn btn-secondary mr-2" 
+                className="sm:flex hidden btn btn-secondary mr-2" 
                 onClick={() => paginate(currentPage - 1)} 
                 disabled={currentPage === 1}
               >
                 Previous
               </button>
-              <div className="join sm:flex hidden">
+              <div className="join">
                 {Array.from({ length: totalPages }, (_, index) => (
                   <button
                     key={index + 1}
-                    className={`join-item btn btn-secondary ${currentPage === index + 1 ? 'btn-active' : ''}`}
+                    className={`join-item md:btn sm:btn-sm btn-xs btn-secondary ${currentPage === index + 1 ? 'btn-active' : ''}`}
                     onClick={() => paginate(index + 1)}
                   >
                     {index + 1}
@@ -209,7 +211,7 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
                 ))}
               </div>
               <button 
-                className="btn btn-secondary ml-2" 
+                className="sm:flex hidden btn btn-secondary ml-2" 
                 onClick={() => paginate(currentPage + 1)} 
                 disabled={currentPage === totalPages}
               >

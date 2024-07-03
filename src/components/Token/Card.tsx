@@ -50,7 +50,7 @@ export const TokenCard: FC<Props> = ({ token }) => {
   };
 
   return (
-    <div className={`card max-w-[236px] min-h-[300px] h-70 sm:h-96 raise-on-hover overflow-hidden`} key={token.id}>
+    <div className={`card max-w-[236px] min-w-[200px] min-h-[300px] h-70 sm:h-96 raise-on-hover overflow-hidden`} key={token.id}>
       <div className="absolute inset-0 bg-cover filter blur-lg " style={{ backgroundImage: `url(${token.image})`, transform: 'scale(2)', opacity: 0.2, pointerEvents: 'none' }}></div>
       <div className="card-body p-4">
         <div className="flex w-full justify-between items-center gap-2">
