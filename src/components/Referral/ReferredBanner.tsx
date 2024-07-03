@@ -20,6 +20,7 @@ export const RefferedBanner: FC<Props> = ({ referralNft }) => {
   const [isBannerVisible, setIsBannerVisible] = useState<boolean>(true);
   const [ownedReferralCode, setOwnedReferralCode] = useState<string>('');
   const [recentlyCopied, setRecentlyCopied] = useState<boolean>(false);
+  const [isLoadingReferralCode, setIsLoadingReferralCode] = useState<boolean>(false);
 
   useEffect(() => {
     if (ownedReferralCode) {
@@ -33,23 +34,32 @@ export const RefferedBanner: FC<Props> = ({ referralNft }) => {
         setOwnedReferralCode('');
         return;
       }
-      const contract = getContract({
-        client,
-        address: REFERRAL_CODE_NFT,
-        chain: base,
-      });
-      const ownedTokenIds = await getOwnedTokenIds({
-        contract,
-        owner: account.address,
-      });
-      if (ownedTokenIds.length > 0) {
-        const firstTokenId = ownedTokenIds[0]!;
-        const tokenId = firstTokenId.toString();
-        setOwnedReferralCode(tokenId);
+      setIsLoadingReferralCode(true);
+      try {
+        const contract = getContract({
+          client,
+          address: REFERRAL_CODE_NFT,
+          chain: base,
+        });
+        const ownedTokenIds = await getOwnedTokenIds({
+          contract,
+          owner: account.address,
+        });
+        if (ownedTokenIds.length > 0) {
+          const firstTokenId = ownedTokenIds[0]!;
+          const tokenId = firstTokenId.toString();
+          setOwnedReferralCode(tokenId);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoadingReferralCode(false);
       }
     }
-    void getReferralCodes();
-  }, [account]);
+    if (!referralNft) {
+      void getReferralCodes();
+    }
+  }, [account, referralNft]);
 
   const OwnedReferralCode: FC = () => (
     <div className="flex sm:flex-row flex-col gap-2 items-center justify-between w-full">
@@ -85,6 +95,21 @@ export const RefferedBanner: FC<Props> = ({ referralNft }) => {
       </div>
     </div>
   );
+
+  if (isLoadingReferralCode) return (
+    <div className={`flex w-full justify-between gap-4 sm:items-center rounded-2xl p-4 ${theme === 'dark' ? 'bg-base-200 bg-opacity-50' : 'bg-gradient-to-b from-[#F9F9F9] via-[#FAFAFA] to-[#FBFBFB]'} relative ${isBannerVisible ? '' : 'hidden'}`}>
+      <div className="flex sm:flex-row flex-col gap-2 items-center justify-between w-full">
+        <div className="flex gap-2 items-center">
+          <div className="bg-base-300 animate-pulse rounded-full w-12 h-12" />
+          <div className="flex flex-col gap-1">
+            <div className="h-7 w-36 bg-base-300 animate-pulse rounded-lg" />
+            <div className="h-4 w-56 bg-base-300 animate-pulse rounded-lg" />
+          </div>
+        </div>
+        <div className="h-10 w-44 bg-base-300 animate-pulse rounded-full" />
+      </div>
+    </div>
+  )
 
   return (
     <div className={`flex w-full justify-between gap-4 sm:items-center rounded-2xl p-4 ${theme === 'dark' ? 'bg-base-200 bg-opacity-50' : 'bg-gradient-to-b from-[#F9F9F9] via-[#FAFAFA] to-[#FBFBFB]'} relative ${isBannerVisible ? '' : 'hidden'}`}>
