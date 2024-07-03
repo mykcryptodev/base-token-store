@@ -3,12 +3,13 @@ import { useState, type FC } from "react";
 import { useActiveAccount } from "thirdweb/react";
 import { Portal } from "~/components/utils/Portal";
 import { api } from "~/utils/api";
-import { getContract, prepareEvent, watchContractEvents } from "thirdweb";
+import { getContract, watchContractEvents } from "thirdweb";
 import { client } from "~/providers/Thirdweb";
 import { REFERRAL_CODE_NFT } from "~/constants/addresses";
 import { base } from "thirdweb/chains";
 import dynamic from 'next/dynamic';
 import { upload } from "thirdweb/storage";
+import { Connect } from "~/components/Connect";
 
 const Upload = dynamic(() => import('~/components/Upload'), { ssr: false });
 
@@ -118,18 +119,22 @@ export const MintReferralCode: FC<Props> = ({ onMint }) => {
 
             </div>
             <div className="flex flex-col gap-2 mt-4">
-              <button 
-                className="btn btn-secondary shadow-none hover:btn-primary hover:shadow z-10"
-                onClick={() => {
-                  void handleMint();
-                }}
-                disabled={isLoading}
-              >
-                {isLoading && (
-                  <div className="loading loading-spinner" />
-                )}
-                {isLoading ? "Minting..." : "Mint"}
-              </button>
+              {!account ? (
+                <Connect fullWidth />
+              ) : (
+                <button 
+                  className="btn btn-secondary shadow-none hover:btn-primary hover:shadow z-10"
+                  onClick={() => {
+                    void handleMint();
+                  }}
+                  disabled={isLoading}
+                >
+                  {isLoading && (
+                    <div className="loading loading-spinner" />
+                  )}
+                  {isLoading ? "Minting..." : "Mint"}
+                </button>
+              )}
             </div>
           </div>
         </div>
