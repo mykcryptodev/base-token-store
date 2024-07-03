@@ -1,4 +1,4 @@
-import { useMemo, type FC } from "react";
+import { useMemo, useRef, type FC } from "react";
 import { api } from "~/utils/api";
 import Image from "next/image";
 
@@ -84,6 +84,39 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
     if (!searchedTokens) return [];
     return searchedTokens.filter((token) => tokensInScope?.find((t) => t.id === token.id));
   }, [tokensInScope, searchedTokens]);
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+  const [dragCursor, setDragCursor] = useState<string>('cursor-grab');
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    isDragging.current = true;
+    startX.current = e.pageX - (scrollContainerRef.current?.offsetLeft ?? 0);
+    scrollLeft.current = scrollContainerRef.current?.scrollLeft ?? 0;
+    setDragCursor('cursor-grabbing');
+  };
+
+  const handleMouseLeave = () => {
+    isDragging.current = false;
+    setDragCursor('cursor-grab');
+  };
+
+  const handleMouseUp = () => {
+    isDragging.current = false;
+    setDragCursor('cursor-grab');
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current) return;
+    e.preventDefault();
+    const x = e.pageX - (scrollContainerRef.current?.offsetLeft ?? 0);
+    const walk = (x - startX.current) * 1.5;
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = scrollLeft.current - walk;
+    }
+  };
 
   const TokenLoadingCard: FC = () => (
     <div className="card max-w-[236px] bg-base-200 raise-on-hover cursor-pointer">
@@ -171,7 +204,14 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
         {!tokensOwnedByAddressIsLoading && !tokensIsLoading && !searchIsLoading && tokensOwnedByAddress?.length === 0 && filteredTokens?.length === 0 && searchedTokensNotInCategory?.length === 0 && fallbackToken && (
           <TokenNotFound />
         )}
-        <div className="flex flex-col overflow-x-auto min-w-full">
+        <div 
+          className={`flex flex-col overflow-x-auto min-w-full ${dragCursor}`}
+          ref={scrollContainerRef}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+        >
           <div 
             className={`flex flex-nowrap items-stretch w-full gap-4 pb-6 pt-2 ${
               !filteredTokens?.length && !searchedTokensNotInCategory.length && !searchIsLoading && !tokensIsLoading && !tokensOwnedByAddress && !searchIsLoading ? 'hidden' : ''

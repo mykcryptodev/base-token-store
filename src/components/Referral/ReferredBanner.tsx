@@ -149,9 +149,11 @@ export const RefferedBanner: FC<Props> = ({ referralNft, hideClose, hideTitle })
               <div className="opacity-75 text-sm">Collect a 1% fee from their purchases</div>
             </div>
           </div>
-          <MintReferralCode
-            onMint={(tokenId) => setOwnedReferralCode(tokenId)}
-          />
+          <div className="sm:mr-4">
+            <MintReferralCode
+              onMint={(tokenId) => setOwnedReferralCode(tokenId)}
+            />
+          </div>
         </div>
       )}
       {!hideClose && (
