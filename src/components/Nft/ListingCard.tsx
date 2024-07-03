@@ -94,7 +94,7 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
         decimals: 18,
         symbol: "ETH",
         name: nft.name,
-        nftCollectionName: nft.collection.collection_details.name,
+        nftCollectionName: nft.collection.name,
         usdAmountDesired: typeof priceInUsd === 'number' ? priceInUsd : 0, 
         price: typeof priceInUsd === 'number' ? priceInUsd : 0,
         img: nft.image_url ?? nft.previews.image_small_url,
@@ -116,7 +116,7 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
       <div className="card-body p-4">
         <div className="flex w-full justify-between items-center gap-2">
           <Image
-            src={nft.collection.collection_details.image_url ?? nft.collection.collection_details.banner_image_url}
+            src={nft.collection.image_url ?? nft.collection.banner_image_url}
             alt={nft.name}
             width={100}
             height={100}
@@ -132,7 +132,7 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
               {nft.rarity.rank && (
                 <span 
                   className="tooltip tooltip-left flex items-center text-sm gap-1 cursor-pointer" 
-                  data-tip={`Rarity out of ${nft.collection.collection_details.total_quantity.toLocaleString()}`}
+                  data-tip={`Rarity out of ${nft.collection.total_quantity.toLocaleString()}`}
                 >
                   <SparklesIcon className="h-4 w-4" />
                   {nft.rarity.rank.toLocaleString()}

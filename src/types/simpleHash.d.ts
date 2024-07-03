@@ -80,6 +80,10 @@ export type Collection = {
   transaction_count_percent_change: number;
   payment_token: PaymentToken;
   collection_details: CollectionDetails;
+  name: string;
+  image_url: string;
+  banner_image_url: string;
+  total_quantity: number;
 };
 
 export type CollectionsApiResponse = {
