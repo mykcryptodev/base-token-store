@@ -54,6 +54,8 @@ export const NftCollectionCard: FC<Props> = ({ collection, onCollectionSelected 
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
+
+  console.log({ historicalFloorPrices })
   
   const oldestPrice = historicalFloorPrices?.floor_prices[historicalFloorPrices.floor_prices.length - 1]?.floor_price ?? 0;
   const newestPrice = historicalFloorPrices?.floor_prices[0]?.floor_price ?? 0;

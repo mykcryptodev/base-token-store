@@ -4,7 +4,6 @@ import Image from "next/image";
 
 import { useState } from "react";
 import TokenCard from "~/components/Token/Card";
-import { type TokenListResponse } from "~/types/coingecko";
 import Link from "next/link";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 

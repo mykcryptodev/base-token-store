@@ -89,6 +89,7 @@ export const endaomentRouter = createTRPCRouter({
             chain: base,
             address: ORG_FACTORY,
           });
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
           const orgAddress = await computeOrgAddress({
             contract: endaomentOrgFactory,
             orgId: einBytes32,
@@ -99,6 +100,7 @@ export const endaomentRouter = createTRPCRouter({
             chain: base,
             address: "0x713023b628cC1a7eB5b9DEC2b58127909A7c9760",
           });
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
           const [baseTokenAddress, orgIsDeployed] = await Promise.all([
             baseToken({
               contract: endaomentRegistry,

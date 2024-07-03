@@ -7,6 +7,10 @@ import {
   createTRPCRouter,
   publicProcedure,
 } from "~/server/api/trpc";
+import { getContract } from "thirdweb";
+import { base } from "thirdweb/chains";
+import { client } from "~/providers/Thirdweb";
+import { getOwnedTokenIds } from "thirdweb/extensions/erc721";
 
 export const engineRouter = createTRPCRouter({
   mint: publicProcedure
@@ -15,6 +19,18 @@ export const engineRouter = createTRPCRouter({
       recipient: z.string(),
     }))
     .mutation(async ({ input }) => {
+      const referralNftContract = getContract({
+        client,
+        address: REFERRAL_CODE_NFT,
+        chain: base,
+      });
+      const ownedNfts = await getOwnedTokenIds({
+        contract: referralNftContract,
+        owner: input.recipient,
+      });
+      if (ownedNfts.length > 0) {
+        throw new Error("User already has a referral code NFT");
+      }
       const resp = await fetch(
         `${env.THIRDWEB_ENGINE_URL}/contract/base/${REFERRAL_CODE_NFT}/write`,
         {
