@@ -1,19 +1,17 @@
 import { CheckIcon, DocumentDuplicateIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useTheme } from "next-themes";
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, type FC } from "react";
 import { base } from "thirdweb/chains";
-import { type Nft } from "~/types/simpleHash";
 import MintReferralCode from "~/components/Referral/Mint";
 import { getOwnedTokenIds } from "thirdweb/extensions/erc721";
-import { getContract } from "thirdweb";
+import { type NFT, getContract } from "thirdweb";
 import { REFERRAL_CODE_NFT } from "~/constants/addresses";
 import { client } from "~/providers/Thirdweb";
-import { useActiveAccount } from "thirdweb/react";
+import { MediaRenderer, useActiveAccount } from "thirdweb/react";
 
 type Props = {
-  referralNft: Nft | null;
+  referralNft: NFT | null;
 }
 
 export const RefferedBanner: FC<Props> = ({ referralNft }) => {
@@ -90,29 +88,28 @@ export const RefferedBanner: FC<Props> = ({ referralNft }) => {
 
   return (
     <div className={`flex w-full justify-between gap-4 sm:items-center rounded-2xl p-4 ${theme === 'dark' ? 'bg-base-200 bg-opacity-50' : 'bg-gradient-to-b from-[#F9F9F9] via-[#FAFAFA] to-[#FBFBFB]'} relative ${isBannerVisible ? '' : 'hidden'}`}>
-      {ownedReferralCode && !referralNft?.owners?.[0]?.owner_address && <OwnedReferralCode />}
-      {referralNft?.owners?.[0]?.owner_address && (
+      {ownedReferralCode && !referralNft?.owner && <OwnedReferralCode />}
+      {referralNft?.owner && (
         <div className="flex flex-col w-full items-center">
           <div className="font-bold text-xl">Welcome to the store!</div>
           <Link 
-            href={`${base.blockExplorers![0]?.url}/address/${referralNft.owners[0].owner_address}`} 
+            href={`${base.blockExplorers![0]?.url}/address/${referralNft.owner}`} 
             className="flex items-center gap-1"
             target="_blank"
             rel="noreferrer"
           >
             <div>{`You've been invited by`}</div>
-            <Image
-              src={referralNft.image_url}
-              alt={referralNft.name}
-              width={100}
-              height={100}
-              className="rounded-full w-6 h-6"
+            <MediaRenderer
+              client={client}
+              src={referralNft.metadata.image}
+              alt={referralNft.metadata.name}
+              className="rounded-full !w-6 !h-6"
             />
-            <div>{referralNft.name}</div>
+            <div>{referralNft.metadata.name}</div>
           </Link>
         </div>
       )}
-      {ownedReferralCode === "" && !referralNft?.owners?.[0]?.owner_address && (
+      {ownedReferralCode === "" && !referralNft?.owner && (
         <div className="flex sm:flex-row flex-col gap-2 items-center justify-between w-full">
           <div className="flex gap-2 items-center">
             <div className="bg-primary text-primary-content font-bold text-xl rounded-full w-12 h-12 flex items-center justify-center">

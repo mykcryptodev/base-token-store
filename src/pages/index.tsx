@@ -8,14 +8,16 @@ import TokenGrid from "~/components/Token/Grid";
 import useDebounce from "~/hooks/useDebounce";
 
 import { type GetServerSideProps } from 'next';
-import { type Nft } from "~/types/simpleHash";
-import { env } from "~/env";
 import { REFERRAL_CODE_NFT } from "~/constants/addresses";
+import { type NFT, getContract } from "thirdweb";
+import { base } from "thirdweb/chains";
+import { client } from "~/providers/Thirdweb";
+import { getNFT, ownerOf } from "thirdweb/extensions/erc721";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { query } = context;
   const r = query.r as string | undefined;
-  if (!r) {
+  if (!r || typeof r !== 'string' || !r.match(/^\d+$/)) {
     return {
       props: {
         referralNft: null,
@@ -23,28 +25,34 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
-  const referralNftRes = await fetch(`https://api.simplehash.com/api/v0/nfts/base/${REFERRAL_CODE_NFT}/${r}`, {
-    method: 'GET',
-    headers: {
-      'X-API-KEY': env.SIMPLEHASH_API_KEY,
-      'accept': 'application/json'
-    }
+  const referralNftContract = getContract({
+    client,
+    chain: base,
+    address: REFERRAL_CODE_NFT,
   });
-
-  if (!referralNftRes.ok) {
-    console.error('Failed to fetch NFT data');
-  }
-
-  const nftData = await referralNftRes.json() as Nft;
+  const [nft, owner] = await Promise.all([
+    getNFT({
+      contract: referralNftContract,
+      tokenId: BigInt(r),
+    }),
+    ownerOf({
+      contract: referralNftContract,
+      tokenId: BigInt(r),
+    }),
+  ]);
 
   return {
     props: {
-      referralNft: nftData,
+      referralNft: {
+        ...nft,
+        id: nft.id.toString(),
+        owner,
+      },
     },
   };
 };
 
-export default function Home({ referralNft }: { referralNft: Nft | null }) {
+export default function Home({ referralNft }: { referralNft: NFT | null }) {
   const { theme } = useTheme();
   const categories = [
     'base-meme-coins',
@@ -108,13 +116,13 @@ export default function Home({ referralNft }: { referralNft: Nft | null }) {
                 <NftCollectionsGrid />
               </div>
               <div className={`${category === 'NFTs and collectibles' ? 'hidden' : 'flex flex-col gap-2'}`}>
-                {referralNft?.owners?.[0]?.owner_address && (
+                {referralNft?.owner && (
                   <div className="flex flex-col gap-2">
                     <div className="font-bold text-lg">
-                      {`Tokens ${referralNft.name} is holding`}
+                      {`Tokens ${referralNft.metadata.name} is holding`}
                     </div>
                     <TokenGrid
-                      address={referralNft.owners?.[0]?.owner_address} 
+                      address={referralNft.owner} 
                       category={category}
                       query={debouncedQuery}
                     />

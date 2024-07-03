@@ -14,6 +14,7 @@ type Props = {
 }
 
 export const TokenGrid: FC<Props> = ({ category, query, address }) => {
+  console.log({ address })
   const { data: tokens, isLoading: tokensIsLoading } = api.coingecko.getTokens.useQuery({
     category,
     sparkline: true,
@@ -202,7 +203,7 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
                 {Array.from({ length: totalPages }, (_, index) => (
                   <button
                     key={index + 1}
-                    className={`join-item md:btn sm:btn-sm btn-xs btn-secondary ${currentPage === index + 1 ? 'btn-active' : ''}`}
+                    className={`join-item md:btn sm:btn-sm btn-xs btn-secondary ${currentPage === index + 1 ? '!btn-active' : ''}`}
                     onClick={() => paginate(index + 1)}
                   >
                     {index + 1}
