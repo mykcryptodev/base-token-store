@@ -178,7 +178,7 @@ async function createSwapCalldata ({
     "function exactInputSingle((address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96)) external payable returns (uint256 amountOut)"
   );
   const uniswapParamsWithoutAmountOutLimit = {
-    tokenIn: WETH,
+    tokenIn: WETH as `0x${string}`,
     tokenOut: baseTokenAddress,
     fee: 3000, // Common pool fee
     recipient,

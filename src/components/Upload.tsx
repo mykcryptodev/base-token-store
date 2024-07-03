@@ -75,7 +75,7 @@ export const Upload: FC<UploadProps> = ({
     let imageFile = file;
   
     if (isHeic) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-unsafe-call
       const heicBlob = await heic2any({ blob: file, toType: "image/jpeg" }) as Blob | Blob[];
       const heicBlobArray: Blob[] = Array.isArray(heicBlob) ? heicBlob : [heicBlob];
       imageFile = new File(heicBlobArray, file.name.replace(/\.(heic|heif)$/, ".jpg"), { type: "image/jpeg" });
