@@ -131,3 +131,12 @@ export type TokenDetailResponse = {
     };
   };
 };
+
+type Coin = {
+  id: string;
+  symbol: string;
+  name: string;
+  platforms: Record<string, string>;
+};
+
+export type CoinsListResponse = Coin[];

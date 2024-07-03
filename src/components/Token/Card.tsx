@@ -6,6 +6,7 @@ import Sparkline from "~/components/Token/Sparkline";
 import { useCartContext } from "~/contexts/Cart";
 import { api } from "~/utils/api";
 import { type CartItem } from "~/hooks/useCart";
+import TokenInfoModal from "~/components/Token/InfoModal";
 
 type Props = {
   token: TokenListResponse;
@@ -48,7 +49,7 @@ export const TokenCard: FC<Props> = ({ token }) => {
   };
 
   return (
-    <div className={`card max-w-[236px] min-h-[300px] h-70 sm:h-96 raise-on-hover overflow-hidden`} key={token.id}>
+    <div className={`card max-w-[236px] min-w-[200px] min-h-[300px] h-70 sm:h-96 sm:raise-on-hover overflow-hidden`} key={token.id}>
       <div className="absolute inset-0 bg-cover filter blur-lg " style={{ backgroundImage: `url(${token.image})`, transform: 'scale(2)', opacity: 0.2, pointerEvents: 'none' }}></div>
       <div className="card-body p-4">
         <div className="flex w-full justify-between items-center gap-2">
@@ -78,12 +79,13 @@ export const TokenCard: FC<Props> = ({ token }) => {
         <div className="w-full h-28 sm:h-44">
           <Sparkline data={token.sparkline_in_7d.price} />
         </div>
-        <div className="card-actions">
+        <div className="card-actions flex flex-nowrap items-center justify-between">
           <button 
             disabled={loading}
             className="btn btn-secondary shadow-none hover:btn-primary hover:shadow z-10"
             onClick={() => onAddToCart()}
           >Add to cart</button>
+          <TokenInfoModal token={token} />
         </div>
       </div>
     </div>

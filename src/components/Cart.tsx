@@ -1,7 +1,7 @@
 import { ShoppingBagIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
-import { useState, type FC } from 'react';
-import { ZERO_ADDRESS, toWei} from 'thirdweb';
+import { useMemo, useState, type FC } from 'react';
+import { ZERO_ADDRESS, getContract, toWei} from 'thirdweb';
 import { base } from 'thirdweb/chains';
 import { useCartContext } from '~/contexts/Cart';
 import { api } from '~/utils/api';
@@ -13,10 +13,13 @@ import { Connect } from '~/components/Connect';
 import { parseAbiItem, encodeFunctionData } from "viem";
 import { flattenObject } from '~/helpers/flattenObject';
 import Donation from '~/components/Donation';
+import { REFERRAL_CODE_NFT } from '~/constants/addresses';
+import { ownerOf } from 'thirdweb/extensions/erc721';
+import ReferralChip from '~/components/Referral/ReferralChip';
 
 const Cart: FC = () => {
-  const { sendCalls } = useSendCalls()
-  const { cart, updateItem, deleteItem } = useCartContext();
+  const { sendCalls } = useSendCalls();
+  const { cart, referralCode, updateItem, deleteItem } = useCartContext();
   const wallet = useActiveWallet();
   const account = useActiveAccount();
   const { data: etherPrice } = api.dex.getEtherPrice.useQuery({
@@ -28,11 +31,24 @@ const Cart: FC = () => {
 
   const [checkoutIsLoading, setCheckoutIsLoading] = useState<boolean>(false);
 
+  const cartTotalUsd = useMemo(() => {
+    const total = cart.reduce((acc, item) => acc + item.usdAmountDesired, 0);
+    if (referralCode) {
+      return total + total * 0.01;
+    }
+    return total;
+  }, [cart, referralCode]);
+
   const checkout = async () => {
     if (!wallet) return;
     setCheckoutIsLoading(true);
+    const referralCodeNftContract = getContract({
+      address: REFERRAL_CODE_NFT,
+      client,
+      chain: base
+    });
     try {
-      const [nftEncodedData, encodedData, donationEncodedData] = await Promise.all([
+      const [nftEncodedData, encodedData, donationEncodedData, referrer] = await Promise.all([
         getNftPurchaseEncodedData({
           orders: cart.filter(item => item.isNft).map((item) => ({
             listing: {
@@ -64,7 +80,13 @@ const Cart: FC = () => {
               etherPrice ? (item.usdAmountDesired / Number(etherPrice)).toString() : '0'
             ).toString(),
           })),
-        })
+        }),
+        ...referralCode ? [
+          ownerOf({
+            contract: referralCodeNftContract,
+            tokenId: BigInt(referralCode),
+          })
+        ] : [],
       ]);
       const nftPurchaseCalls = nftEncodedData.map((purchase) => {
         const seaportAddress = purchase.fulfillment_data.transaction.to as `0x${string}`;
@@ -89,12 +111,18 @@ const Cart: FC = () => {
           value: BigInt(donation.value),
         };
       });
+      const referrerCall = referrer ? [{
+        to: referrer as `0x${string}`,
+        data: "0x0" as `0x${string}`,
+        // cart from usd to ether and then 1% of that in wei
+        value: BigInt(toWei((cartTotalUsd / Number(etherPrice) * 0.01).toString())),
+      }] : [];
       sendCalls({
         calls: encodedData.map(swap => ({
           to: swap.data.routerAddress as `0x${string}`,
           data: swap.data.data as `0x${string}`,
           value: BigInt(swap.data.amountIn),
-        })).concat(...nftPurchaseCalls, ...donationCalls),
+        })).concat(...nftPurchaseCalls, ...donationCalls, ...referrerCall),
         capabilities: {
           auxiliaryFunds: {
             supported: true
@@ -200,7 +228,10 @@ const Cart: FC = () => {
           </li>
         ))}
       </ul>
-      <Donation />
+      <div className="flex items-center justify-between">
+        <Donation />
+        {referralCode && <ReferralChip />}
+      </div>
       <button 
         disabled={checkoutIsLoading || !account || cart.length === 0}
         className="btn btn-primary btn-block btn-lg mt-4"
@@ -209,7 +240,7 @@ const Cart: FC = () => {
         {checkoutIsLoading && (
           <div className="loading loading-spinner" />
         )}
-        Checkout ${isNaN(cart.reduce((acc, item) => acc + item.usdAmountDesired, 0)) ? 0 : cart.reduce((acc, item) => acc + item.usdAmountDesired, 0).toLocaleString([], { currency: 'usd', minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        Checkout ${cartTotalUsd.toLocaleString([], { currency: 'usd', minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </button>
       {!account && (
         <div className="mt-2">

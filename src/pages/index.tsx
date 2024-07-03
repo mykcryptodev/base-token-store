@@ -1,12 +1,68 @@
 import { useTheme } from "next-themes";
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Logo from "~/components/Logo";
 import NftCollectionsGrid from "~/components/Nft/CollectionsGrid";
+import RefferedBanner from "~/components/Referral/ReferredBanner";
 import TokenGrid from "~/components/Token/Grid";
 import useDebounce from "~/hooks/useDebounce";
 
-export default function Home() {
+import { type GetServerSideProps } from 'next';
+import { REFERRAL_CODE_NFT } from "~/constants/addresses";
+import { type NFT, getContract } from "thirdweb";
+import { base } from "thirdweb/chains";
+import { client } from "~/providers/Thirdweb";
+import { getNFT, ownerOf } from "thirdweb/extensions/erc721";
+import { useCartContext } from "~/contexts/Cart";
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { query } = context;
+  const r = query.r as string | undefined;
+  if (!r || typeof r !== 'string' || !r.match(/^\d+$/)) {
+    return {
+      props: {
+        referralNft: null,
+      },
+    };
+  }
+
+  const referralNftContract = getContract({
+    client,
+    chain: base,
+    address: REFERRAL_CODE_NFT,
+  });
+  try {
+    const [nft, owner] = await Promise.all([
+      getNFT({
+        contract: referralNftContract,
+        tokenId: BigInt(r),
+      }),
+      ownerOf({
+        contract: referralNftContract,
+        tokenId: BigInt(r),
+      }),
+    ]);
+  
+    return {
+      props: {
+        referralNft: {
+          ...nft,
+          id: nft.id.toString(),
+          owner,
+        },
+      },
+    };
+  } catch (e) {
+    console.error(e);
+    return {
+      props: {
+        referralNft: null,
+      },
+    };
+  }
+};
+
+export default function Home({ referralNft }: { referralNft: NFT | null }) {
   const { theme } = useTheme();
   const categories = [
     'base-meme-coins',
@@ -16,6 +72,13 @@ export default function Home() {
   const [category, setCategory] = useState<string>('base-meme-coins');
   const [query, setQuery] = useState<string>('');
   const debouncedQuery = useDebounce(query, 500);
+
+  const { updateReferralCode } = useCartContext();
+  useEffect(() => {
+    if (referralNft) {
+      updateReferralCode(referralNft.id.toString());
+    }
+  }, [referralNft, updateReferralCode]);
 
   return (
     <>
@@ -61,11 +124,31 @@ export default function Home() {
                   </button>
                 ))}
               </div>
+              <div className="m-4 mx-0 sm:mx-4">
+                <RefferedBanner referralNft={referralNft} />
+              </div>
               <div className={`${category === 'NFTs and collectibles' ? 'flex' : 'hidden'}`}>
                 <NftCollectionsGrid />
               </div>
-              <div className={`${category === 'NFTs and collectibles' ? 'hidden' : 'flex'}`}>
-                <TokenGrid category={category} query={debouncedQuery} />
+              <div className={`${category === 'NFTs and collectibles' ? 'hidden' : 'flex flex-col gap-2'}`}>
+                {referralNft?.owner && (
+                  <div className="flex flex-col gap-2">
+                    <div className="font-bold text-lg">
+                      {`${referralNft.metadata.name}'s holdings`}
+                    </div>
+                    <TokenGrid
+                      address={referralNft.owner} 
+                      category={category}
+                      query={debouncedQuery}
+                    />
+                  </div>
+                )}
+                <div className="flex flex-col gap-2">
+                  <div className="font-bold text-lg">
+                    {category.replace('base-', '').replace('-', ' ').replace(/^\w/, (c) => c.toUpperCase())}
+                  </div>
+                  <TokenGrid category={category} query={debouncedQuery} />
+                </div>
               </div>
             </div>
           </div>

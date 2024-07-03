@@ -6,7 +6,7 @@ import {
   createTRPCRouter,
   publicProcedure,
 } from "~/server/api/trpc";
-import { type HistoricalFloorPriceApiResponse, type CollectionsApiResponse, type NftApiResponse } from "~/types/simpleHash";
+import { type HistoricalFloorPriceApiResponse, type CollectionsApiResponse, type NftApiResponse, type FungiblesApiResponse, type Fungible, type WalletNftOwnershipApiResponse } from "~/types/simpleHash";
 
 export const simpleHashRouter = createTRPCRouter({
   getCollections: publicProcedure
@@ -102,5 +102,64 @@ export const simpleHashRouter = createTRPCRouter({
       });
       const data = await response.json() as NftApiResponse;
       return data.nfts[0];
+    }),
+  getFungibles: publicProcedure
+    .input(z.object({
+      chain: z.string(),
+      address: z.string().optional(),
+      limit: z.number().max(50).optional(),
+    }))
+    .query(async ({ input }) => {
+      const { chain, address, limit = 50 } = input;
+      if (!address) {
+        return [];
+      }
+      let cursor: string | null = null;
+      let allFungibles: Fungible[] = [];
+
+      do {
+        const url = new URL(`https://api.simplehash.com/api/v0/fungibles/balances`);
+        url.searchParams.append('chains', chain);
+        url.searchParams.append('wallet_addresses', address);
+        url.searchParams.append('limit', limit.toString());
+        if (cursor) {
+          url.searchParams.append('cursor', cursor);
+        }
+
+        const response = await fetch(url.toString(), {
+          method: 'GET',
+          headers: {
+            'accept': 'application/json',
+            'X-API-KEY': env.SIMPLEHASH_API_KEY,
+          },
+        });
+
+        const data = await response.json() as FungiblesApiResponse;
+        allFungibles = allFungibles.concat(data.fungibles);
+        cursor = data.next_cursor;
+      } while (cursor);
+
+      return allFungibles;
+    }),
+  getNftOwnershipSummary: publicProcedure
+    .input(z.object({
+      nftContractAddress: z.string(),
+      ownerWalletAddress: z.string(),
+    }))
+    .query(async ({ input }) => {
+      const { nftContractAddress, ownerWalletAddress } = input;
+      const url = new URL(`https://api.simplehash.com/api/v0/nfts/contracts`);
+      url.searchParams.append('chains', 'base');
+      url.searchParams.append('wallet_addresses', ownerWalletAddress);
+      url.searchParams.append('contract_addresses', nftContractAddress);
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'X-API-KEY': env.SIMPLEHASH_API_KEY,
+        },
+      });
+      const data = await response.json() as WalletNftOwnershipApiResponse;
+      return data;
     }),
 });

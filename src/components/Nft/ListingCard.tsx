@@ -112,7 +112,7 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
 
   return (
     <div className={`card max-w-[236px] min-h-[300px] raise-on-hover overflow-hidden`} key={nft.nft_id}>
-      <div className="absolute inset-0 bg-cover filter blur-lg -z-10" style={{ backgroundImage: `url(${nft.image_url ?? nft.collection.image_url})`, transform: 'scale(2)', opacity: 0.2, pointerEvents: 'none' }}></div>
+      <div className="absolute inset-0 bg-cover filter blur-lg -z-10" style={{ backgroundImage: `url(${nft.image_url ?? nft.collection.collection_details.image_url})`, transform: 'scale(2)', opacity: 0.2, pointerEvents: 'none' }}></div>
       <div className="card-body p-4">
         <div className="flex w-full justify-between items-center gap-2">
           <Image

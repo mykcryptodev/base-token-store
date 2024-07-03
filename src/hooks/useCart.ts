@@ -19,11 +19,16 @@ export interface CartItem {
 
 const useCart = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
 
   useEffect(() => {
     const cartFromStorage = localStorage.getItem('cart');
     if (cartFromStorage) {
       setCart(JSON.parse(cartFromStorage) as CartItem[]);
+    }
+    const referralCodeFromStorage = localStorage.getItem('referralCode');
+    if (referralCodeFromStorage) {
+      setReferralCode(referralCodeFromStorage);
     }
   }, []);
 
@@ -45,11 +50,24 @@ const useCart = () => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== id));
   };
 
+  const updateReferralCode = (code: string) => {
+    setReferralCode(code);
+    localStorage.setItem('referralCode', code);
+  }
+
+  const deleteReferralCode = () => {
+    setReferralCode(null);
+    localStorage.removeItem('referralCode');
+  }
+
   return {
     cart,
     addItem,
     updateItem,
     deleteItem,
+    referralCode,
+    updateReferralCode,
+    deleteReferralCode,
   };
 };
 
