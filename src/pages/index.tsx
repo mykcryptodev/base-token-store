@@ -1,6 +1,6 @@
 import { useTheme } from "next-themes";
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Logo from "~/components/Logo";
 import NftCollectionsGrid from "~/components/Nft/CollectionsGrid";
 import RefferedBanner from "~/components/Referral/ReferredBanner";
@@ -13,6 +13,7 @@ import { type NFT, getContract } from "thirdweb";
 import { base } from "thirdweb/chains";
 import { client } from "~/providers/Thirdweb";
 import { getNFT, ownerOf } from "thirdweb/extensions/erc721";
+import { useCartContext } from "~/contexts/Cart";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { query } = context;
@@ -30,26 +31,35 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     chain: base,
     address: REFERRAL_CODE_NFT,
   });
-  const [nft, owner] = await Promise.all([
-    getNFT({
-      contract: referralNftContract,
-      tokenId: BigInt(r),
-    }),
-    ownerOf({
-      contract: referralNftContract,
-      tokenId: BigInt(r),
-    }),
-  ]);
-
-  return {
-    props: {
-      referralNft: {
-        ...nft,
-        id: nft.id.toString(),
-        owner,
+  try {
+    const [nft, owner] = await Promise.all([
+      getNFT({
+        contract: referralNftContract,
+        tokenId: BigInt(r),
+      }),
+      ownerOf({
+        contract: referralNftContract,
+        tokenId: BigInt(r),
+      }),
+    ]);
+  
+    return {
+      props: {
+        referralNft: {
+          ...nft,
+          id: nft.id.toString(),
+          owner,
+        },
       },
-    },
-  };
+    };
+  } catch (e) {
+    console.error(e);
+    return {
+      props: {
+        referralNft: null,
+      },
+    };
+  }
 };
 
 export default function Home({ referralNft }: { referralNft: NFT | null }) {
@@ -63,7 +73,12 @@ export default function Home({ referralNft }: { referralNft: NFT | null }) {
   const [query, setQuery] = useState<string>('');
   const debouncedQuery = useDebounce(query, 500);
 
-  console.log({referralNft });
+  const { updateReferralCode } = useCartContext();
+  useEffect(() => {
+    if (referralNft) {
+      updateReferralCode(referralNft.id.toString());
+    }
+  }, [referralNft, updateReferralCode]);
 
   return (
     <>

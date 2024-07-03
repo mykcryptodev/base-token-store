@@ -28,7 +28,6 @@ export const TokenCard: FC<Props> = ({ token }) => {
     const tokenInfo = await getTokenInfo({
       id: token.id,
     });
-    console.log({ tokenInfo });
     const baseAddress = tokenInfo.platforms?.base ?? cart.find((item: CartItem) => item.id === token.id)?.address;
     const baseDecimals = tokenInfo.detail_platforms?.base?.decimal_place ?? 18;
     if (!baseAddress) return setLoading(false);

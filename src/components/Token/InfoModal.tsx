@@ -22,7 +22,6 @@ export const TokenInfoModal: FC<Props> = ({ token }) => {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
-  console.log({ tokenInfo })
 
   const onAddToCart = async () => {
     // Add logic check here for prevent race condition
@@ -30,7 +29,6 @@ export const TokenInfoModal: FC<Props> = ({ token }) => {
     setLoading(true);
     const alreadyInCart = cart.find((item: CartItem) => item.id === token.id);
 
-    console.log({ tokenInfo });
     const baseAddress = tokenInfo.platforms?.base ?? cart.find((item: CartItem) => item.id === tokenInfo.id)?.address;
     const baseDecimals = tokenInfo.detail_platforms?.base?.decimal_place ?? 18;
     if (!baseAddress) return setLoading(false);

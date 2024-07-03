@@ -12,9 +12,11 @@ import { MediaRenderer, useActiveAccount } from "thirdweb/react";
 
 type Props = {
   referralNft: NFT | null;
+  hideTitle?: boolean;
+  hideClose?: boolean;
 }
 
-export const RefferedBanner: FC<Props> = ({ referralNft }) => {
+export const RefferedBanner: FC<Props> = ({ referralNft, hideClose, hideTitle }) => {
   const { theme } = useTheme();
   const account = useActiveAccount();
   const [isBannerVisible, setIsBannerVisible] = useState<boolean>(true);
@@ -68,7 +70,9 @@ export const RefferedBanner: FC<Props> = ({ referralNft }) => {
           1%
         </div>
         <div className="flex flex-col">
-          <div className="font-bold text-xl">Your Referral Code</div>
+          {!hideTitle && (
+            <div className="font-bold text-xl">Your Referral Code</div>
+          )}
           <div className="opacity-75 text-sm">
             Share your referral code and earn 1% of each purchase made by your friends
           </div>
@@ -150,12 +154,14 @@ export const RefferedBanner: FC<Props> = ({ referralNft }) => {
           />
         </div>
       )}
-      <div className="absolute top-4 right-4">
-        <XMarkIcon 
-          className="h-4 w-4 cursor-pointer"
-          onClick={() => setIsBannerVisible(false)}
-        />
-      </div>
+      {!hideClose && (
+        <div className="absolute top-4 right-4">
+          <XMarkIcon 
+            className="h-4 w-4 cursor-pointer"
+            onClick={() => setIsBannerVisible(false)}
+          />
+        </div>
+      )}
     </div>
   );
 };
