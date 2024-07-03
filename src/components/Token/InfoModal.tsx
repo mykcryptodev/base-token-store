@@ -65,7 +65,6 @@ export const TokenInfoModal: FC<Props> = ({ token }) => {
         <input type="checkbox" id={`${token.id}-token-info`} className="modal-toggle" />
         <div className="modal modal-bottom sm:modal-middle" role="dialog">
           <div className="modal-box relative overflow-hidden">
-            {/* <div className="absolute inset-0 bg-cover filter blur-lg " style={{ backgroundImage: `url(${token.image})`, transform: 'scale(2)', opacity: 0.2, pointerEvents: 'none' }}></div> */}
             <label htmlFor={`${token.id}-token-info`} className="btn btn-circle btn-sm btn-ghost absolute top-4 right-4">
               <XMarkIcon className="h-6 w-6" />
             </label>

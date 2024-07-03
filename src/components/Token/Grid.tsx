@@ -11,9 +11,10 @@ import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 type Props = {
   category: string;
   query?: string;
+  address?: string;
 }
 
-export const TokenGrid: FC<Props> = ({ category, query }) => {
+export const TokenGrid: FC<Props> = ({ category, query, address }) => {
   const { data: tokens, isLoading: tokensIsLoading } = api.coingecko.getTokens.useQuery({
     category,
     sparkline: true,
@@ -21,6 +22,26 @@ export const TokenGrid: FC<Props> = ({ category, query }) => {
     enabled: category !== "NFTs and collectibles",
     refetchOnMount: false,
     refetchOnWindowFocus: false,
+  });
+
+  const { data: tokenAddresses } = api.coingecko.getTokenAddresses.useQuery({
+    ids: tokens?.map((token) => token.id) ?? [],
+  }, {
+    enabled: !!tokens,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+  
+  const { 
+    data: tokensOwnedByAddress, 
+    isLoading: tokensOwnedByAddressIsLoading 
+  } = api.simpleHash.getFungibles.useQuery({
+    address,
+    chain: 'base',
+  }, {
+    enabled: category !== "NFTs and collectibles" && !!address,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false
   });
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -32,10 +53,19 @@ export const TokenGrid: FC<Props> = ({ category, query }) => {
 
   const totalPages = tokens ? Math.ceil(tokens.length / tokensPerPage) : 0;
 
+  const tokensInScope = useMemo(() => {
+    if (!address) return tokens;
+    return tokens?.filter((token) => {
+      const tokenWithAddress = tokenAddresses?.find((t) => t.id === token.id);
+      if (!tokenWithAddress) return false;
+      return tokensOwnedByAddress?.find((t) => t.fungible_id.split('base.')[1]?.toLowerCase() === tokenWithAddress.platforms?.base?.toLowerCase())
+    });
+  }, [address, tokenAddresses, tokens, tokensOwnedByAddress]);
+
   const filteredTokens = useMemo(() => {
-    if (!query) return tokens?.slice(indexOfFirstToken, indexOfLastToken);;
-    return tokens?.filter((token) => token.name.toLowerCase().includes(query.toLowerCase()));
-  }, [indexOfFirstToken, indexOfLastToken, query, tokens]);
+    if (!query) return tokensInScope?.slice(indexOfFirstToken, indexOfLastToken);;
+    return tokensInScope?.filter((token) => token.name.toLowerCase().includes(query.toLowerCase()));
+  }, [indexOfFirstToken, indexOfLastToken, query, tokensInScope]);
 
   const { data: searchedTokens, isLoading: searchIsLoading } = api.coingecko.searchTokens.useQuery({
     query: query ?? '',
@@ -81,6 +111,13 @@ export const TokenGrid: FC<Props> = ({ category, query }) => {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
     });
+    if (address) {
+      return (
+        <div>
+          Not holding
+        </div>
+      )
+    }
     return (
       <div className="flex flex-col w-full items-center justify-center gap-2">
         <div className="card max-w-xs bg-base-200 text-center justify-center flex raise-on-hover cursor-pointer">
@@ -131,15 +168,15 @@ export const TokenGrid: FC<Props> = ({ category, query }) => {
 
   return (
     <>
-      <div className="sm:max-w-5xl mx-auto mt-4 min-h-[732px]">
+      <div className={`sm:max-w-5xl mx-auto ${address ? '' : 'min-h-[732px]'}`}>
         <div className="flex flex-col gap-8 min-w-full">
           <div 
             className={`grid grid-cols-2 sm:flex sm:flex-wrap items-stretch w-full justify-center gap-4 ${
               !filteredTokens?.length && !searchedTokensNotInCategory.length && !searchIsLoading && !tokensIsLoading && !searchIsLoading ? 'hidden' : ''
             }`}>
-            {filteredTokens?.map((token) => <TokenCard key={token.id} token={token as TokenListResponse} />)}
+            {filteredTokens?.map((token) => <TokenCard key={token.id} token={token} />)}
             {searchedTokensNotInCategory?.map((token) => <TokenCard key={token.id} token={token} />)}
-            {(tokensIsLoading || searchIsLoading) && Array.from({ length: tokensPerPage }, (_, index) => (
+            {(tokensIsLoading || searchIsLoading || (address && tokensOwnedByAddressIsLoading)) && Array.from({ length: tokensPerPage }, (_, index) => (
               <TokenLoadingCard key={index} />
             ))}
           </div>

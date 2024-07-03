@@ -2,10 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@100..900&display=swap');
+@font-face {
+  font-family: 'Segment';
+  src: url('/fonts/Segment-Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Segment';
+  src: url('/fonts/Segment-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
 
 body {
-  font-family: 'Heebo', sans-serif;
+  font-family: 'Segment', sans-serif;
 }
 
 /* move an element up when hovered */

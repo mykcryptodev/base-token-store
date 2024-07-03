@@ -1,4 +1,3 @@
-import { Inter } from "next/font/google";
 import { type AppType } from "next/app";
 import { ThemeProvider } from "next-themes";
 
@@ -12,12 +11,10 @@ import { ActiveChainProvider } from "~/contexts/ActiveChain";
 import { Wagmi } from "~/providers/Wagmi";
 import { Analytics } from "@vercel/analytics/react";
 
-const inter = Inter({ subsets: ['latin'] });
-
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
   <ThemeProvider>
-    <main className={inter.className}>
+    <main>
       <ActiveChainProvider>
         <Wagmi>
           <Thirdweb>

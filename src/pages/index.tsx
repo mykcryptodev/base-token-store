@@ -3,10 +3,48 @@ import Head from "next/head";
 import { useState } from "react";
 import Logo from "~/components/Logo";
 import NftCollectionsGrid from "~/components/Nft/CollectionsGrid";
+import RefferedBanner from "~/components/Referral/ReferredBanner";
 import TokenGrid from "~/components/Token/Grid";
 import useDebounce from "~/hooks/useDebounce";
 
-export default function Home() {
+import { type GetServerSideProps } from 'next';
+import { type Nft } from "~/types/simpleHash";
+import { env } from "~/env";
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { query } = context;
+  const r = query.r as string | undefined;
+  if (!r) {
+    return {
+      props: {
+        referralNft: null,
+      },
+    };
+  }
+
+  const referralNftRes = await fetch(`https://api.simplehash.com/api/v0/nfts/base/0x949bed087ff0241e04e98d807de3c3dd97eaa381/${r}`, {
+    method: 'GET',
+    headers: {
+      'X-API-KEY': env.SIMPLEHASH_API_KEY,
+      'accept': 'application/json'
+    }
+  });
+
+  if (!referralNftRes.ok) {
+    console.error('Failed to fetch NFT data');
+  }
+
+  const nftData = await referralNftRes.json() as Nft;
+  console.log(nftData);
+
+  return {
+    props: {
+      referralNft: nftData,
+    },
+  };
+};
+
+export default function Home({ referralNft }: { referralNft: Nft | null }) {
   const { theme } = useTheme();
   const categories = [
     'base-meme-coins',
@@ -61,11 +99,31 @@ export default function Home() {
                   </button>
                 ))}
               </div>
+              <div className="m-4 mx-0 sm:mx-4">
+                <RefferedBanner referralNft={referralNft} />
+              </div>
               <div className={`${category === 'NFTs and collectibles' ? 'flex' : 'hidden'}`}>
                 <NftCollectionsGrid />
               </div>
-              <div className={`${category === 'NFTs and collectibles' ? 'hidden' : 'flex'}`}>
-                <TokenGrid category={category} query={debouncedQuery} />
+              <div className={`${category === 'NFTs and collectibles' ? 'hidden' : 'flex flex-col gap-2'}`}>
+                {referralNft && (
+                  <div className="flex flex-col gap-2">
+                    <div className="font-bold text-lg">
+                      {`Tokens ${referralNft.name} is holding`}
+                    </div>
+                    <TokenGrid
+                      address={referralNft.owners[0]?.owner_address} 
+                      category={category}
+                      query={debouncedQuery}
+                    />
+                  </div>
+                )}
+                <div className="flex flex-col gap-2">
+                  <div className="font-bold text-lg">
+                    {category.replace('base-', '').replace('-', ' ').replace(/^\w/, (c) => c.toUpperCase())}
+                  </div>
+                  <TokenGrid category={category} query={debouncedQuery} />
+                </div>
               </div>
             </div>
           </div>
