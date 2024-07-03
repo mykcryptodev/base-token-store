@@ -34,7 +34,7 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
   
   const { 
     data: tokensOwnedByAddress, 
-    isLoading: tokensOwnedByAddressIsLoading 
+    isFetching: tokensOwnedByAddressIsLoading 
   } = api.simpleHash.getFungibles.useQuery({
     address,
     chain: 'base',
@@ -176,11 +176,11 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
             }`}>
             {filteredTokens?.map((token) => <TokenCard key={token.id} token={token} />)}
             {searchedTokensNotInCategory?.map((token) => <TokenCard key={token.id} token={token} />)}
-            {(tokensIsLoading || searchIsLoading || (address && tokensOwnedByAddressIsLoading)) && Array.from({ length: tokensPerPage }, (_, index) => (
+            {(tokensIsLoading || searchIsLoading || tokensOwnedByAddressIsLoading) && Array.from({ length: tokensPerPage }, (_, index) => (
               <TokenLoadingCard key={index} />
             ))}
           </div>
-          {!tokensIsLoading && !searchIsLoading && filteredTokens?.length === 0 && searchedTokensNotInCategory?.length === 0 && fallbackToken && (
+          {!tokensIsLoading && !searchIsLoading && filteredTokens?.length === 0 && searchedTokensNotInCategory?.length === 0 && fallbackToken && !address && (
             <TokenNotFound />
           )}
         </div>

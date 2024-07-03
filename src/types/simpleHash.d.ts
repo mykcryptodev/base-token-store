@@ -273,3 +273,15 @@ export type FungiblesApiResponse = {
   next_cursor: string | null;
   fungibles: Fungible[];
 };
+
+export type WalletNftOwnershipApiResponse = {
+  wallets: {
+    wallet_address: string;
+    contracts: {
+      contract_address: string;
+      token_ids: string[];
+      chain: string;
+      nfts_owned: number;
+    }[];
+  }[];
+};

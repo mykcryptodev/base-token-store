@@ -2,6 +2,8 @@ import { catsRouter } from "~/server/api/routers/cats";
 import { coingeckoRouter } from "~/server/api/routers/coingecko";
 import { dexRouter } from "~/server/api/routers/dex";
 import { endaomentRouter } from "~/server/api/routers/endaoment";
+import { engineRouter } from "~/server/api/routers/engine";
+import { googleRouter } from "~/server/api/routers/google";
 import { kyberswapRouter } from "~/server/api/routers/kyberswap";
 import { moralisRouter } from "~/server/api/routers/moralis";
 import { openSeaRouter } from "~/server/api/routers/opensea";
@@ -18,6 +20,8 @@ export const appRouter = createTRPCRouter({
   coingecko: coingeckoRouter,
   dex: dexRouter,
   endaoment: endaomentRouter,
+  engine: engineRouter,
+  google: googleRouter,
   kyberswap: kyberswapRouter,
   moralis: moralisRouter,
   openSea: openSeaRouter,

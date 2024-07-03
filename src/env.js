@@ -9,11 +9,14 @@ export const env = createEnv({
   server: {
     NODE_ENV: z.enum(["development", "test", "production"]),
     THIRDWEB_SECRET_KEY: z.string(),
+    THIRDWEB_ENGINE_URL: z.string(),
+    THIRDWEB_ENGINE_ACCESS_TOKEN: z.string(),
     MORALIS_API_KEY: z.string(),
     KYBERSWAP_CLIENT_ID: z.string(),
     COINGECKO_API_KEY: z.string(),
     OPENSEA_API_KEY: z.string(),
     SIMPLEHASH_API_KEY: z.string(),
+    GOOGLE_VISION_API_KEY: z.string(),
   },
 
   /**
@@ -33,12 +36,15 @@ export const env = createEnv({
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_THIRDWEB_CLIENT_ID: process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID,
+    THIRDWEB_ENGINE_URL: process.env.THIRDWEB_ENGINE_URL,
+    THIRDWEB_ENGINE_ACCESS_TOKEN: process.env.THIRDWEB_ENGINE_ACCESS_TOKEN,
     THIRDWEB_SECRET_KEY: process.env.THIRDWEB_SECRET_KEY,
     MORALIS_API_KEY: process.env.MORALIS_API_KEY,
     KYBERSWAP_CLIENT_ID: process.env.KYBERSWAP_CLIENT_ID,
     COINGECKO_API_KEY: process.env.COINGECKO_API_KEY,
     OPENSEA_API_KEY: process.env.OPENSEA_API_KEY,
     SIMPLEHASH_API_KEY: process.env.SIMPLEHASH_API_KEY,
+    GOOGLE_VISION_API_KEY: process.env.GOOGLE_VISION_API_KEY,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

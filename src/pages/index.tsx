@@ -10,6 +10,7 @@ import useDebounce from "~/hooks/useDebounce";
 import { type GetServerSideProps } from 'next';
 import { type Nft } from "~/types/simpleHash";
 import { env } from "~/env";
+import { REFERRAL_CODE_NFT } from "~/constants/addresses";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { query } = context;
@@ -22,7 +23,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
-  const referralNftRes = await fetch(`https://api.simplehash.com/api/v0/nfts/base/0x949bed087ff0241e04e98d807de3c3dd97eaa381/${r}`, {
+  const referralNftRes = await fetch(`https://api.simplehash.com/api/v0/nfts/base/${REFERRAL_CODE_NFT}/${r}`, {
     method: 'GET',
     headers: {
       'X-API-KEY': env.SIMPLEHASH_API_KEY,
@@ -35,7 +36,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   const nftData = await referralNftRes.json() as Nft;
-  console.log(nftData);
 
   return {
     props: {
@@ -54,6 +54,8 @@ export default function Home({ referralNft }: { referralNft: Nft | null }) {
   const [category, setCategory] = useState<string>('base-meme-coins');
   const [query, setQuery] = useState<string>('');
   const debouncedQuery = useDebounce(query, 500);
+
+  console.log({referralNft });
 
   return (
     <>
@@ -106,13 +108,13 @@ export default function Home({ referralNft }: { referralNft: Nft | null }) {
                 <NftCollectionsGrid />
               </div>
               <div className={`${category === 'NFTs and collectibles' ? 'hidden' : 'flex flex-col gap-2'}`}>
-                {referralNft && (
+                {referralNft?.owners?.[0]?.owner_address && (
                   <div className="flex flex-col gap-2">
                     <div className="font-bold text-lg">
                       {`Tokens ${referralNft.name} is holding`}
                     </div>
                     <TokenGrid
-                      address={referralNft.owners[0]?.owner_address} 
+                      address={referralNft.owners?.[0]?.owner_address} 
                       category={category}
                       query={debouncedQuery}
                     />
