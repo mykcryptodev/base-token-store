@@ -19,8 +19,22 @@ type Props = {
 export const RefferedBanner: FC<Props> = ({ referralNft, hideClose, hideTitle }) => {
   const { theme } = useTheme();
   // force theme refresh
-  const [refresh, setRefresh] = useState<boolean>(false);
-  useEffect(() => theme === 'dark' ? setRefresh(true) : setRefresh(false), [theme]);
+  const [isDarkTheme, setIsDarkTheme] = useState<boolean>(false);
+  useEffect(() => {
+    if (theme === 'dark') {
+      return setIsDarkTheme(true);
+    }
+    if (theme === 'system') {
+      // find out if the user prefers dark or light
+      const darkQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      if (darkQuery.matches) {
+        return setIsDarkTheme(true)
+      } else {
+        return setIsDarkTheme(false)
+      }
+    }
+    setIsDarkTheme(false);
+  }, [theme]);
   const account = useActiveAccount();
   const [isBannerVisible, setIsBannerVisible] = useState<boolean>(true);
   const [ownedReferralCode, setOwnedReferralCode] = useState<string>('');
@@ -104,7 +118,7 @@ export const RefferedBanner: FC<Props> = ({ referralNft, hideClose, hideTitle })
   );
 
   if (isLoadingReferralCode) return (
-    <div className={`flex w-full justify-between gap-4 sm:items-center rounded-2xl p-4 ${theme === 'dark' ? 'bg-base-200 bg-opacity-50' : 'bg-gradient-to-b from-[#F9F9F9] via-[#FAFAFA] to-[#FBFBFB]'} relative ${isBannerVisible ? '' : 'hidden'}`}>
+    <div className={`flex w-full justify-between gap-4 sm:items-center rounded-2xl p-4 ${isDarkTheme ? 'bg-base-200 bg-opacity-50' : 'bg-gradient-to-b from-[#F9F9F9] via-[#FAFAFA] to-[#FBFBFB]'} relative ${isBannerVisible ? '' : 'hidden'}`}>
       <div className="flex sm:flex-row flex-col gap-2 items-center justify-between w-full">
         <div className="flex gap-2 items-center">
           <div className="bg-base-300 animate-pulse rounded-full w-12 h-12" />
@@ -119,7 +133,7 @@ export const RefferedBanner: FC<Props> = ({ referralNft, hideClose, hideTitle })
   )
 
   return (
-    <div className={`flex w-full justify-between gap-4 sm:items-center rounded-2xl p-4 ${theme === 'dark' ? 'bg-base-200 bg-opacity-50' : 'bg-gradient-to-b from-[#F9F9F9] via-[#FAFAFA] to-[#FBFBFB]'} relative ${isBannerVisible ? '' : 'hidden'}`} key={refresh}>
+    <div className={`flex w-full justify-between gap-4 sm:items-center rounded-2xl p-4 ${isDarkTheme ? 'bg-base-200 bg-opacity-50' : 'bg-gradient-to-b from-[#F9F9F9] via-[#FAFAFA] to-[#FBFBFB]'} relative ${isBannerVisible ? '' : 'hidden'}`}>
       {ownedReferralCode && !referralNft?.owner && <OwnedReferralCode />}
       {referralNft?.owner && (
         <div className="flex flex-col w-full items-center">
