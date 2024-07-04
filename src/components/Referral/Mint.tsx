@@ -10,6 +10,7 @@ import { base } from "thirdweb/chains";
 import dynamic from 'next/dynamic';
 import { upload } from "thirdweb/storage";
 import { Connect } from "~/components/Connect";
+import { set } from "zod";
 
 const Upload = dynamic(() => import('~/components/Upload'), { ssr: false });
 
@@ -40,6 +41,12 @@ export const MintReferralCode: FC<Props> = ({ onMint }) => {
           // @ts-expect-error tokenIdMinted is a BigInt
           const tokenIdMinted = event.args.tokenIdMinted as bigint;
           onMint(tokenIdMinted.toString());
+
+          setIsLoading(false);
+          setName("");
+          setImgUri(undefined);
+          // close the modal
+          document.getElementById('mint-referral-nft')?.click();
         }
       }
     },
@@ -63,13 +70,6 @@ export const MintReferralCode: FC<Props> = ({ onMint }) => {
       console.log({ data });
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsLoading(false);
-      // clear the inputs
-      setName("");
-      setImgUri("");
-      // close the modal
-      document.getElementById('mint-referral-nft')?.click()
     }
   }
 
