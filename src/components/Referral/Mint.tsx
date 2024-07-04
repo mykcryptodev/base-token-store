@@ -10,7 +10,6 @@ import { base } from "thirdweb/chains";
 import dynamic from 'next/dynamic';
 import { upload } from "thirdweb/storage";
 import { Connect } from "~/components/Connect";
-import { set } from "zod";
 
 const Upload = dynamic(() => import('~/components/Upload'), { ssr: false });
 
