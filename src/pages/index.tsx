@@ -12,7 +12,7 @@ import { REFERRAL_CODE_NFT } from "~/constants/addresses";
 import { type NFT, getContract } from "thirdweb";
 import { base } from "thirdweb/chains";
 import { client } from "~/providers/Thirdweb";
-import { getNFT, ownerOf } from "thirdweb/extensions/erc721";
+import { getNFT } from "thirdweb/extensions/erc721";
 import { useCartContext } from "~/contexts/Cart";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -32,23 +32,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     address: REFERRAL_CODE_NFT,
   });
   try {
-    const [nft, owner] = await Promise.all([
-      getNFT({
-        contract: referralNftContract,
-        tokenId: BigInt(r),
-      }),
-      ownerOf({
-        contract: referralNftContract,
-        tokenId: BigInt(r),
-      }),
-    ]);
+    const nft = await getNFT({
+      contract: referralNftContract,
+      tokenId: BigInt(r),
+      includeOwner: true,
+    });
   
     return {
       props: {
         referralNft: {
           ...nft,
           id: nft.id.toString(),
-          owner,
         },
       },
     };

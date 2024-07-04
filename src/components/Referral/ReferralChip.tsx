@@ -7,7 +7,7 @@ import { client } from "~/providers/Thirdweb";
 import { getContract, type NFT } from "thirdweb";
 import { REFERRAL_CODE_NFT } from "~/constants/addresses";
 import { base } from "thirdweb/chains";
-import { getNFT, ownerOf } from "thirdweb/extensions/erc721";
+import { getNFT } from "thirdweb/extensions/erc721";
 import RefferedBanner from "~/components/Referral/ReferredBanner";
 
 export const ReferralChip: FC = () => {
@@ -26,20 +26,12 @@ export const ReferralChip: FC = () => {
         address: REFERRAL_CODE_NFT,
       });
       try {
-        const [nft, owner] = await Promise.all([
-          getNFT({
-            contract: referralNftContract,
-            tokenId: BigInt(referralCode),
-          }),
-          ownerOf({
-            contract: referralNftContract,
-            tokenId: BigInt(referralCode),
-          }),
-        ]);
-        setReferralNft({
-          ...nft,
-          owner,
+        const nft = await getNFT({
+          contract: referralNftContract,
+          tokenId: BigInt(referralCode),
+          includeOwner: true,
         });
+        setReferralNft(nft);
       } catch (e) {
         console.error(e);
       } finally {
