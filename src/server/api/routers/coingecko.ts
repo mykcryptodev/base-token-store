@@ -178,6 +178,7 @@ export const coingeckoRouter = createTRPCRouter({
   getTokenAddresses: publicProcedure
     .input(z.object({ ids: z.array(z.string()) }))
     .query(async ({ input }) => {
+      if (!input.ids.length) return [];
       const res = await fetch("https://api.coingecko.com/api/v3/coins/list?include_platform=true&status=active");
       const json = (await res.json()) as CoinsListResponse;
       // only return the tokens with ids in the array

@@ -23,10 +23,32 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
     refetchOnWindowFocus: false,
   });
 
-  const { data: tokenAddresses } = api.coingecko.getTokenAddresses.useQuery({
+  const { data: searchedTokens, isLoading: searchIsLoading } = api.coingecko.searchTokens.useQuery({
+    query: query ?? '',
+  }, {
+    enabled: !!query,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+
+  const { 
+    data: tokenAddresses,
+    isLoading: tokenAddressesIsLoading,
+  } = api.coingecko.getTokenAddresses.useQuery({
     ids: tokens?.map((token) => token.id) ?? [],
   }, {
     enabled: !!tokens,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+
+  const { 
+    data: searchedTokenAddresses,
+    isLoading: searchedTokenAddressesIsLoading,
+  } = api.coingecko.getTokenAddresses.useQuery({
+    ids: searchedTokens?.map((token) => token.id) ?? [],
+  }, {
+    enabled: !!searchedTokens,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
@@ -53,37 +75,64 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
   const totalPages = tokens ? Math.ceil(tokens.length / tokensPerPage) : 0;
 
   const tokensInScope = useMemo(() => {
-    if (!address) return tokens;
-    return tokens?.filter((token) => {
+    // only include tokens with a base address
+    let scopedTokens = tokens?.map((token) => {
       const tokenWithAddress = tokenAddresses?.find((t) => t.id === token.id);
-      if (!tokenWithAddress) return false;
-      return tokensOwnedByAddress?.find((t) => t.fungible_id.split('base.')[1]?.toLowerCase() === tokenWithAddress.platforms?.base?.toLowerCase())
-    });
-  }, [address, tokenAddresses, tokens, tokensOwnedByAddress]);
+      const baseAddress = tokenWithAddress?.platforms?.base;
+      return { ...token, address: baseAddress };
+    }).filter((token) => token.address);
 
-  const filteredTokens = useMemo(() => {
-    if (!query) return tokensInScope?.slice(indexOfFirstToken, indexOfLastToken);;
-    return tokensInScope?.filter((token) => token.name.toLowerCase().includes(query.toLowerCase()));
-  }, [indexOfFirstToken, indexOfLastToken, query, tokensInScope]);
+    // if there is a search, filter the tokens
+    if (query) {
+      const filteredTokens = !scopedTokens ? [] : scopedTokens.filter((token) => 
+        token.name.toLowerCase().includes(query.toLowerCase())
+      );
+      const tokensFoundInSearch = !searchedTokens ? [] : searchedTokens.map((token) => {
+        const tokenWithAddress = searchedTokenAddresses?.find((t) => t.id === token.id);
+        const baseAddress = tokenWithAddress?.platforms?.base;
+        return { ...token, address: baseAddress };
+      }).filter(t => t.address);
+      
+      scopedTokens = [...filteredTokens, ...tokensFoundInSearch].filter((token, index, self) =>
+        index === self.findIndex((t) => t.address === token.address)
+      );
+    }
 
-  const { data: searchedTokens, isLoading: searchIsLoading } = api.coingecko.searchTokens.useQuery({
-    query: query ?? '',
-  }, {
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-  });
+    // if there is an address, filter the tokens by the address ownership
+    if (address) {
+      scopedTokens = scopedTokens?.filter((token) => {
+        return tokensOwnedByAddress?.find((t) => t.fungible_id.split('base.')[1]?.toLowerCase() === token.address?.toLowerCase());
+      });
+    }
 
-  const { data: fallbackToken } = api.coingecko.getTokenCardDataById.useQuery({
+    // no pagination for search or address tokens
+    if (query ?? address) {
+      return scopedTokens;
+    }
+
+    // return paginated tokens
+    return scopedTokens?.slice(indexOfFirstToken, indexOfLastToken);
+  }, [address, indexOfFirstToken, indexOfLastToken, query, searchedTokenAddresses, searchedTokens, tokenAddresses, tokens, tokensOwnedByAddress]);
+
+
+  const { 
+    data: fallbackToken, 
+    isLoading: fallbackTokenIsLoading 
+  } = api.coingecko.getTokenCardDataById.useQuery({
     id: 'pawthereum-2',
   }, {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
 
-  const searchedTokensNotInCategory = useMemo(() => {
-    if (!searchedTokens) return [];
-    return searchedTokens.filter((token) => tokensInScope?.find((t) => t.id === token.id));
-  }, [tokensInScope, searchedTokens]);
+  const isLoading = useMemo(() => {
+    return tokensOwnedByAddressIsLoading || tokensIsLoading || 
+      searchIsLoading || fallbackTokenIsLoading ||
+      tokenAddressesIsLoading || searchedTokenAddressesIsLoading;
+  }, [
+    tokensOwnedByAddressIsLoading, tokensIsLoading, searchIsLoading, 
+    fallbackTokenIsLoading, tokenAddressesIsLoading, searchedTokenAddressesIsLoading
+  ]);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
@@ -146,7 +195,7 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
     if (address) {
       return (
         <div className="w-full bg-base-200 p-4 m-4 rounded-xl text-center">
-          Not holding any of the tokens offerred on the store
+          {query ? 'Not holding any of the tokens in this search' : 'Not holding any of the tokens offerred on the store'}
         </div>
       )
     }
@@ -201,7 +250,7 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
   return (
     <>
       <div className={`max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-5xl mx-auto ${address ? '' : 'min-h-[732px]'}`}>
-        {!tokensOwnedByAddressIsLoading && !tokensIsLoading && !searchIsLoading && tokensOwnedByAddress?.length === 0 && filteredTokens?.length === 0 && searchedTokensNotInCategory?.length === 0 && fallbackToken && (
+        {!isLoading && tokensInScope?.length === 0 && (
           <TokenNotFound />
         )}
         <div 
@@ -213,12 +262,10 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
           onMouseMove={handleMouseMove}
         >
           <div 
-            className={`flex flex-nowrap items-stretch w-full gap-4 pb-6 pt-2 ${
-              !filteredTokens?.length && !searchedTokensNotInCategory.length && !searchIsLoading && !tokensIsLoading && !tokensOwnedByAddress && !searchIsLoading ? 'hidden' : ''
-            }`}>
-            {filteredTokens?.map((token) => <TokenCard key={token.id} token={token} />)}
-            {searchedTokensNotInCategory?.map((token) => <TokenCard key={token.id} token={token} />)}
-            {(tokensOwnedByAddressIsLoading || tokensIsLoading || searchIsLoading || tokensOwnedByAddressIsLoading) && Array.from({ length: tokensPerPage }, (_, index) => (
+            className={`flex flex-nowrap items-stretch w-full gap-4 pb-6 pt-2 ${!tokensInScope?.length && !isLoading ? 'hidden' : ''}`}
+          >
+            {tokensInScope?.map((token) => <TokenCard key={token.id} token={token} />)}
+            {isLoading && Array.from({ length: tokensPerPage }, (_, index) => (
               <TokenLoadingCard key={index} />
             ))}
           </div>
