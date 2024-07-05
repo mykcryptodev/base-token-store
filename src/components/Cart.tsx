@@ -1,3 +1,4 @@
+import React from 'react'
 import { ShoppingBagIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { useMemo, useState, type FC } from 'react';
@@ -38,6 +39,10 @@ const Cart: FC = () => {
     }
     return total;
   }, [cart, referralCode]);
+
+  const updateItemQuantity = (id: string, value: number) => {
+    updateItem(id, { usdAmountDesired: Math.max(0, value) });
+  }
 
   const checkout = async () => {
     if (!wallet) return;
@@ -185,7 +190,7 @@ const Cart: FC = () => {
                 <div className="flex items-center justify-end gap-1">
                   <button 
                     className={`btn btn-xs btn-ghost ${item.isNft ? 'invisible' : 'block'}`}
-                    onClick={() => updateItem(item.id, { usdAmountDesired: item.usdAmountDesired - 1 })}
+                    onClick={() => updateItemQuantity(item.id, item.usdAmountDesired - 1)}
                   >
                     -
                   </button>
@@ -193,14 +198,14 @@ const Cart: FC = () => {
                     <input
                       type="number"
                       value={item.usdAmountDesired.toString().replace(/(\.\d{2})\d+/, "$1")}
-                      onChange={(e) => item.isNft ? {} : updateItem(item.id, { usdAmountDesired: parseInt(e.target.value) })}
+                      onChange={(e) => item.isNft ? {} : updateItemQuantity(item.id, parseInt(e.target.value))}
                       className="input input-bordered w-32 text-center"
                     />
                     <span className="absolute opacity-50 left-4 top-3 uppercase">$</span>
                   </div>
                   <button 
                     className={`btn btn-xs btn-ghost ${item.isNft ? 'invisible' : 'block'}`}
-                    onClick={() => updateItem(item.id, { usdAmountDesired: item.usdAmountDesired + 1 })}
+                    onClick={() => updateItemQuantity(item.id, item.usdAmountDesired + 1)}
                   >
                     +
                   </button>
