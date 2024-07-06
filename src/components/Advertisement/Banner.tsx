@@ -68,9 +68,7 @@ export const Advertisement: FC = () => {
     )
   }
 
-  return (
-    <div className="w-[350px] h-[50px] md:w-[768px] md:h-[90px] m-auto bg-base-200 rounded-lg animate-pulse" />
-  );
+  return null;
 }
 
 export default Advertisement;

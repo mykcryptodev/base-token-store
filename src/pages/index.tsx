@@ -1,6 +1,6 @@
 import { useTheme } from "next-themes";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { type FC, useState } from "react";
 import Logo from "~/components/Logo";
 import NftCollectionsGrid from "~/components/Nft/CollectionsGrid";
 import RefferedBanner from "~/components/Referral/ReferredBanner";
@@ -8,98 +8,13 @@ import TokenGrid from "~/components/Token/Grid";
 import useDebounce from "~/hooks/useDebounce";
 
 import { type GetServerSideProps } from 'next';
-import { BANNER_ADVERTISEMENT, REFERRAL_CODE_NFT } from "~/constants/addresses";
-import { type NFT, getContract } from "thirdweb";
-import { base } from "thirdweb/chains";
-import { client } from "~/providers/Thirdweb";
-import { getNFT } from "thirdweb/extensions/erc721";
-import { useCartContext } from "~/contexts/Cart";
-import { getAdSpace } from "~/thirdweb/8453/0x4047f984f20f174919bffbf0c5f347270d13a112";
-import { type Advertisement } from "~/types/advertisement";
-import { useAdvertisementContext } from "~/contexts/Advertisement";
-import { download } from "thirdweb/storage";
+import { sharedGetServerSideProps } from "~/lib/getServerSidePropsUtil";
+import { withServerSideProps, type WithServerSideProps } from "~/hoc/withServerSideProps";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { query } = context;
-  const r = query.r as string | undefined;
-  const referralCodeExists = r && typeof r === 'string' && r.match(/^\d+$/);
-
-  const advertisementDayId = (date: Date) => {
-    // count how many days elapsed from Jan 1, 1970 to the date passed in
-    const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    return Math.floor((utcDate.getTime() - new Date(1970, 0, 1).getTime()) / 1000 / 60 / 60 / 24) + 1;
-  }
-
-  const referralNftContract = getContract({
-    client,
-    chain: base,
-    address: REFERRAL_CODE_NFT,
-  });
-  const advertisementContract = getContract({
-    client,
-    chain: base,
-    address: BANNER_ADVERTISEMENT
-  });
-  try {
-    const [advertisement, nft] = await Promise.all([
-      getAdSpace({
-        contract: advertisementContract,
-        dayId: BigInt(advertisementDayId(new Date())),
-      }),
-      referralCodeExists ? getNFT({
-        contract: referralNftContract,
-        tokenId: BigInt(r),
-        includeOwner: true,
-      }) : null,
-    ]);
-
-    console.log({ advertisement, nft, advertisementDayId: advertisementDayId(new Date())});
-    let adJson: { link?: string, media?: string } = {};
-    if (advertisement.dayId.toString() !== '0') {
-      const adInfoRes = await download({
-        client,
-        uri: advertisement.contentURI,
-      });
-      const adInfoJson = await adInfoRes.json() as { 
-        link?: string, media?: string 
-      };
-      console.log({ adInfoJson })
-      if (!adInfoJson.link || !adInfoJson.media) {
-        advertisement.dayId = BigInt(0);
-      }
-      adJson = adInfoJson;
-    }
-  
-    return {
-      props: {
-        advertisement: advertisement.dayId.toString() === '0' ? null : {
-          ...advertisement,
-          dayId: advertisement.dayId.toString(),
-          resalePrice: advertisement.resalePrice.toString(),
-          link: adJson.link,
-          media: adJson.media,
-        },
-        referralNft: referralCodeExists && nft ? {
-          ...nft,
-          id: nft.id.toString(),
-        } : null,
-      },
-    };
-  } catch (e) {
-    console.error(e);
-    return {
-      props: {
-        advertisement: null,
-        referralNft: null,
-      },
-    };
-  }
-};
-
-export default function Home({ referralNft, advertisement }: { 
-  referralNft: NFT | null,
-  advertisement: Advertisement | null,
-}) {
+  return sharedGetServerSideProps(context)
+}
+const HomePage: FC<WithServerSideProps> = ({ referralNft }) => {
   const { theme } = useTheme();
   const categories = [
     'base-meme-coins',
@@ -109,19 +24,6 @@ export default function Home({ referralNft, advertisement }: {
   const [category, setCategory] = useState<string>('base-meme-coins');
   const [query, setQuery] = useState<string>('');
   const debouncedQuery = useDebounce(query, 500);
-
-  const { updateReferralCode } = useCartContext();
-  useEffect(() => {
-    if (referralNft) {
-      updateReferralCode(referralNft.id.toString());
-    }
-  }, [referralNft, updateReferralCode]);
-
-  const { updateAdvertisement } = useAdvertisementContext();
-  console.log({ advertisementFromHome: advertisement })
-  useEffect(() => {
-    updateAdvertisement(advertisement);
-  }, [advertisement, updateAdvertisement]);
 
   return (
     <>
@@ -200,3 +102,5 @@ export default function Home({ referralNft, advertisement }: {
     </>
   );
 }
+
+export default withServerSideProps(HomePage);

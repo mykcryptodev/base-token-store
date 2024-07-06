@@ -6,11 +6,12 @@ import Cart from "~/components/Cart";
 import { Footer } from "~/components/Footer";
 import { useActiveAccount } from "thirdweb/react";
 import ThemeSwitch from "~/components/ThemeSwitch";
-import Advertisement from "~/components/Advertisement";
+import Advertisement from "~/components/Advertisement/Banner";
 import { useTheme } from "next-themes";
 import Logo from "~/components/Logo";
 import CreditCard from "~/components/CreditCard";
 import { useCartContext } from "~/contexts/Cart";
+import { useAdvertisementContext } from "~/contexts/Advertisement";
 
 interface LayoutProps {
   children: ReactNode
@@ -20,6 +21,7 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
   const account = useActiveAccount();
   const { theme } = useTheme();
   const { cart } = useCartContext();
+  const { advertisement } = useAdvertisementContext();
 
   return (
     <div className="drawer drawer-end tracking-tight">
@@ -31,7 +33,7 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
             <div className="w-full mx-auto mt-9">
               <Advertisement />
             </div>
-            <div className="w-full justify-between items-center flex mr-4 mt-9">
+            <div className={`w-full justify-between items-center flex mr-4 ${advertisement ? 'mt-9' : 'mt-20'}`}>
               <div className="sm:w-full sm:px-0 w-fit px-2">
                 <ThemeSwitch />
               </div>
