@@ -4,9 +4,7 @@ import { type FC, useState } from "react";
 import { toEther } from "thirdweb";
 import { MediaRenderer } from "thirdweb/react";
 import AdvertisementCalendar from "~/components/Advertisement/Calendar";
-
-// import AdvertisementCalendar from "~/components/Advertisement/Calendar";
-// import AdvertisementForm from "~/components/Advertisement/Form";
+import AdvertisementForm from "~/components/Advertisement/Form";
 import { APP_NAME } from "~/constants";
 import { withServerSideProps, type WithServerSideProps } from "~/hoc/withServerSideProps";
 import useIsDarkTheme from "~/hooks/useIsDarkTheme";
@@ -28,7 +26,7 @@ const CreateAdvertisement: FC<WithServerSideProps> = () => {
   });
 
   return (
-    <div className="flex flex-col gap-2 justify-center max-w-2xl mx-auto">
+    <div className="flex flex-col gap-2 justify-center max-w-3xl mx-auto">
       <h1 className="sm:text-7xl text-5xl text-center tracking-tighter font-semibold items-center gap-2 sm:gap-4 flex-wrap sm:pt-8 pt-2 sm:pb-8 pb-4">
         Create Advertisement
       </h1>
@@ -75,12 +73,12 @@ const CreateAdvertisement: FC<WithServerSideProps> = () => {
               setSelectedDates(dates);
             }}
           />
-          {/* 
+          
           <h2 className="text-3xl font-bold my-4">Create Ad Media</h2>
           <AdvertisementForm 
             selectedDates={selectedDates}
             price={price}
-          /> */}
+          />
         </div>
       </div>
     </div>

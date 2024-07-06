@@ -240,8 +240,8 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                 key={ad.dayId}
                 className="group flex items-start space-x-4 rounded-xl px-4 py-2 focus-within:bg-base-100 hover:bg-base-100"
               >
-                <div className="card lg:card-side bg-base-100 shadow min-w-full">
-                  <figure className="lg:w-1/2 w-full max-h-48 bg-base-200">
+                <div className="card bg-base-100 shadow min-w-full">
+                  <figure className="w-full max-h-48 bg-base-200">
                     <MediaRenderer
                       client={client}
                       src={ad.media || "/images/lockup.png"}
@@ -257,7 +257,12 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                         month: 'long',
                       })}
                     </h2>
-                    <Link href={`/profile/${ad.adOwner}`} className="flex items-center gap-2">
+                    <Link 
+                      href={`https://basescan.org/address/${ad.adOwner}`} 
+                      className="flex items-center gap-2"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       {ad.adOwner}
                     </Link>
                     <div className="card-actions justify-end">

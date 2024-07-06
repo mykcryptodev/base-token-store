@@ -13,7 +13,9 @@ export const Advertisement: FC = () => {
   const handleAdClicked = () => {
     if (advertisement) {
       // window change to ad link
-      window.open(advertisement.link, "_blank");
+      const url = new URL(advertisement.link);
+      url.searchParams.append('utm_source', 'base-token-store');
+      window.open(url.toString(), "_blank");
     }
   };
   console.log({ advertisementFromBanner: advertisement })
@@ -30,7 +32,7 @@ export const Advertisement: FC = () => {
         <dialog id="ad-disclaimer-modal" className="modal modal-bottom sm:modal-middle">
           <div className="modal-box">
             <h3 className="font-bold text-lg">What are onchain ads?</h3>
-            <p className="py-4">Onchain ads allows anyone to advertise on {APP_NAME}. Ads are bought in day-long increments paid in ETH on Base. Advertisers can also set the price for their ad slot to be overwritten.</p>
+            <p className="py-4">Onchain ads allows anyone to advertise on {APP_NAME}. Ads are bought in day-long increments and are paid in ETH on Base. Advertisers can also set the price for their ad slot to be overwritten.</p>
             <p className="py-4">{APP_NAME} may hide ads that violate community guidelines without refund.</p>
             <div className="modal-action">
               <Link className="btn btn-primary" href="/advertisement/create">
