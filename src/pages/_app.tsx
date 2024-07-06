@@ -10,6 +10,7 @@ import { CartProvider } from "~/contexts/Cart";
 import { ActiveChainProvider } from "~/contexts/ActiveChain";
 import { Wagmi } from "~/providers/Wagmi";
 import { Analytics } from "@vercel/analytics/react";
+import { AdvertisementProvider } from "~/contexts/Advertisement";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
@@ -18,13 +19,15 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       <ActiveChainProvider>
         <Wagmi>
           <Thirdweb>
-            <CartProvider>
-              <Layout>
-                <Component {...pageProps} />
-                <Analytics />
-              </Layout>
-              <div id="portal" />
-            </CartProvider>
+            <AdvertisementProvider>
+              <CartProvider>
+                <Layout>
+                  <Component {...pageProps} />
+                  <Analytics />
+                </Layout>
+                <div id="portal" />
+              </CartProvider>
+            </AdvertisementProvider>
           </Thirdweb>
         </Wagmi>
       </ActiveChainProvider>
