@@ -86,13 +86,13 @@ const CreateAdvertisement: FC<WithServerSideProps> = () => {
                   </div>
                 </label>
               </div>
-              <h2 className="text-3xl font-bold my-4">Select Dates</h2>
+              <h2 className="text-3xl font-bold my-4">Select Dates {lastBoughtAt?.getTime()}</h2>
               <AdvertisementCalendar 
                 callback={(price, dates) => {
                   setPrice(price.toString());
                   setSelectedDates(dates);
                 }}
-                refetchKey={lastBoughtAt?.getTime()}
+                key={lastBoughtAt?.getTime()}
               />
               <h2 className="text-3xl font-bold my-4">Create Ad Media</h2>
               <AdvertisementForm 
@@ -102,7 +102,7 @@ const CreateAdvertisement: FC<WithServerSideProps> = () => {
                   setLastBoughtAt(null);
                   setTimeout(() => {
                     setLastBoughtAt(new Date());
-                  }, 1000);
+                  }, 4000);
                 }}
               />
             </div>

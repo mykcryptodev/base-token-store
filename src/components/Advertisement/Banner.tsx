@@ -61,7 +61,11 @@ export const Advertisement: FC = () => {
             controls={false}
           />
         </div>
-        <Link href="/advertisement/create" className="flex w-full justify-end items-center text-xs p-2 gap-1 bg-base-100 opacity-50">
+        <Link 
+          href="/advertisement/create" 
+          className="flex w-full justify-end items-center text-xs p-2 gap-1 bg-base-100 opacity-50"
+          rel="noreferrer"
+        >
           <span>Advertise with {APP_NAME}</span>
           <ArrowTopRightOnSquareIcon className="w-3 h-3 stroke-2" />
         </Link>

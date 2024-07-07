@@ -1,4 +1,4 @@
-import { type ComponentType, useEffect, type FC } from 'react';
+import { type ComponentType, useEffect, type FC, useState } from 'react';
 import { type GetServerSideProps } from 'next';
 import { sharedGetServerSideProps } from '~/lib/getServerSidePropsUtil';
 import { useCartContext } from "~/contexts/Cart";
@@ -25,6 +25,12 @@ export function withServerSideProps<P extends WithServerSideProps>(WrappedCompon
     useEffect(() => {
       updateAdvertisement(props.advertisement);
     }, [props.advertisement, updateAdvertisement]);
+
+    const [isMounted, setIsMounted] = useState<boolean>(false);
+
+    useEffect(() => setIsMounted(true), []);
+
+    if (!isMounted) return null;
 
     return <WrappedComponent {...props} />;
   };

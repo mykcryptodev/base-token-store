@@ -155,7 +155,7 @@ const AdvertisementForm: FC<Props> = ({ price, selectedDates, onAdsBought }) => 
         <button
           className="btn btn-primary btn-lg w-full"
           onClick={() => void handleBuy()}
-          disabled={buyIsLoading}
+          disabled={buyIsLoading || price === "0"}
         >
           {buyIsLoading && (
             <div className="loading loading-spinner w-4 h-4"></div>

@@ -33,10 +33,9 @@ interface Props {
     price: bigint,
     selectedDates: Date[],
   ) => void;
-  refetchKey?: number;
 }
 
-const AdvertisementCalendar: FC<Props> = ({ callback, refetchKey }) => {
+const AdvertisementCalendar: FC<Props> = ({ callback }) => {
   const [month, setMonth] = useState<number>(new Date().getMonth());
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
 
@@ -76,7 +75,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback, refetchKey }) => {
     days.push(...nextMonthDays);
   }
 
-  const { data: ads, isLoading: adsIsLoading, refetch } = api.advertisement.getByDayIds.useQuery({
+  const { data: ads, isLoading: adsIsLoading } = api.advertisement.getByDayIds.useQuery({
     dayIds: days.map((day) => day.dayId),
   }, {
     refetchOnMount: false,
@@ -87,13 +86,6 @@ const AdvertisementCalendar: FC<Props> = ({ callback, refetchKey }) => {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
-
-  useEffect(() => {
-    console.log(" calling refetch... ");
-    void refetch();
-  }, [refetch, refetchKey]);
-
-  console.log({ ads, refetchKey });
 
   const price = useMemo(() => {
     // for each selected date, get the corresponding ad and sum up the prices
