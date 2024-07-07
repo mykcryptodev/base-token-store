@@ -22,9 +22,10 @@ const getDayId = (date: Date) => {
 interface Props {
   price: string;
   selectedDates: Date[];
+  onAdsBought: () => void;
 }
 
-const AdvertisementForm: FC<Props> = ({ price, selectedDates }) => {
+const AdvertisementForm: FC<Props> = ({ price, selectedDates, onAdsBought }) => {
   const { sendCallsAsync } = useSendCalls();
   const [buyIsLoading, setBuyIsLoading] = useState<boolean>(false);
   const [mediaUrl, setMediaUrl] = useState<string>("");
@@ -38,6 +39,7 @@ const AdvertisementForm: FC<Props> = ({ price, selectedDates }) => {
 
   const handleBuy = async () => {
     try {
+      setBuyIsLoading(true);
       const metadata = {
         media: mediaUrl,
         link,
@@ -62,7 +64,7 @@ const AdvertisementForm: FC<Props> = ({ price, selectedDates }) => {
         value: BigInt(price),
       }
       const encodedData = await encode(txWithValue);
-      const calls = await sendCallsAsync({
+      await sendCallsAsync({
         calls: [{
           to: BANNER_ADVERTISEMENT,
           data: encodedData,
@@ -82,6 +84,10 @@ const AdvertisementForm: FC<Props> = ({ price, selectedDates }) => {
           console.log({
             data, variables, context
           })
+          onAdsBought();
+          setMediaUrl("");
+          setLink("");
+          setResalePrice("");
         },
         onSettled(data, variables, context) {
           console.log(`SETTLED`)
@@ -93,7 +99,6 @@ const AdvertisementForm: FC<Props> = ({ price, selectedDates }) => {
       });
     } catch (e) {
       console.error(e);
-    } finally {
     }
   }
 

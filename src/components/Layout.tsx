@@ -38,7 +38,7 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
                 <ThemeSwitch />
               </div>
               <div className="lg:w-full w-fit flex items-center justify-start sm:justify-center gap-2">
-                <Link href="/" className="lg:flex hidden">
+                <Link href="/" className="lg:flex hidden" rel="noreferrer">
                   <Logo
                     shapesFill={`${theme === 'dark' ? '#C9CCD5' : '#FFFFFF'}`}
                     backgroundFill={`${theme === 'dark' ? '#000000' : '#1E4FFD'}`}

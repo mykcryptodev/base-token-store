@@ -29,7 +29,7 @@ const HomePage: FC<WithServerSideProps> = ({ referralNft }) => {
     <>
       <Head>
         <title>Base Token Store</title>
-        <meta name="description" content="A place to buy and sell tokens on Base" />
+        <meta name="description" content="The easiest way to buy tokens on Base" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center">

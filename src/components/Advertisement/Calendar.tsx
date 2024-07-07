@@ -33,9 +33,10 @@ interface Props {
     price: bigint,
     selectedDates: Date[],
   ) => void;
+  refetchKey?: number;
 }
 
-const AdvertisementCalendar: FC<Props> = ({ callback }) => {
+const AdvertisementCalendar: FC<Props> = ({ callback, refetchKey }) => {
   const [month, setMonth] = useState<number>(new Date().getMonth());
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
 
@@ -75,7 +76,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
     days.push(...nextMonthDays);
   }
 
-  const { data: ads, isLoading: adsIsLoading } = api.advertisement.getByDayIds.useQuery({
+  const { data: ads, isLoading: adsIsLoading, refetch } = api.advertisement.getByDayIds.useQuery({
     dayIds: days.map((day) => day.dayId),
   }, {
     refetchOnMount: false,
@@ -86,6 +87,13 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    console.log(" calling refetch... ");
+    void refetch();
+  }, [refetch, refetchKey]);
+
+  console.log({ ads, refetchKey });
 
   const price = useMemo(() => {
     // for each selected date, get the corresponding ad and sum up the prices
@@ -245,7 +253,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                     <MediaRenderer
                       client={client}
                       src={ad.media || "/images/lockup.png"}
-                      className="flex-none w-10 h-10 lg:rounded-none rounded-lg rounded-b-none"
+                      className="flex-none w-10 h-10 lg:rounded-none rounded-lg thirdweb-media !rounded-b-none"
                       style={{ objectFit: "cover", width: "100%", height: "100%" }}
                     />
                   </figure>

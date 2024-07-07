@@ -18,7 +18,6 @@ export const Advertisement: FC = () => {
       window.open(url.toString(), "_blank");
     }
   };
-  console.log({ advertisementFromBanner: advertisement })
 
   const DisclaimerModal: FC = () => {
     return (
@@ -57,7 +56,7 @@ export const Advertisement: FC = () => {
           <MediaRenderer
             client={client}
             src={advertisement.media}
-            className="rounded-lg thirdweb-cover-mediarenderer"
+            className="!rounded-lg thirdweb-media"
             style={{ height: "100%", width: "100%", objectFit: "cover", borderRadius: "8px" }}
             controls={false}
           />
