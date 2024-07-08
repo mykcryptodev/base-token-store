@@ -69,8 +69,6 @@ export const CollectionsGrid: FC<Props> = ({ query }) => {
     }
   }, [collectionsData, query]);
 
-  console.log({ collections })
-
   return (
     <div className="sm:max-w-5xl mx-auto" id="collections-grid-container">
       {selectedCollection && (
@@ -146,10 +144,10 @@ export const CollectionsGrid: FC<Props> = ({ query }) => {
                 <NftCollectionCard key={index} />
               ))}
             </div>
-            {!collectionsIsLoading && collectionsData?.next_cursor && (
+            {!collectionsIsLoading && collectionsData?.next_cursor && !!query && (
               <button 
                 onClick={() => collectionsData?.next_cursor && setCursor(collectionsData?.next_cursor)}
-                disabled={isLoading || !!query}
+                disabled={isLoading}
                 className="btn btn-lg btn-neutral w-fit mx-auto mt-8"
               >
                 Load More

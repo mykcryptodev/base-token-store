@@ -24,7 +24,7 @@ export const VerifiedCollectionModal: FC<Props> = ({ collection }) => {
             <label htmlFor={`${collection.collection_id}-verified-modal`} className="btn btn-circle btn-sm btn-ghost absolute top-4 right-4">
               <XMarkIcon className="h-6 w-6" />
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-start gap-2 flex-nowrap whitespace-break-spaces">
               <Image
                 src={collection.collection_details.image_url}
                 alt={collection.collection_details.name}
@@ -32,7 +32,7 @@ export const VerifiedCollectionModal: FC<Props> = ({ collection }) => {
                 height={100}
                 className="object-cover rounded-full w-6 h-6"
               />
-              <span className="font-bold">{collection.collection_details.name}</span> is verified on OpenSea
+              {collection.collection_details.name} is verified on OpenSea
             </div>
           </div>
         </div>
