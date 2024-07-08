@@ -144,7 +144,7 @@ export const CollectionsGrid: FC<Props> = ({ query }) => {
                 <NftCollectionCard key={index} />
               ))}
             </div>
-            {!collectionsIsLoading && collectionsData?.next_cursor && !!query && (
+            {!collectionsIsLoading && collectionsData?.next_cursor && !query && (
               <button 
                 onClick={() => collectionsData?.next_cursor && setCursor(collectionsData?.next_cursor)}
                 disabled={isLoading}
