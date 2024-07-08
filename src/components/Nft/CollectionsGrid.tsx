@@ -115,8 +115,8 @@ export const CollectionsGrid: FC<Props> = ({ query }) => {
       )}
       <div className="flex flex-col gap-8 min-w-full">
         {!selectedCollection && (
-          <>
-            <div className="flex justify-center gap-4 overflow-x-auto">
+          <div>
+            <div className="flex justify-center gap-4 overflow-x-auto mb-4">
               {!searchedCollections?.length && categories.map((cat) => (
                 <button 
                   key={cat} 
@@ -149,15 +149,17 @@ export const CollectionsGrid: FC<Props> = ({ query }) => {
               ))}
             </div>
             {!collectionsIsLoading && collectionsData?.next_cursor && !query && (
-              <button 
-                onClick={() => collectionsData?.next_cursor && setCursor(collectionsData?.next_cursor)}
-                disabled={isLoading}
-                className="btn btn-lg btn-neutral w-fit mx-auto mt-8"
-              >
-                Load More
-              </button>
+              <div className="flex w-full">
+                <button 
+                  onClick={() => collectionsData?.next_cursor && setCursor(collectionsData?.next_cursor)}
+                  disabled={isLoading}
+                  className="btn btn-lg btn-neutral w-fit mx-auto mt-8"
+                >
+                  Load More
+                </button>
+              </div>
             )}
-          </>
+          </div>
         )}
         {selectedCollection && (
           <ListingsGrid
