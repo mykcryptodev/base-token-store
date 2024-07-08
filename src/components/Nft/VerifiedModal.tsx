@@ -6,15 +6,17 @@ import { type Collection } from "~/types/simpleHash";
 
 type Props = {
   collection: Collection;
+  height?: number;
+  width?: number;
 }
 
-export const VerifiedCollectionModal: FC<Props> = ({ collection }) => {
+export const VerifiedCollectionModal: FC<Props> = ({ collection, height, width }) => {
   return (
     <>
       <label 
         htmlFor={`${collection.collection_id}-verified-modal`}
       >
-        <CheckBadgeIcon className="h-4 w-4 text-primary cursor-pointer" />
+        <CheckBadgeIcon className={`h-${height ?? 4} w-${width ?? 4} text-primary cursor-pointer`} />
       </label>
 
       <Portal>

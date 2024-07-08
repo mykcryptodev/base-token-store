@@ -7,6 +7,7 @@ import NftCollectionCard from "~/components/Nft/CollectionCard";
 import ListingsGrid from "~/components/Nft/ListingsGrid";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Markdown from "react-markdown";
+import VerifiedCollectionModal from "~/components/Nft/VerifiedModal";
 
 type Props = {
   query?: string;
@@ -100,7 +101,10 @@ export const CollectionsGrid: FC<Props> = ({ query }) => {
             </div>
           </div>
           <div className="sm:mt-4 p-8 pb-0">
-            <h1 className="text-3xl font-bold mb-2">{selectedCollection.collection_details.name}</h1>
+            <h1 className="text-3xl font-bold mb-2 flex items-center gap-1">
+              {selectedCollection.collection_details.name}
+              <VerifiedCollectionModal collection={selectedCollection} height={6} width={6} />
+            </h1>
             <p className="break-words max-w-xs sm:max-w-none">
               <Markdown>
                 {selectedCollection.collection_details.description}
