@@ -58,7 +58,7 @@ export const CollectionsGrid: FC<Props> = ({ query }) => {
   }, [query, searchedCollections]);
 
   useEffect(() => {
-    if (query) return;
+    if (!!query) return;
     if (collectionsData) {
       setCollections(prev => {
         const newCollections = collectionsData.collections.filter(
@@ -68,6 +68,8 @@ export const CollectionsGrid: FC<Props> = ({ query }) => {
       });
     }
   }, [collectionsData, query]);
+
+  console.log({ collections })
 
   return (
     <div className="sm:max-w-5xl mx-auto" id="collections-grid-container">
@@ -147,7 +149,7 @@ export const CollectionsGrid: FC<Props> = ({ query }) => {
             {!collectionsIsLoading && collectionsData?.next_cursor && (
               <button 
                 onClick={() => collectionsData?.next_cursor && setCursor(collectionsData?.next_cursor)}
-                disabled={isLoading || query !== undefined}
+                disabled={isLoading || !!query}
                 className="btn btn-lg btn-neutral w-fit mx-auto mt-8"
               >
                 Load More
