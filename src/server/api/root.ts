@@ -6,6 +6,7 @@ import { engineRouter } from "~/server/api/routers/engine";
 import { googleRouter } from "~/server/api/routers/google";
 import { kyberswapRouter } from "~/server/api/routers/kyberswap";
 import { moralisRouter } from "~/server/api/routers/moralis";
+import { nftRouter } from "~/server/api/routers/nft";
 import { openSeaRouter } from "~/server/api/routers/opensea";
 import { simpleHashRouter } from "~/server/api/routers/simpleHash";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
@@ -24,6 +25,7 @@ export const appRouter = createTRPCRouter({
   google: googleRouter,
   kyberswap: kyberswapRouter,
   moralis: moralisRouter,
+  nft: nftRouter,
   openSea: openSeaRouter,
   simpleHash: simpleHashRouter,
 });

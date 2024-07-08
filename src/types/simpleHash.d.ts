@@ -93,6 +93,10 @@ export type CollectionsApiResponse = {
   collections: Collection[];
 };
 
+export type CollectionsDetailsApiResponse = {
+  collections: CollectionDetails[];
+};
+
 type FloorPriceInPaymentToken = {
   marketplace_id: string;
   floor_price: number;

@@ -17,6 +17,7 @@ export const env = createEnv({
     OPENSEA_API_KEY: z.string(),
     SIMPLEHASH_API_KEY: z.string(),
     GOOGLE_VISION_API_KEY: z.string(),
+    DEFINED_API_KEY: z.string(),
   },
 
   /**
@@ -45,7 +46,7 @@ export const env = createEnv({
     OPENSEA_API_KEY: process.env.OPENSEA_API_KEY,
     SIMPLEHASH_API_KEY: process.env.SIMPLEHASH_API_KEY,
     GOOGLE_VISION_API_KEY: process.env.GOOGLE_VISION_API_KEY,
-    // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
+    DEFINED_API_KEY: process.env.DEFINED_API_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -8,7 +8,11 @@ import ListingsGrid from "~/components/Nft/ListingsGrid";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Markdown from "react-markdown";
 
-export const CollectionsGrid: FC = () => {
+type Props = {
+  query?: string;
+}
+
+export const CollectionsGrid: FC<Props> = ({ query }) => {
   const COLLECTIONS_PER_PAGE = 20;
   const [cursor, setCursor] = useState<string>();
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -16,6 +20,17 @@ export const CollectionsGrid: FC = () => {
 
   const categories = ['top', 'trending', 'new'];
   const [category, setCategory] = useState<'new' | 'trending' | 'top' | undefined>('top');
+
+  const { data: searchedCollections,
+    isLoading: searchedCollectionsIsLoading, 
+  } = api.nft.search.useQuery({
+    query: query ?? '',
+    include: 'Collection',
+  }, {
+    enabled: !!query,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
 
   const { 
     data: collectionsData, 
@@ -30,7 +45,20 @@ export const CollectionsGrid: FC = () => {
     refetchOnWindowFocus: false,
   });
 
+  const isLoading = searchedCollectionsIsLoading || collectionsIsLoading;
+
   useEffect(() => {
+    if (!query) {
+      setCollections([]);
+      return;
+    };
+    if (searchedCollections) {
+      setCollections(searchedCollections);
+    }
+  }, [query, searchedCollections]);
+
+  useEffect(() => {
+    if (query) return;
     if (collectionsData) {
       setCollections(prev => {
         const newCollections = collectionsData.collections.filter(
@@ -39,7 +67,7 @@ export const CollectionsGrid: FC = () => {
         return [...prev, ...newCollections];
       });
     }
-  }, [collectionsData]);
+  }, [collectionsData, query]);
 
   return (
     <div className="sm:max-w-5xl mx-auto" id="collections-grid-container">
@@ -112,14 +140,14 @@ export const CollectionsGrid: FC = () => {
                   }}
                 />
               )}
-              {(collectionsIsLoading) && Array.from({ length: COLLECTIONS_PER_PAGE }, (_, index) => (
+              {isLoading && Array.from({ length: COLLECTIONS_PER_PAGE }, (_, index) => (
                 <NftCollectionCard key={index} />
               ))}
             </div>
             {!collectionsIsLoading && collectionsData?.next_cursor && (
               <button 
                 onClick={() => collectionsData?.next_cursor && setCursor(collectionsData?.next_cursor)}
-                disabled={collectionsIsLoading}
+                disabled={isLoading || query !== undefined}
                 className="btn btn-lg btn-neutral w-fit mx-auto mt-8"
               >
                 Load More
