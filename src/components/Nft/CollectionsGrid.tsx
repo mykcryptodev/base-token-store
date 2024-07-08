@@ -117,7 +117,7 @@ export const CollectionsGrid: FC<Props> = ({ query }) => {
         {!selectedCollection && (
           <>
             <div className="flex justify-center gap-4 overflow-x-auto">
-              {categories.map((cat) => (
+              {!searchedCollections?.length && categories.map((cat) => (
                 <button 
                   key={cat} 
                   onClick={() => {
