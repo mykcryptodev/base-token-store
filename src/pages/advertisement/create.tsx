@@ -8,7 +8,6 @@ import AdvertisementCalendar from "~/components/Advertisement/Calendar";
 import AdvertisementForm from "~/components/Advertisement/Form";
 import { APP_NAME } from "~/constants";
 import { withServerSideProps, type WithServerSideProps } from "~/hoc/withServerSideProps";
-import useIsDarkTheme from "~/hooks/useIsDarkTheme";
 import { sharedGetServerSideProps } from "~/lib/getServerSidePropsUtil";
 import { client } from "~/providers/Thirdweb";
 import { api } from "~/utils/api";
@@ -24,7 +23,6 @@ const CreateAdvertisement: FC<WithServerSideProps> = () => {
   const [price, setPrice] = useState<string>("0");
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [lastBoughtAt, setLastBoughtAt] = useState<Date | null>(new Date());
-  const isDarkTheme = useIsDarkTheme();
 
   const { data: pricePerBannerSlot } = api.advertisement.getStandardPrice.useQuery(undefined, {
     refetchOnMount: false,
