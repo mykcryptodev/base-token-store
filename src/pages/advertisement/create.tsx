@@ -1,7 +1,7 @@
 import Head from "next/head";
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import { CubeIcon, GlobeAmericasIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 import { type GetServerSideProps } from "next";
-import { type FC, useState } from "react";
+import { type FC, useState, useMemo } from "react";
 import { toEther } from "thirdweb";
 import { MediaRenderer } from "thirdweb/react";
 import AdvertisementCalendar from "~/components/Advertisement/Calendar";
@@ -14,6 +14,7 @@ import { client } from "~/providers/Thirdweb";
 import { api } from "~/utils/api";
 import Logo from "~/components/Logo";
 import { useTheme } from "next-themes";
+import React from "react";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   return sharedGetServerSideProps(context)
@@ -29,6 +30,24 @@ const CreateAdvertisement: FC<WithServerSideProps> = () => {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
+  
+  const faqs = useMemo(() => [
+    {
+      title: "Permissionless",
+      description: "Ads are permissionless so that anyone can buy an advertisement.",
+      icon: <GlobeAmericasIcon />,
+    },
+    {
+      title: "Ad Slots",
+      description: `Ad slots are sold on a per-day basis for ${toEther(BigInt(pricePerBannerSlot ?? '0'))} ETH on Base. You can resell your slot.`,
+      icon: <CubeIcon />,
+    },
+    {
+      title: "Guidelines",
+      description: "Ad media is subject to Community Guidelines and may be taken down without refund if violated.",
+      icon: <ShieldCheckIcon />,
+    }
+  ], [pricePerBannerSlot]);
 
   return (
     <>
@@ -52,16 +71,19 @@ const CreateAdvertisement: FC<WithServerSideProps> = () => {
           </h1>
           <div className="w-full h-full flex items-start lg:flex-row flex-col-reverse lg:gap-8 gap-2 mx-2 mb-20 pr-4">
             <div className="w-full flex flex-col gap-2">
-              <div className="alert items-start mb-4">
-                <InformationCircleIcon className={`h-5 w-5 mt-1 stroke-2 ${isDarkTheme ? 'stroke-info' : 'fill-info'}`} />            
-                <div className="flex flex-col gap-2">
-                  <span>
-                    Ads are permissionless so that anyone can buy an advertisement on {APP_NAME}. Ad slots are sold on a per-day basis in ETH on Base. Ad slots can be bought from the current owner of the ad slot for the price set by the slot owner. Ad media is subject to Community Guidelines and may be taken down without refund if violated.
-                  </span>
-                </div>
+              <div className="w-full grid md:grid-cols-3 grid-cols-1 gap-2">
+                {faqs.map((faq, index) => (
+                  <div key={index} className="flex flex-col gap-2 rounded-lg border p-6">
+                    <div className="flex items-center gap-1">
+                      {React.cloneElement(faq.icon, { className: 'w-5 h-5 stroke-2' })}
+                      <span className="text-xl font-bold">{faq.title}</span>
+                    </div>
+                    <span>{faq.description}</span>
+                  </div>
+                ))}
               </div>
               <div className="form-control border rounded-lg p-6">
-                <label className="label cursor-pointer">
+                <label className="label">
                   <div className="flex flex-col gap-1">
                     <span className="label-text text-xl font-bold">
                       Banner Ad

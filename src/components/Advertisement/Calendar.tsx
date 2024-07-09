@@ -42,9 +42,9 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
   const days = Array.from({ length: new Date(year, month + 1, 0).getDate() }, (_, i) => ({
     date: new Date(year, month, i + 1),
     dateString: new Date(year, month, i + 1).toISOString().split('T')[0],
-    isCurrentMonth: true,
-    isToday: new Date(year, month, i + 1).toDateString() === today.toDateString(),
-    isSelected: selectedDates.some((date) => date.toDateString() === new Date(year, month, i + 1).toDateString()),
+    isCurrentMonth: new Date(year, month, i + 1).getMonth() === month,
+    isToday: getDayId(new Date(year, month, i + 1)) === getDayId(today),
+    isSelected: selectedDates.some((date) => getDayId(date) === getDayId(new Date(year, month, i + 1))),
     dayId: getDayId(new Date(year, month, i)),
   })) as Day[];
   // if the first day of the days array is not Monday, add days from the previous month to the beginning of the array
@@ -56,7 +56,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
       dateString: new Date(year, month - 1, i + 1).toISOString().split('T')[0],
       isCurrentMonth: false,
       isToday: new Date(year, month - 1, i + 1).toDateString() === today.toDateString(),
-      isSelected: selectedDates.some((date) => date.toDateString() === new Date(year, month - 1, i + 1).toDateString()),
+      isSelected: selectedDates.some((date) => getDayId(date) === getDayId(new Date(year, month - 1, i + 1))),
       dayId: getDayId(new Date(year, month - 1, i)),
     })) as Day[];
     days.unshift(...previousMonthDays.slice(previousMonthDays.length - firstDay + 1));
@@ -65,11 +65,11 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
   const lastDay = days[days.length - 1]?.date.getDay() ?? new Date().getDay();
   if (lastDay !== 0) {
     const nextMonthDays = Array.from({ length: 7 - lastDay }, (_, i) => ({
-      date: new Date(year, month + 1, i + 1),
+      date: new Date(year, month + 1, i + 1, 0, 0, 0, 0),
       dateString: new Date(year, month + 1, i + 1).toISOString().split('T')[0],
       isCurrentMonth: false,
       isToday: new Date(year, month + 1, i).toDateString() === today.toDateString(),
-      isSelected: selectedDates.some((date) => date.toDateString() === new Date(year, month + 1, i).toDateString()),
+      isSelected: selectedDates.some((date) => getDayId(date) === getDayId(new Date(year, month + 1, i + 1))),
       dayId: getDayId(new Date(year, month + 1, i)),
     })) as Day[];
     days.push(...nextMonthDays);
@@ -161,7 +161,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                 !day.isSelected && day.isToday && 'text-primary',
                 !day.isSelected && !day.isToday && day.isCurrentMonth && 'text-base-content',
                 !day.isSelected && !day.isToday && !day.isCurrentMonth && 'text-base-content text-opacity-50',
-                day.isSelected && day.isToday && 'bg-primary text-primary-content',
+                day.isSelected && day.isToday && 'bg-secondary text-primary-content',
                 day.isSelected && !day.isToday && 'bg-secondary',
                 !day.isSelected && 'hover:bg-base-200',
                 (day.isSelected || day.isToday) && 'font-semibold',
@@ -268,6 +268,10 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                     <div className="card-actions justify-end">
                       <button 
                         className={`${days.find(day => Number(day.dayId + 1) === Number(ad.dayId))?.isSelected ? "btn btn-secondary" : "btn btn-ghost"}`}
+                        disabled={
+                          // if the month is not the current month, disable the button
+                          !days.find(day => Number(day.dayId + 1) === Number(ad.dayId))?.isCurrentMonth
+                        }
                         onClick={() => setSelectedDates((prev) => {
                           const day = days.find(day => Number(day.dayId + 1) === Number(ad.dayId))?.date;
                           if (day) {
@@ -296,6 +300,24 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
             ))}
           </ol>
         </div>
+        {selectedDates.length > 0 && (
+          <div className="mt-4 px-4">
+            <span className="text-sm font-semibold">
+              Selected Dates
+            </span>
+            <ul className="mt-2 flex flex-wrap gap-2">
+              {selectedDates.sort((a, b) => a.getTime() - b.getTime()).map((date) => (
+                <li key={date.toISOString()} className="badge badge-secondary">
+                  {date.toLocaleDateString([], {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                  })}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   )
