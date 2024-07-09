@@ -3,9 +3,11 @@ import Link from 'next/link';
 import { type FC, useEffect,useMemo,useState } from 'react';
 import { toEther } from 'thirdweb';
 import { MediaRenderer } from 'thirdweb/react';
+import { resolveName } from "thirdweb/extensions/ens";
 
 import { client } from '~/providers/Thirdweb';
 import { api } from "~/utils/api";
+import { set } from 'zod';
 
 type Day = {
   date: Date,
@@ -103,103 +105,142 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
     callback?.(price, selectedDates);
   }, [callback, price, selectedDates]);
 
+  const OwnerName: FC<{ adOwner: string }> = ({ adOwner }) => {
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [ensName, setEnsName] = useState<string | null>(null);
+
+    useEffect(() => {
+      const fetchEnsName = async () => {
+        try {
+          setIsLoading(true);
+          const name = await resolveName({
+            client,
+            address: adOwner,
+          });
+          setEnsName(name);
+        } catch (e) {
+          console.error(e);
+          setEnsName(null);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+      void fetchEnsName();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    if (isLoading) {
+      return (
+        <div className="w-20 h-4 bg-base-300 animate-pulse rounded-lg" />
+      )
+    }
+
+    return (
+      <span>
+        {ensName ?? `${adOwner.slice(0, 5)}...${adOwner.slice(-4)}`}
+      </span>
+    );
+  }
+
   return (
     <div className="w-full">
-      <div className="flex items-center">
-        <h2 className="flex-auto text-sm font-semibold">
-          {new Date(year, month, 1).toLocaleDateString([], {
-            month: 'long',
-          })}
-          &nbsp;
-          {new Date(year, month, 1).toLocaleDateString([], {
-            year: 'numeric',
-          })}
-        </h2>
-        <div className="flex items-center gap-6">
-          <button
-            type="button"
-            className="-my-1.5 flex flex-none items-center justify-center p-1.5 text-gray-400 hover:text-gray-500"
-            onClick={() => setMonth(new Date().getMonth())}
-          >
-            <span className="sr-only">Previous month</span>
-            <CalendarIcon className="-my-1.5 h-6 w-6 stroke-2 flex-none text-gray-400" aria-hidden="true" /> 
-          </button>
-          <button
-            type="button"
-            className="-my-1.5 flex flex-none items-center justify-center p-1.5 text-gray-400 hover:text-gray-500"
-            onClick={() => setMonth(month - 1)}
-          >
-            <span className="sr-only">Previous month</span>
-            <ChevronLeftIcon className="h-5 w-5 stroke-2" aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            className="-my-1.5 -mr-1.5 flex flex-none items-center justify-center p-1.5 text-gray-400 hover:text-gray-500"
-            onClick={() => setMonth(month + 1)}
-          >
-            <span className="sr-only">Next month</span>
-            <ChevronRightIcon className="h-5 w-5 stroke-2" aria-hidden="true" />
-          </button>
-        </div>
-      </div>
-      <div className="mt-10 grid grid-cols-7 text-center text-xs leading-6 text-base-content text-opacity-50">
-        <div>M</div>
-        <div>T</div>
-        <div>W</div>
-        <div>T</div>
-        <div>F</div>
-        <div>S</div>
-        <div>S</div>
-      </div>
-      <div className="mt-2 grid grid-cols-7 text-sm">
-        {days.map((day, dayIdx) => (
-          <div key={day.date.toISOString()} className={classNames(dayIdx > 6 && 'border-t', 'py-4')}>
+      <div className="max-w-3xl mx-auto">
+        <div className="flex items-center">
+          <h2 className="flex-auto text-sm font-semibold">
+            {new Date(year, month, 1).toLocaleDateString([], {
+              month: 'long',
+            })}
+            &nbsp;
+            {new Date(year, month, 1).toLocaleDateString([], {
+              year: 'numeric',
+            })}
+          </h2>
+          <div className="flex items-center gap-6">
             <button
               type="button"
-              className={classNames(
-                day.isSelected && 'text-secondary-content',
-                !day.isSelected && day.isToday && 'text-primary',
-                !day.isSelected && !day.isToday && day.isCurrentMonth && 'text-base-content',
-                !day.isSelected && !day.isToday && !day.isCurrentMonth && 'text-base-content text-opacity-50',
-                day.isSelected && day.isToday && 'bg-secondary text-primary-content',
-                day.isSelected && !day.isToday && 'bg-secondary',
-                !day.isSelected && 'hover:bg-base-200',
-                (day.isSelected || day.isToday) && 'font-semibold',
-                'mx-auto flex h-8 w-8 items-center justify-center rounded-full'
-              )}
-              onClick={() => setSelectedDates((prev) => {
-                if (prev.some((date) => date.toDateString() === day.date.toDateString())) {
-                  return prev.filter((date) => date.toDateString() !== day.date.toDateString());
-                } else {
-                  return [...prev, day.date];
-                }
-              })}
+              className="-my-1.5 flex flex-none items-center justify-center p-1.5 text-gray-400 hover:text-gray-500"
+              onClick={() => setMonth(new Date().getMonth())}
             >
-              {ads?.find((ad) => Number(day.dayId + 1) === Number(ad.dayId)) ? (
-                <div className="indicator">
-                  <span className="indicator-item indicator-start w-full text-center indicator-bottom text-xs opacity-50 overflow-ellipsis sm:flex hidden">
-                    {toEther(BigInt(ads?.find((ad) => Number(ad.dayId) === Number(day.dayId + 1))?.resalePrice?.toString() ?? "0" as string))} ETH
-                  </span>
-                  <div className="grid place-items-center">
-                    <div className="indicator">
-                      <span className="indicator-item indicator-center badge badge-xs badge-secondary"></span>
-                      <div className="grid p-2 place-items-center">
-                        <time dateTime={day.dateString}>{day.dateString.split('-').pop()?.replace(/^0/, '')}</time>
+              <span className="sr-only">Previous month</span>
+              <CalendarIcon className="-my-1.5 h-6 w-6 stroke-2 flex-none text-gray-400" aria-hidden="true" /> 
+            </button>
+            <button
+              type="button"
+              className="-my-1.5 flex flex-none items-center justify-center p-1.5 text-gray-400 hover:text-gray-500"
+              onClick={() => setMonth(month - 1)}
+            >
+              <span className="sr-only">Previous month</span>
+              <ChevronLeftIcon className="h-5 w-5 stroke-2" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              className="-my-1.5 -mr-1.5 flex flex-none items-center justify-center p-1.5 text-gray-400 hover:text-gray-500"
+              onClick={() => setMonth(month + 1)}
+            >
+              <span className="sr-only">Next month</span>
+              <ChevronRightIcon className="h-5 w-5 stroke-2" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+        <div className="mt-10 grid grid-cols-7 text-center text-xs leading-6 text-base-content text-opacity-50">
+          <div>M</div>
+          <div>T</div>
+          <div>W</div>
+          <div>T</div>
+          <div>F</div>
+          <div>S</div>
+          <div>S</div>
+        </div>
+        <div className="mt-2 grid grid-cols-7 text-sm">
+          {days.map((day, dayIdx) => (
+            <div key={day.date.toISOString()} className={classNames(dayIdx > 6 && 'border-t', 'py-4')}>
+              <button
+                type="button"
+                className={classNames(
+                  day.isSelected && 'text-secondary-content',
+                  !day.isSelected && day.isToday && 'text-primary',
+                  !day.isSelected && !day.isToday && day.isCurrentMonth && 'text-base-content',
+                  !day.isSelected && !day.isToday && !day.isCurrentMonth && 'text-base-content text-opacity-50',
+                  day.isSelected && day.isToday && 'bg-secondary text-primary-content',
+                  day.isSelected && !day.isToday && 'bg-secondary',
+                  !day.isSelected && 'hover:bg-base-200',
+                  (day.isSelected || day.isToday) && 'font-semibold',
+                  'mx-auto flex h-8 w-8 items-center justify-center rounded-full'
+                )}
+                onClick={() => setSelectedDates((prev) => {
+                  if (prev.some((date) => date.toDateString() === day.date.toDateString())) {
+                    return prev.filter((date) => date.toDateString() !== day.date.toDateString());
+                  } else {
+                    return [...prev, day.date];
+                  }
+                })}
+              >
+                {ads?.find((ad) => Number(day.dayId + 1) === Number(ad.dayId)) ? (
+                  <div className="indicator">
+                    <span className="indicator-item indicator-start w-full text-center indicator-bottom text-xs opacity-50 overflow-ellipsis sm:flex hidden">
+                      {toEther(BigInt(ads?.find((ad) => Number(ad.dayId) === Number(day.dayId + 1))?.resalePrice?.toString() ?? "0" as string))} ETH
+                    </span>
+                    <div className="grid place-items-center">
+                      <div className="indicator">
+                        <span className="indicator-item indicator-center badge badge-xs badge-secondary"></span>
+                        <div className="grid p-2 place-items-center">
+                          <time dateTime={day.dateString}>{day.dateString.split('-').pop()?.replace(/^0/, '')}</time>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-              ) : (
-                <time dateTime={day.dateString}>{day.dateString.split('-').pop()?.replace(/^0/, '')}</time>
-              )}
-            </button>
-          </div>
-        ))}
+                ) : (
+                  <time dateTime={day.dateString}>{day.dateString.split('-').pop()?.replace(/^0/, '')}</time>
+                )}
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
       <div className="collapse collapse-arrow">
         <input type="checkbox" className="peer" /> 
-        <div className="collapse-title text-sm font-semibold">
+        <div className="collapse-title text-sm font-semibold max-w-3xl mx-auto">
           Schedule for
           &nbsp;
           {new Date(year, month, 1).toLocaleDateString([], {
@@ -210,7 +251,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
             year: 'numeric',
           })}
         </div>
-        <div className="collapse-content shadow-inner rounded-lg"> 
+        <div className="collapse-content mx-auto shadow-inner rounded-lg overflow-x-auto"> 
           <ol className="mt-4 space-y-1 text-sm leading-6 max-h-72 overflow-y-auto">
             {/* if the ads are not loading and there are no ads in the ads array with the selected month */}
             {!adsIsLoading && !ads?.find(ad => {
@@ -240,8 +281,8 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                 key={ad.dayId}
                 className="group flex items-start space-x-4 rounded-xl px-4 py-2 focus-within:bg-base-100 hover:bg-base-100"
               >
-                <div className="card bg-base-100 shadow min-w-full">
-                  <figure className="w-full max-h-48 bg-base-200">
+                <div className="bg-base-100 border rounded-lg">
+                  <figure className="md:h-[90px] md:w-[768px] h-[50px] w-[350px] m-auto cursor-pointer bg-base-200 rounded-lg">
                     <MediaRenderer
                       client={client}
                       src={ad.media || "/images/lockup.png"}
@@ -249,7 +290,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                       style={{ objectFit: "cover", width: "100%", height: "100%" }}
                     />
                   </figure>
-                  <div className="card-body">
+                  <div className="shadow rounded-lg p-4">
                     <h2 className="card-title">
                       {days.find(day => Number(day.dayId + 1) === Number(ad.dayId))?.date.toLocaleDateString([], {
                         weekday: 'long',
@@ -263,7 +304,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      {ad.adOwner}
+                      <OwnerName adOwner={ad.adOwner} />
                     </Link>
                     <div className="card-actions justify-end">
                       <button 

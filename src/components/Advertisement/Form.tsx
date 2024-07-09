@@ -118,6 +118,10 @@ const AdvertisementForm: FC<Props> = ({ price, selectedDates, onAdsBought }) => 
               label={'Upload Ad Media'}
             />
           </div>
+          <label className="label opacity-50">
+            <div />
+            <span className="label-text-alt">Content is dislayed 768x90 on desktop and 350x50 on mobile</span>
+          </label>
         </div>
         <div className="form-control w-full">
           <label className="label">
