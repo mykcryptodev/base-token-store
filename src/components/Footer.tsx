@@ -13,8 +13,8 @@ export const Footer: FC = () => {
       href: "https://www.smartwallet.dev?utm_source=basetokenstore",
     },
     {
-      label: "Join the Buildathon",
-      href: "https://onchain-summer.devfolio.co?utm_source=basetokenstore",
+      label: "Buy an Ad",
+      href: "/advertisement/create",
     },
     {
       label: "Onchain Summer",
