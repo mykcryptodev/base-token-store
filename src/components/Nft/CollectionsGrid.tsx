@@ -7,8 +7,13 @@ import NftCollectionCard from "~/components/Nft/CollectionCard";
 import ListingsGrid from "~/components/Nft/ListingsGrid";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Markdown from "react-markdown";
+import VerifiedCollectionModal from "~/components/Nft/VerifiedModal";
 
-export const CollectionsGrid: FC = () => {
+type Props = {
+  query?: string;
+}
+
+export const CollectionsGrid: FC<Props> = ({ query }) => {
   const COLLECTIONS_PER_PAGE = 20;
   const [cursor, setCursor] = useState<string>();
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -16,6 +21,17 @@ export const CollectionsGrid: FC = () => {
 
   const categories = ['top', 'trending', 'new'];
   const [category, setCategory] = useState<'new' | 'trending' | 'top' | undefined>('top');
+
+  const { data: searchedCollections,
+    isLoading: searchedCollectionsIsLoading, 
+  } = api.nft.search.useQuery({
+    query: query ?? '',
+    include: 'Collection',
+  }, {
+    enabled: !!query,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
 
   const { 
     data: collectionsData, 
@@ -30,7 +46,20 @@ export const CollectionsGrid: FC = () => {
     refetchOnWindowFocus: false,
   });
 
+  const isLoading = searchedCollectionsIsLoading || collectionsIsLoading;
+
   useEffect(() => {
+    if (!query) {
+      setCollections([]);
+      return;
+    };
+    if (searchedCollections) {
+      setCollections(searchedCollections);
+    }
+  }, [query, searchedCollections]);
+
+  useEffect(() => {
+    if (!!query) return;
     if (collectionsData) {
       setCollections(prev => {
         const newCollections = collectionsData.collections.filter(
@@ -39,7 +68,7 @@ export const CollectionsGrid: FC = () => {
         return [...prev, ...newCollections];
       });
     }
-  }, [collectionsData]);
+  }, [collectionsData, query]);
 
   return (
     <div className="sm:max-w-5xl mx-auto" id="collections-grid-container">
@@ -72,7 +101,10 @@ export const CollectionsGrid: FC = () => {
             </div>
           </div>
           <div className="sm:mt-4 p-8 pb-0">
-            <h1 className="text-3xl font-bold mb-2">{selectedCollection.collection_details.name}</h1>
+            <h1 className="text-3xl font-bold mb-2 flex items-center gap-1">
+              {selectedCollection.collection_details.name}
+              <VerifiedCollectionModal collection={selectedCollection} height={6} width={6} />
+            </h1>
             <p className="break-words max-w-xs sm:max-w-none">
               <Markdown>
                 {selectedCollection.collection_details.description}
@@ -83,9 +115,9 @@ export const CollectionsGrid: FC = () => {
       )}
       <div className="flex flex-col gap-8 min-w-full">
         {!selectedCollection && (
-          <>
-            <div className="flex justify-center gap-4 overflow-x-auto">
-              {categories.map((cat) => (
+          <div>
+            <div className="flex justify-center gap-4 overflow-x-auto mb-4">
+              {!searchedCollections?.length && categories.map((cat) => (
                 <button 
                   key={cat} 
                   onClick={() => {
@@ -112,20 +144,22 @@ export const CollectionsGrid: FC = () => {
                   }}
                 />
               )}
-              {(collectionsIsLoading) && Array.from({ length: COLLECTIONS_PER_PAGE }, (_, index) => (
+              {isLoading && Array.from({ length: COLLECTIONS_PER_PAGE }, (_, index) => (
                 <NftCollectionCard key={index} />
               ))}
             </div>
-            {!collectionsIsLoading && collectionsData?.next_cursor && (
-              <button 
-                onClick={() => collectionsData?.next_cursor && setCursor(collectionsData?.next_cursor)}
-                disabled={collectionsIsLoading}
-                className="btn btn-lg btn-neutral w-fit mx-auto mt-8"
-              >
-                Load More
-              </button>
+            {!collectionsIsLoading && collectionsData?.next_cursor && !query && (
+              <div className="flex w-full">
+                <button 
+                  onClick={() => collectionsData?.next_cursor && setCursor(collectionsData?.next_cursor)}
+                  disabled={isLoading}
+                  className="btn btn-lg btn-neutral w-fit mx-auto mt-8"
+                >
+                  Load More
+                </button>
+              </div>
             )}
-          </>
+          </div>
         )}
         {selectedCollection && (
           <ListingsGrid

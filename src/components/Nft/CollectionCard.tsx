@@ -3,6 +3,7 @@ import { useMemo, type FC } from "react";
 import { type Collection } from "~/types/simpleHash";
 import { api } from "~/utils/api";
 import Sparkline from "../Token/Sparkline";
+import VerifiedCollectionModal from "~/components/Nft/VerifiedModal";
 
 const TokenLoadingCard: FC = () => (
   <div className="card max-w-[236px] bg-base-200 raise-on-hover cursor-pointer">
@@ -59,6 +60,10 @@ export const NftCollectionCard: FC<Props> = ({ collection, onCollectionSelected 
   const newestPrice = historicalFloorPrices?.floor_prices[0]?.floor_price ?? 0;
   const percentPriceDiff = ((newestPrice - oldestPrice) / oldestPrice) * 100;
 
+  const isVerified = collection?.collection_details.marketplace_pages.find(p => 
+    p.marketplace_id === 'opensea'
+  )?.verified ?? false;
+
   if (!collection) {
     return <TokenLoadingCard />
   }
@@ -66,17 +71,28 @@ export const NftCollectionCard: FC<Props> = ({ collection, onCollectionSelected 
   if (!collection.collection_details.image_url || !openSeaFloorPrice) return <></>
 
   return (
-    <div className={`card max-w-[236px] min-h-[300px] raise-on-hover overflow-hidden`} key={collection.collection_id}>
+    <div className={`card max-w-[236px] min-h-[300px] max-h-[320px] sm:max-h-none raise-on-hover overflow-hidden`} key={collection.collection_id}>
       <div className="absolute inset-0 bg-cover filter blur-lg" style={{ backgroundImage: `url(${collection.collection_details.banner_image_url ?? collection.collection_details.image_url})`, transform: 'scale(2)', opacity: 0.2, pointerEvents: 'none' }}></div>
       <div className="card-body p-4">
         <div className="flex w-full justify-between items-center gap-2">
-          <Image
-            src={collection.collection_details.image_url}
-            alt={collection.collection_details.name}
-            width={100}
-            height={100}
-            className="rounded-full w-12 h-12 object-cover"
-          />
+          <div className="indicator">
+            <span className="indicator-item top-1.5 right-1.5 bg-base-100 rounded-lg cursor-pointer">
+              {isVerified && (
+                <VerifiedCollectionModal collection={collection} />
+              )}
+            </span>
+            <div className="avatar">
+              <div className="w-12 rounded-full">
+                <Image
+                  src={collection.collection_details.image_url}
+                  alt={collection.collection_details.name}
+                  width={100}
+                  height={100}
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </div>
           <div className="flex flex-col">
             <span className="text-right">${priceInUsd?.toLocaleString([], {
               currency: 'usd',
