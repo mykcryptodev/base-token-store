@@ -19,8 +19,8 @@ export async function sharedGetServerSideProps(
   const referralCodeExists = r && typeof r === 'string' && r.match(/^\d+$/);
 
   const advertisementDayId = (date: Date) => {
-    const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    return Math.floor((utcDate.getTime() - new Date(1970, 0, 1).getTime()) / 1000 / 60 / 60 / 24) + 1;
+    const utcDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    return Math.floor(utcDate.getTime() / 1000 / 60 / 60 / 24);
   }
 
   const referralNftContract = getContract({

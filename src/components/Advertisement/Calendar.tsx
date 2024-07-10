@@ -10,21 +10,20 @@ import { api } from "~/utils/api";
 
 type Day = {
   date: Date,
-  dateString: string,
   isCurrentMonth: boolean,
   isToday: boolean,
   isSelected: boolean,
   dayId: number,
 }
-const today = new Date();
-const year = today.getFullYear();
+const today = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
+const year = today.getUTCFullYear();
 
 function classNames(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(' ')
 }
 
 const getDayId = (timestamp: number) => {
-  return Math.floor(timestamp / 1000 / 60 / 60 / 24) + 1;
+  return Math.floor(timestamp / 1000 / 60 / 60 / 24);
 }
 
 interface Props {
@@ -40,7 +39,6 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
 
   const days = Array.from({ length: new Date(Date.UTC(year, month + 1, 0)).getUTCDate() }, (_, i) => ({
     date: new Date(Date.UTC(year, month, i + 1)),
-    dateString: new Date(Date.UTC(year, month, i + 1)).toISOString().split('T')[0],
     isCurrentMonth: new Date(Date.UTC(year, month, i + 1)).getUTCMonth() === month,
     isToday: getDayId(Date.UTC(year, month, i + 1)) === getDayId(today.getTime()),
     isSelected: selectedDates.some((date) => getDayId(date) === getDayId(Date.UTC(year, month, i + 1))),
@@ -52,7 +50,6 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
     const previousMonth = new Date(Date.UTC(year, month, 0));
     const previousMonthDays = Array.from({ length: previousMonth.getUTCDate() }, (_, i) => ({
       date: new Date(Date.UTC(year, month - 1, i + 1)),
-      dateString: new Date(Date.UTC(year, month - 1, i + 1)).toISOString().split('T')[0],
       isCurrentMonth: false,
       isToday: getDayId(Date.UTC(year, month - 1, i + 1)) === getDayId(today.getTime()),
       isSelected: selectedDates.some((date) => getDayId(date) === getDayId(Date.UTC(year, month - 1, i + 1))),
@@ -64,7 +61,6 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
   if (lastDay !== 0) {
     const nextMonthDays = Array.from({ length: 7 - lastDay }, (_, i) => ({
       date: new Date(Date.UTC(year, month + 1, i + 1)),
-      dateString: new Date(Date.UTC(year, month + 1, i + 1)).toISOString().split('T')[0],
       isCurrentMonth: false,
       isToday: getDayId(Date.UTC(year, month + 1, i + 1)) === getDayId(today.getTime()),
       isSelected: selectedDates.some((date) => getDayId(date) === getDayId(Date.UTC(year, month + 1, i + 1))),
@@ -224,9 +220,6 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                       <div className="indicator">
                         <span className="indicator-item indicator-center badge badge-xs badge-secondary"></span>
                         <div className="grid p-2 place-items-center">
-                          {/* {new Date(Date.UTC(year, month, day.date.getDate())).toLocaleDateString([], {
-                            day: 'numeric',
-                          })} */}
                           {new Date(Date.UTC(
                             new Date(day.date.getTime()).getUTCFullYear(),
                             new Date(day.date.getTime()).getUTCMonth(),
@@ -234,15 +227,12 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                           )).toLocaleDateString([], {
                             day: 'numeric',
                           })}
-                          {/* {day.date.getTime()} */}
-                          {/* <time dateTime={day.dateString}>{day.dateString.split('-').pop()?.replace(/^0/, '')}</time> */}
                         </div>
                       </div>
                     </div>
                   </div>
 
                 ) : (
-                  // <time dateTime={day.dateString}>{day.dateString.split('-').pop()?.replace(/^0/, '')}</time>
                   <span>
                   {new Date(Date.UTC(year, month, day.date.getDate())).toLocaleDateString([], {
                     day: 'numeric',
