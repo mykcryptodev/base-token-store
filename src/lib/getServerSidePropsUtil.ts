@@ -37,7 +37,7 @@ export async function sharedGetServerSideProps(
     const [advertisement, nft] = await Promise.all([
       getAdSpace({
         contract: advertisementContract,
-        dayId: BigInt(advertisementDayId(new Date())),
+        dayId: BigInt(advertisementDayId(new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate())))),
       }),
       referralCodeExists ? getNFT({
         contract: referralNftContract,

@@ -7,7 +7,6 @@ import { resolveName } from "thirdweb/extensions/ens";
 
 import { client } from '~/providers/Thirdweb';
 import { api } from "~/utils/api";
-import { set } from 'zod';
 
 type Day = {
   date: Date,
@@ -24,10 +23,8 @@ function classNames(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-const getDayId = (date: Date) => {
-  // count how many days elapsed from Jan 1, 1970 to the date passed in
-  const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  return Math.floor((utcDate.getTime() - new Date(1970, 0, 1).getTime()) / 1000 / 60 / 60 / 24) + 1;
+const getDayId = (timestamp: number) => {
+  return Math.floor(timestamp / 1000 / 60 / 60 / 24) + 1;
 }
 
 interface Props {
@@ -39,44 +36,42 @@ interface Props {
 
 const AdvertisementCalendar: FC<Props> = ({ callback }) => {
   const [month, setMonth] = useState<number>(new Date().getMonth());
-  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+  const [selectedDates, setSelectedDates] = useState<number[]>([]);
 
-  const days = Array.from({ length: new Date(year, month + 1, 0).getDate() }, (_, i) => ({
-    date: new Date(year, month, i + 1),
-    dateString: new Date(year, month, i + 1).toISOString().split('T')[0],
-    isCurrentMonth: new Date(year, month, i + 1).getMonth() === month,
-    isToday: getDayId(new Date(year, month, i + 1)) === getDayId(today),
-    isSelected: selectedDates.some((date) => getDayId(date) === getDayId(new Date(year, month, i + 1))),
-    dayId: getDayId(new Date(year, month, i)),
+  const days = Array.from({ length: new Date(Date.UTC(year, month + 1, 0)).getUTCDate() }, (_, i) => ({
+    date: new Date(Date.UTC(year, month, i + 1)),
+    dateString: new Date(Date.UTC(year, month, i + 1)).toISOString().split('T')[0],
+    isCurrentMonth: new Date(Date.UTC(year, month, i + 1)).getUTCMonth() === month,
+    isToday: getDayId(Date.UTC(year, month, i + 1)) === getDayId(today.getTime()),
+    isSelected: selectedDates.some((date) => getDayId(date) === getDayId(Date.UTC(year, month, i + 1))),
+    dayId: getDayId(Date.UTC(year, month, i)),
   })) as Day[];
   // if the first day of the days array is not Monday, add days from the previous month to the beginning of the array
-  const firstDay = days[0]?.date.getDay() ?? new Date().getDay();
+  const firstDay = days[0]?.date.getUTCDay() ?? new Date().getUTCDay();
   if (firstDay !== 1) {
-    const previousMonth = new Date(year, month, 0);
-    const previousMonthDays = Array.from({ length: previousMonth.getDate() }, (_, i) => ({
-      date: new Date(year, month - 1, i + 1),
-      dateString: new Date(year, month - 1, i + 1).toISOString().split('T')[0],
+    const previousMonth = new Date(Date.UTC(year, month, 0));
+    const previousMonthDays = Array.from({ length: previousMonth.getUTCDate() }, (_, i) => ({
+      date: new Date(Date.UTC(year, month - 1, i + 1)),
+      dateString: new Date(Date.UTC(year, month - 1, i + 1)).toISOString().split('T')[0],
       isCurrentMonth: false,
-      isToday: new Date(year, month - 1, i + 1).toDateString() === today.toDateString(),
-      isSelected: selectedDates.some((date) => getDayId(date) === getDayId(new Date(year, month - 1, i + 1))),
-      dayId: getDayId(new Date(year, month - 1, i)),
+      isToday: getDayId(Date.UTC(year, month - 1, i + 1)) === getDayId(today.getTime()),
+      isSelected: selectedDates.some((date) => getDayId(date) === getDayId(Date.UTC(year, month - 1, i + 1))),
+      dayId: getDayId(Date.UTC(year, month - 1, i)),
     })) as Day[];
     days.unshift(...previousMonthDays.slice(previousMonthDays.length - firstDay + 1));
   }
-  // if the last day of the days array is not Sunday, add days from the next month to the end of the array
-  const lastDay = days[days.length - 1]?.date.getDay() ?? new Date().getDay();
+  const lastDay = days[days.length - 1]?.date.getUTCDay() ?? new Date().getUTCDay();
   if (lastDay !== 0) {
     const nextMonthDays = Array.from({ length: 7 - lastDay }, (_, i) => ({
-      date: new Date(year, month + 1, i + 1, 0, 0, 0, 0),
-      dateString: new Date(year, month + 1, i + 1).toISOString().split('T')[0],
+      date: new Date(Date.UTC(year, month + 1, i + 1)),
+      dateString: new Date(Date.UTC(year, month + 1, i + 1)).toISOString().split('T')[0],
       isCurrentMonth: false,
-      isToday: new Date(year, month + 1, i).toDateString() === today.toDateString(),
-      isSelected: selectedDates.some((date) => getDayId(date) === getDayId(new Date(year, month + 1, i + 1))),
-      dayId: getDayId(new Date(year, month + 1, i)),
+      isToday: getDayId(Date.UTC(year, month + 1, i + 1)) === getDayId(today.getTime()),
+      isSelected: selectedDates.some((date) => getDayId(date) === getDayId(Date.UTC(year, month + 1, i + 1))),
+      dayId: getDayId(Date.UTC(year, month + 1, i)),
     })) as Day[];
     days.push(...nextMonthDays);
   }
-
   const { data: ads, isLoading: adsIsLoading } = api.advertisement.getByDayIds.useQuery({
     dayIds: days.map((day) => day.dayId),
   }, {
@@ -91,8 +86,8 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
 
   const price = useMemo(() => {
     // for each selected date, get the corresponding ad and sum up the prices
-    return selectedDates.reduce((acc, date) => {
-      const ad = ads?.find((ad) => ad.dayId === getDayId(date).toString());
+    return selectedDates.reduce((acc, timestamp) => {
+      const ad = ads?.find((ad) => ad.dayId === getDayId(timestamp).toString());
       if (ad) {
         return acc + BigInt(ad.resalePrice);
       } else {
@@ -101,9 +96,20 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
     }, BigInt(0));
   }, [selectedDates, ads, standardPrice]);
 
-  useEffect(() => {
-    callback?.(price, selectedDates);
-  }, [callback, price, selectedDates]);
+  const handleUpdateSelectedDates = (timestamp: number) => {
+    setSelectedDates((prev) => {
+      if (prev.some((selectedTimestamp) => selectedTimestamp === timestamp)) {
+        return prev.filter((selectedTimestamp) => selectedTimestamp !== timestamp);
+      } else {
+        return [...prev, timestamp];
+      }
+    });
+    callback?.(price, selectedDates.map(timestamp => new Date(Date.UTC(
+      new Date(timestamp).getUTCFullYear(),
+      new Date(timestamp).getUTCMonth(),
+      new Date(timestamp).getUTCDate()
+    ))));
+  }
 
   const OwnerName: FC<{ adOwner: string }> = ({ adOwner }) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -147,11 +153,11 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center">
           <h2 className="flex-auto text-sm font-semibold">
-            {new Date(year, month, 1).toLocaleDateString([], {
+            {new Date(Date.UTC(year, month + 1, 1)).toLocaleDateString([], {
               month: 'long',
             })}
             &nbsp;
-            {new Date(year, month, 1).toLocaleDateString([], {
+            {new Date(Date.UTC(year, month + 1, 1)).toLocaleDateString([], {
               year: 'numeric',
             })}
           </h2>
@@ -183,17 +189,17 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
           </div>
         </div>
         <div className="mt-10 grid grid-cols-7 text-center text-xs leading-6 text-base-content text-opacity-50">
-          <div>M</div>
-          <div>T</div>
-          <div>W</div>
-          <div>T</div>
-          <div>F</div>
-          <div>S</div>
-          <div>S</div>
+          <div className="min-w-24">S</div>
+          <div className="min-w-24">M</div>
+          <div className="min-w-24">T</div>
+          <div className="min-w-24">W</div>
+          <div className="min-w-24">T</div>
+          <div className="min-w-24">F</div>
+          <div className="min-w-24">S</div>
         </div>
         <div className="mt-2 grid grid-cols-7 text-sm">
           {days.map((day, dayIdx) => (
-            <div key={day.date.toISOString()} className={classNames(dayIdx > 6 && 'border-t', 'py-4')}>
+            <div key={day.date.toISOString()} className={classNames(dayIdx > 6 && 'border-t', 'py-4', 'min-w-24')}>
               <button
                 type="button"
                 className={classNames(
@@ -207,13 +213,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                   (day.isSelected || day.isToday) && 'font-semibold',
                   'mx-auto flex h-8 w-8 items-center justify-center rounded-full'
                 )}
-                onClick={() => setSelectedDates((prev) => {
-                  if (prev.some((date) => date.toDateString() === day.date.toDateString())) {
-                    return prev.filter((date) => date.toDateString() !== day.date.toDateString());
-                  } else {
-                    return [...prev, day.date];
-                  }
-                })}
+                onClick={() => handleUpdateSelectedDates(day.date.getTime())}
               >
                 {ads?.find((ad) => Number(day.dayId + 1) === Number(ad.dayId)) ? (
                   <div className="indicator">
@@ -224,14 +224,30 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                       <div className="indicator">
                         <span className="indicator-item indicator-center badge badge-xs badge-secondary"></span>
                         <div className="grid p-2 place-items-center">
-                          <time dateTime={day.dateString}>{day.dateString.split('-').pop()?.replace(/^0/, '')}</time>
+                          {/* {new Date(Date.UTC(year, month, day.date.getDate())).toLocaleDateString([], {
+                            day: 'numeric',
+                          })} */}
+                          {new Date(Date.UTC(
+                            new Date(day.date.getTime()).getUTCFullYear(),
+                            new Date(day.date.getTime()).getUTCMonth(),
+                            new Date(day.date.getTime()).getUTCDate()
+                          )).toLocaleDateString([], {
+                            day: 'numeric',
+                          })}
+                          {/* {day.date.getTime()} */}
+                          {/* <time dateTime={day.dateString}>{day.dateString.split('-').pop()?.replace(/^0/, '')}</time> */}
                         </div>
                       </div>
                     </div>
                   </div>
 
                 ) : (
-                  <time dateTime={day.dateString}>{day.dateString.split('-').pop()?.replace(/^0/, '')}</time>
+                  // <time dateTime={day.dateString}>{day.dateString.split('-').pop()?.replace(/^0/, '')}</time>
+                  <span>
+                  {new Date(Date.UTC(year, month, day.date.getDate())).toLocaleDateString([], {
+                    day: 'numeric',
+                  })}
+                  </span>
                 )}
               </button>
             </div>
@@ -243,11 +259,11 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
         <div className="collapse-title text-sm font-semibold max-w-3xl mx-auto">
           Schedule for
           &nbsp;
-          {new Date(year, month, 1).toLocaleDateString([], {
+          {new Date(Date.UTC(year, month + 1, 1)).toLocaleDateString([], {
             month: 'long',
           })}
           &nbsp;
-          {new Date(year, month, 1).toLocaleDateString([], {
+          {new Date(Date.UTC(year, month + 1, 1)).toLocaleDateString([], {
             year: 'numeric',
           })}
         </div>
@@ -292,7 +308,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                   </figure>
                   <div className="shadow rounded-lg p-4">
                     <h2 className="card-title">
-                      {days.find(day => Number(day.dayId + 1) === Number(ad.dayId))?.date.toLocaleDateString([], {
+                      {days.find(day => Number(day.dayId) === Number(ad.dayId))?.date.toLocaleDateString([], {
                         weekday: 'long',
                         day: 'numeric',
                         month: 'long',
@@ -313,17 +329,11 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                           // if the month is not the current month, disable the button
                           !days.find(day => Number(day.dayId + 1) === Number(ad.dayId))?.isCurrentMonth
                         }
-                        onClick={() => setSelectedDates((prev) => {
-                          const day = days.find(day => Number(day.dayId + 1) === Number(ad.dayId))?.date;
-                          if (day) {
-                            if (prev.some((date) => date.toDateString() === day.toDateString())) {
-                              return prev.filter((date) => date.toDateString() !== day.toDateString());
-                            } else {
-                              return [...prev, day];
-                            }
-                          }
-                          return prev;
-                        })}
+                        onClick={() => {
+                          handleUpdateSelectedDates(
+                            days.find(day => Number(day.dayId + 1) === Number(ad.dayId))?.date.getTime() ?? 0
+                          );
+                        }}
                       >
                         <MediaRenderer
                           client={client}
@@ -347,9 +357,13 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
               Selected Dates
             </span>
             <ul className="mt-2 flex flex-wrap gap-2">
-              {selectedDates.sort((a, b) => a.getTime() - b.getTime()).map((date) => (
-                <li key={date.toISOString()} className="badge badge-secondary">
-                  {date.toLocaleDateString([], {
+              {selectedDates.sort((a, b) => a - b).map((timestamp) => (
+                <li key={timestamp} className="badge badge-secondary">
+                  {new Date(Date.UTC(
+                    new Date(timestamp).getUTCFullYear(),
+                    new Date(timestamp).getUTCMonth(),
+                    new Date(timestamp).getUTCDate()
+                  )).toLocaleDateString([], {
                     weekday: 'long',
                     day: 'numeric',
                     month: 'long',
