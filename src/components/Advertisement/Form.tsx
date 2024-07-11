@@ -25,7 +25,6 @@ const AdvertisementForm: FC<Props> = ({ price, selectedDayIds, onAdsBought }) =>
   const { sendCallsAsync } = useSendCalls();
   const { data: capabilities } = useCapabilities();
   const account = useActiveAccount();
-  console.log({ capabilities });
   const { mutate: sendTransaction } = useSendTransaction();
   const [buyIsLoading, setBuyIsLoading] = useState<boolean>(false);
   const [mediaUrl, setMediaUrl] = useState<string>("");
