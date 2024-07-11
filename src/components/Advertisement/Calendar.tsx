@@ -23,7 +23,7 @@ function classNames(...classes: (string | boolean | undefined)[]) {
 }
 
 const getDayId = (timestamp: number) => {
-  return Math.floor(timestamp / 1000 / 60 / 60 / 24);
+  return Math.floor(timestamp / 1000 / 60 / 60 / 24) - 1;
 }
 
 interface Props {
@@ -51,7 +51,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
       days.push({
         date,
         isCurrentMonth: new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() - 1)).getUTCMonth() === month,
-        isToday: getDayId(date.getTime()) === getDayId(today.getTime()),
+        isToday: getDayId(date.getTime()) === getDayId(today.getTime()) + 1,
         isSelected: selectedDates.some((timestamp) => date.getTime() === timestamp),
         dayId: getDayId(date.getTime()),
       });
@@ -253,9 +253,9 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
           <ol className="mt-4 space-y-1 text-sm leading-6 max-h-72 overflow-y-auto">
             {/* if the ads are not loading and there are no ads in the ads array with the selected month */}
             {!adsIsLoading && !ads?.find(ad => {
-              const day = days.find(day => Number(day.dayId) + 1 === Number(ad.dayId))?.date;
+              const day = days.find(day => Number(day.dayId) === Number(ad.dayId))?.date;
               if (day) {
-                return day.getMonth() === month;
+                return day.getUTCMonth() === month;
               }
               return false;
             }) && (
@@ -273,7 +273,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
             )}
             {ads?.filter(
               // the id of the ad can be found in the days array where the day has a month that matches the current month
-              (ad) => days.find((day) => Number(day.dayId + 1) === Number(ad.dayId))?.isCurrentMonth
+              (ad) => days.find((day) => Number(day.dayId) === Number(ad.dayId))?.isCurrentMonth
             ).map((ad) => (
               <li
                 key={ad.dayId}
@@ -306,14 +306,14 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                     </Link>
                     <div className="card-actions justify-end">
                       <button 
-                        className={`${days.find(day => Number(day.dayId + 1) === Number(ad.dayId))?.isSelected ? "btn btn-secondary" : "btn btn-ghost"}`}
+                        className={`${days.find(day => Number(day.dayId) === Number(ad.dayId))?.isSelected ? "btn btn-secondary" : "btn btn-ghost"}`}
                         disabled={
                           // if the month is not the current month, disable the button
-                          !days.find(day => Number(day.dayId + 1) === Number(ad.dayId))?.isCurrentMonth
+                          !days.find(day => Number(day.dayId) === Number(ad.dayId))?.isCurrentMonth
                         }
                         onClick={() => {
                           handleUpdateSelectedDates(
-                            days.find(day => Number(day.dayId + 1) === Number(ad.dayId))?.date.getTime() ?? 0
+                            days.find(day => Number(day.dayId) === Number(ad.dayId))?.date.getTime() ?? 0
                           );
                         }}
                       >
