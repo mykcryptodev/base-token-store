@@ -14,9 +14,8 @@ import { api } from "~/utils/api";
 const Upload = dynamic(() => import('~/components/Upload'), { ssr: false });
 
 const getDayId = (date: Date) => {
-  // count how many days elapsed from Jan 1, 1970 to the date passed in
-  const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  return Math.floor((utcDate.getTime() - new Date(1970, 0, 1).getTime()) / 1000 / 60 / 60 / 24) + 1;
+  const timestamp = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())).getTime();
+  return Math.floor(timestamp / 1000 / 60 / 60 / 24);
 }
 
 interface Props {

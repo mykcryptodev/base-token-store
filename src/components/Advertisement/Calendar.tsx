@@ -85,17 +85,27 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
 
   const handleUpdateSelectedDates = (timestamp: number) => {
     setSelectedDates((prev) => {
+      let updatedDates;
       if (prev.some((selectedTimestamp) => selectedTimestamp === timestamp)) {
-        return prev.filter((selectedTimestamp) => selectedTimestamp !== timestamp);
+        updatedDates = prev.filter((selectedTimestamp) => selectedTimestamp !== timestamp);
       } else {
-        return [...prev, timestamp];
+        updatedDates = [...prev, timestamp];
       }
+      const price = updatedDates.reduce((acc, timestamp) => {
+        const ad = ads?.find((ad) => ad.dayId === getDayId(timestamp).toString());
+        if (ad) {
+          return acc + BigInt(ad.resalePrice);
+        } else {
+          return acc + BigInt(standardPrice ?? "0");
+        }
+      }, BigInt(0));
+      callback?.(price, updatedDates.map(timestamp => new Date(Date.UTC(
+        new Date(timestamp).getUTCFullYear(),
+        new Date(timestamp).getUTCMonth(),
+        new Date(timestamp).getUTCDate()
+      ))));
+      return updatedDates;
     });
-    callback?.(price, selectedDates.map(timestamp => new Date(Date.UTC(
-      new Date(timestamp).getUTCFullYear(),
-      new Date(timestamp).getUTCMonth(),
-      new Date(timestamp).getUTCDate()
-    ))));
   }
 
   const OwnerName: FC<{ adOwner: string }> = ({ adOwner }) => {

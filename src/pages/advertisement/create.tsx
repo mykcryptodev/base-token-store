@@ -116,6 +116,7 @@ const CreateAdvertisement: FC<WithServerSideProps> = () => {
               <AdvertisementCalendar 
                 callback={(price, dates) => {
                   setPrice(price.toString());
+                  console.log({ dates });
                   setSelectedDates(dates);
                 }}
                 key={lastBoughtAt?.getTime()}
