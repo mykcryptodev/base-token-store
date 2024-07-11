@@ -46,11 +46,11 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
     const firstDay = new Date(Date.UTC(year, month, 1));
     const startDay = firstDay.getUTCDay();
     const days: Day[] = [];
-    for (let i = 1; i < 36; i++) {
+    for (let i = 1; i < 43; i++) {
       const date = new Date(Date.UTC(year, month, (i + 1) - startDay));
       days.push({
         date,
-        isCurrentMonth: date.getUTCMonth() === month,
+        isCurrentMonth: new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() - 1)).getUTCMonth() === month,
         isToday: getDayId(date.getTime()) === getDayId(today.getTime()),
         isSelected: selectedDates.some((timestamp) => date.getTime() === timestamp),
         dayId: getDayId(date.getTime()),
@@ -134,8 +134,6 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
       </span>
     );
   }
-
-  console.log({ days})
 
   return (
     <div className="w-full">
@@ -224,13 +222,16 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                       </div>
                     </div>
                   </div>
-
                 ) : (
-                  <span>
-                  {new Date(Date.UTC(year, month, day.date.getDate())).toLocaleDateString([], {
-                    day: 'numeric',
-                  })}
-                  </span>
+                  <div>
+                    {new Date(Date.UTC(
+                      new Date(day.date.getTime()).getUTCFullYear(),
+                      new Date(day.date.getTime()).getUTCMonth(),
+                      new Date(day.date.getTime()).getUTCDate()
+                    )).toLocaleDateString([], {
+                      day: 'numeric',
+                    })}
+                  </div>
                 )}
               </button>
             </div>
