@@ -34,40 +34,31 @@ interface Props {
 }
 
 const AdvertisementCalendar: FC<Props> = ({ callback }) => {
-  const [month, setMonth] = useState<number>(new Date().getMonth());
+  const [month, setMonth] = useState<number>(new Date(Date.UTC(
+    new Date().getUTCFullYear(),
+    new Date().getUTCMonth(),
+    new Date().getUTCDate()
+  )).getMonth());
   const [selectedDates, setSelectedDates] = useState<number[]>([]);
 
-  const days = Array.from({ length: new Date(Date.UTC(year, month + 1, 0)).getUTCDate() }, (_, i) => ({
-    date: new Date(Date.UTC(year, month, i + 1)),
-    isCurrentMonth: new Date(Date.UTC(year, month, i + 1)).getUTCMonth() === month,
-    isToday: getDayId(Date.UTC(year, month, i + 1)) === getDayId(today.getTime()),
-    isSelected: selectedDates.some((date) => getDayId(date) === getDayId(Date.UTC(year, month, i + 1))),
-    dayId: getDayId(Date.UTC(year, month, i)),
-  })) as Day[];
-  // if the first day of the days array is not Monday, add days from the previous month to the beginning of the array
-  const firstDay = days[0]?.date.getUTCDay() ?? new Date().getUTCDay();
-  if (firstDay !== 1) {
-    const previousMonth = new Date(Date.UTC(year, month, 0));
-    const previousMonthDays = Array.from({ length: previousMonth.getUTCDate() }, (_, i) => ({
-      date: new Date(Date.UTC(year, month - 1, i + 1)),
-      isCurrentMonth: false,
-      isToday: getDayId(Date.UTC(year, month - 1, i + 1)) === getDayId(today.getTime()),
-      isSelected: selectedDates.some((date) => getDayId(date) === getDayId(Date.UTC(year, month - 1, i + 1))),
-      dayId: getDayId(Date.UTC(year, month - 1, i)),
-    })) as Day[];
-    days.unshift(...previousMonthDays.slice(previousMonthDays.length - firstDay + 1));
-  }
-  const lastDay = days[days.length - 1]?.date.getUTCDay() ?? new Date().getUTCDay();
-  if (lastDay !== 0) {
-    const nextMonthDays = Array.from({ length: 7 - lastDay }, (_, i) => ({
-      date: new Date(Date.UTC(year, month + 1, i + 1)),
-      isCurrentMonth: false,
-      isToday: getDayId(Date.UTC(year, month + 1, i + 1)) === getDayId(today.getTime()),
-      isSelected: selectedDates.some((date) => getDayId(date) === getDayId(Date.UTC(year, month + 1, i + 1))),
-      dayId: getDayId(Date.UTC(year, month + 1, i)),
-    })) as Day[];
-    days.push(...nextMonthDays);
-  }
+  // make an array of 35 days that represent the current month.
+  const days: Day[] = useMemo(() => {
+    const firstDay = new Date(Date.UTC(year, month, 1));
+    const startDay = firstDay.getUTCDay();
+    const days: Day[] = [];
+    for (let i = 1; i < 36; i++) {
+      const date = new Date(Date.UTC(year, month, (i + 1) - startDay));
+      days.push({
+        date,
+        isCurrentMonth: date.getUTCMonth() === month,
+        isToday: getDayId(date.getTime()) === getDayId(today.getTime()),
+        isSelected: selectedDates.some((timestamp) => date.getTime() === timestamp),
+        dayId: getDayId(date.getTime()),
+      });
+    }
+    return days;
+  }, [month, selectedDates]);
+
   const { data: ads, isLoading: adsIsLoading } = api.advertisement.getByDayIds.useQuery({
     dayIds: days.map((day) => day.dayId),
   }, {
@@ -143,6 +134,8 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
       </span>
     );
   }
+
+  console.log({ days})
 
   return (
     <div className="w-full">
