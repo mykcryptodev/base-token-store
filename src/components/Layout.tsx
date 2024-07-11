@@ -12,6 +12,7 @@ import Logo from "~/components/Logo";
 import CreditCard from "~/components/CreditCard";
 import { useCartContext } from "~/contexts/Cart";
 import { useAdvertisementContext } from "~/contexts/Advertisement";
+import { CENSORED_DAY_IDS } from "~/constants/ads";
 
 interface LayoutProps {
   children: ReactNode
@@ -22,6 +23,7 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
   const { theme } = useTheme();
   const { cart } = useCartContext();
   const { advertisement } = useAdvertisementContext();
+  const todaysAdIsNotCensored = advertisement && !CENSORED_DAY_IDS[advertisement.dayId];
 
   return (
     <div className="drawer drawer-end tracking-tight">
@@ -30,10 +32,12 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
         <div className="block">
           <div style={{ backgroundImage: `url('/images/full-width-text.svg')` }} className={`w-full bg-center bg-no-repeat h-96 absolute -top-48 -z-10 ${theme === 'dark' ? 'opacity-80' : ''}`} ></div>
           <div className="overflow-x-hidden max-w-7xl mx-auto min-h-screen mt-9">
-            <div className="w-full mx-auto mt-9">
-              <Advertisement />
-            </div>
-            <div className={`w-full justify-between items-center flex mr-4 ${advertisement ? 'mt-9' : 'mt-20'}`}>
+            {todaysAdIsNotCensored && (
+              <div className="w-full mx-auto mt-9">
+                <Advertisement />
+              </div>
+            )}
+            <div className={`w-full justify-between items-center flex mr-4 ${todaysAdIsNotCensored ? 'mt-9' : 'mt-20'}`}>
               <div className="sm:w-full sm:px-0 w-fit px-2">
                 <ThemeSwitch />
               </div>

@@ -71,18 +71,6 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
     refetchOnWindowFocus: false,
   });
 
-  const price = useMemo(() => {
-    // for each selected date, get the corresponding ad and sum up the prices
-    return selectedDates.reduce((acc, timestamp) => {
-      const ad = ads?.find((ad) => ad.dayId === getDayId(timestamp).toString());
-      if (ad) {
-        return acc + BigInt(ad.resalePrice);
-      } else {
-        return acc + BigInt(standardPrice ?? "0");
-      }
-    }, BigInt(0));
-  }, [selectedDates, ads, standardPrice]);
-
   const handleUpdateSelectedDates = (timestamp: number) => {
     setSelectedDates((prev) => {
       let updatedDates;
