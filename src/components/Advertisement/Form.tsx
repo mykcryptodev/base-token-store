@@ -3,10 +3,12 @@ import dynamic from 'next/dynamic';
 import { type FC, useState } from 'react';
 import { getContract, toEther, toWei, encode } from 'thirdweb';
 import { base } from 'thirdweb/chains';
+import { ConnectButton, useActiveAccount, useSendTransaction } from 'thirdweb/react';
 import { upload } from 'thirdweb/storage';
-import { useSendCalls } from 'wagmi/experimental';
+import { useSendCalls, useCapabilities } from 'wagmi/experimental';
 import { APP_NAME } from '~/constants';
 import { BANNER_ADVERTISEMENT } from '~/constants/addresses';
+import { DEFAULT_CHAIN } from '~/constants/chain';
 import { client } from '~/providers/Thirdweb';
 import { buyAdSpace } from '~/thirdweb/8453/0x4047f984f20f174919bffbf0c5f347270d13a112';
 import { api } from "~/utils/api";
@@ -21,6 +23,10 @@ interface Props {
 
 const AdvertisementForm: FC<Props> = ({ price, selectedDayIds, onAdsBought }) => {
   const { sendCallsAsync } = useSendCalls();
+  const { data: capabilities } = useCapabilities();
+  const account = useActiveAccount();
+  console.log({ capabilities });
+  const { mutate: sendTransaction } = useSendTransaction();
   const [buyIsLoading, setBuyIsLoading] = useState<boolean>(false);
   const [mediaUrl, setMediaUrl] = useState<string>("");
   const [link, setLink] = useState<string>("");
@@ -58,6 +64,33 @@ const AdvertisementForm: FC<Props> = ({ price, selectedDayIds, onAdsBought }) =>
         value: BigInt(price),
       }
       const encodedData = await encode(txWithValue);
+      if (!capabilities && account) {
+        sendTransaction({
+          chain: DEFAULT_CHAIN,
+          client,
+          to: txWithValue.to,
+          data: encodedData,
+          value: txWithValue.value,
+        }, {
+          onSuccess(data, variables, context) {
+            console.log(`SUCCESS`)
+            console.log({
+              data, variables, context
+            })
+            onAdsBought();
+            setMediaUrl("");
+            setLink("");
+            setResalePrice("");
+          },
+          onSettled(data, variables, context) {
+            console.log(`SETTLED`)
+            console.log({
+              data, variables, context
+            });
+            setBuyIsLoading(false);
+          }
+        });
+      }
       await sendCallsAsync({
         calls: [{
           to: BANNER_ADVERTISEMENT,
@@ -158,8 +191,21 @@ const AdvertisementForm: FC<Props> = ({ price, selectedDayIds, onAdsBought }) =>
           {buyIsLoading && (
             <div className="loading loading-spinner w-4 h-4"></div>
           )}
-          Create Ad ({toEther(BigInt(price)).toString()} ETH)
+          Buy Ad ({toEther(BigInt(price)).toString()} ETH)
         </button>
+        <ConnectButton
+          client={client}
+          chain={DEFAULT_CHAIN}
+          connectButton={{
+            label: "Buy with a different wallet?",
+            className: "!btn !btn-secondary !btn-lg !w-full"
+          }}
+          detailsButton={{
+            render: () => (
+              <div className="btn btn-secondary btn-lg w-full font-normal animate-none">Buy with a different wallet</div>
+            )
+          }}
+        />
       </div>
     </div>
   )
