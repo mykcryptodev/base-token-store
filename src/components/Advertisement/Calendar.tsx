@@ -203,7 +203,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                 {ads?.find((ad) => Number(day.dayId + 1) === Number(ad.dayId)) ? (
                   <div className="indicator">
                     <span className="indicator-item indicator-start w-full text-center indicator-bottom text-xs opacity-50 overflow-ellipsis sm:flex hidden">
-                      {toEther(BigInt(ads?.find((ad) => Number(ad.dayId) === Number(day.dayId + 1))?.resalePrice?.toString() ?? "0" as string))} ETH
+                      {toEther(BigInt(ads?.find((ad) => Number(ad.dayId) === Number(day.dayId))?.resalePrice?.toString() ?? "0" as string))} ETH
                     </span>
                     <div className="grid place-items-center">
                       <div className="indicator">
