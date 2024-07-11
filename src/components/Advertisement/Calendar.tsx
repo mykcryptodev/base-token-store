@@ -29,7 +29,7 @@ const getDayId = (timestamp: number) => {
 interface Props {
   callback?: (
     price: bigint,
-    selectedDates: Date[],
+    selectedDayIds: number[],
   ) => void;
 }
 
@@ -87,11 +87,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
           return acc + BigInt(standardPrice ?? "0");
         }
       }, BigInt(0));
-      callback?.(price, updatedDates.map(timestamp => new Date(Date.UTC(
-        new Date(timestamp).getUTCFullYear(),
-        new Date(timestamp).getUTCMonth(),
-        new Date(timestamp).getUTCDate()
-      ))));
+      callback?.(price, updatedDates.map(timestamp => getDayId(timestamp)));
       return updatedDates;
     });
   }

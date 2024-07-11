@@ -13,18 +13,13 @@ import { api } from "~/utils/api";
 
 const Upload = dynamic(() => import('~/components/Upload'), { ssr: false });
 
-const getDayId = (date: Date) => {
-  const timestamp = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())).getTime();
-  return Math.floor(timestamp / 1000 / 60 / 60 / 24);
-}
-
 interface Props {
   price: string;
-  selectedDates: Date[];
+  selectedDayIds: number[];
   onAdsBought: () => void;
 }
 
-const AdvertisementForm: FC<Props> = ({ price, selectedDates, onAdsBought }) => {
+const AdvertisementForm: FC<Props> = ({ price, selectedDayIds, onAdsBought }) => {
   const { sendCallsAsync } = useSendCalls();
   const [buyIsLoading, setBuyIsLoading] = useState<boolean>(false);
   const [mediaUrl, setMediaUrl] = useState<string>("");
@@ -53,9 +48,9 @@ const AdvertisementForm: FC<Props> = ({ price, selectedDates, onAdsBought }) => 
           chain: base,
           address: BANNER_ADVERTISEMENT,
         }),
-        dayIds: selectedDates.map((date) => BigInt(getDayId(date))),
-        contentURIs: selectedDates.map(() => contentUri),
-        resalePrices: selectedDates.map(() => BigInt(toWei(resalePrice))),
+        dayIds: selectedDayIds.map((dayId) => BigInt(dayId)),
+        contentURIs: selectedDayIds.map(() => contentUri),
+        resalePrices: selectedDayIds.map(() => BigInt(toWei(resalePrice))),
         maxCost: BigInt(price),
       });
       const txWithValue = {

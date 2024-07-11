@@ -21,7 +21,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 const CreateAdvertisement: FC<WithServerSideProps> = () => {
   const { theme } = useTheme();
   const [price, setPrice] = useState<string>("0");
-  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+  const [selectedDayIds, setSelectedDayIds] = useState<number[]>([]);
   const [lastBoughtAt, setLastBoughtAt] = useState<Date | null>(new Date());
 
   const { data: pricePerBannerSlot } = api.advertisement.getStandardPrice.useQuery(undefined, {
@@ -114,10 +114,10 @@ const CreateAdvertisement: FC<WithServerSideProps> = () => {
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col gap-4">
               <AdvertisementCalendar 
-                callback={(price, dates) => {
+                callback={(price, dayIds) => {
                   setPrice(price.toString());
-                  console.log({ dates });
-                  setSelectedDates(dates);
+                  console.log({ dayIds });
+                  setSelectedDayIds(dayIds);
                 }}
                 key={lastBoughtAt?.getTime()}
               />
@@ -126,7 +126,7 @@ const CreateAdvertisement: FC<WithServerSideProps> = () => {
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold my-4">Create Ad Media</h2>
             <AdvertisementForm 
-              selectedDates={selectedDates}
+              selectedDayIds={selectedDayIds}
               price={price}
               onAdsBought={() => {
                 setLastBoughtAt(null);
