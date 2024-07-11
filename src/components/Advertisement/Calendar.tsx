@@ -279,7 +279,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
             ).map((ad) => (
               <li
                 key={ad.dayId}
-                className="group flex items-start space-x-4 rounded-xl px-4 py-2 focus-within:bg-base-100 hover:bg-base-100"
+                className="group flex items-start space-x-4 rounded-xl sm:px-4 py-2 focus-within:bg-base-100 hover:bg-base-100"
               >
                 <div className="bg-base-100 border rounded-lg">
                   <figure className="md:h-[90px] md:w-[768px] h-[50px] w-[350px] m-auto cursor-pointer bg-base-200 rounded-lg">
