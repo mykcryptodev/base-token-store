@@ -196,7 +196,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
                 )}
                 onClick={() => handleUpdateSelectedDates(day.date.getTime())}
               >
-                {ads?.find((ad) => Number(day.dayId + 1) === Number(ad.dayId)) ? (
+                {ads?.find((ad) => Number(day.dayId) === Number(ad.dayId)) ? (
                   <div className="indicator">
                     <span className="indicator-item indicator-start w-full text-center indicator-bottom text-xs opacity-50 overflow-ellipsis sm:flex hidden">
                       {toEther(BigInt(ads?.find((ad) => Number(ad.dayId) === Number(day.dayId))?.resalePrice?.toString() ?? "0" as string))} ETH
