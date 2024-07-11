@@ -37,3 +37,11 @@ body {
 .btn {
   @apply font-normal;
 }
+
+.thirdweb-media button {
+  @apply hidden !important;
+}
+
+.thirdweb-media video {
+  @apply object-cover rounded-lg !important;
+}

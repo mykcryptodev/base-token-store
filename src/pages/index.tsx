@@ -1,6 +1,6 @@
 import { useTheme } from "next-themes";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { type FC, useState } from "react";
 import Logo from "~/components/Logo";
 import NftCollectionsGrid from "~/components/Nft/CollectionsGrid";
 import RefferedBanner from "~/components/Referral/ReferredBanner";
@@ -8,55 +8,13 @@ import TokenGrid from "~/components/Token/Grid";
 import useDebounce from "~/hooks/useDebounce";
 
 import { type GetServerSideProps } from 'next';
-import { REFERRAL_CODE_NFT } from "~/constants/addresses";
-import { type NFT, getContract } from "thirdweb";
-import { base } from "thirdweb/chains";
-import { client } from "~/providers/Thirdweb";
-import { getNFT } from "thirdweb/extensions/erc721";
-import { useCartContext } from "~/contexts/Cart";
+import { sharedGetServerSideProps } from "~/lib/getServerSidePropsUtil";
+import { withServerSideProps, type WithServerSideProps } from "~/hoc/withServerSideProps";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { query } = context;
-  const r = query.r as string | undefined;
-  if (!r || typeof r !== 'string' || !r.match(/^\d+$/)) {
-    return {
-      props: {
-        referralNft: null,
-      },
-    };
-  }
-
-  const referralNftContract = getContract({
-    client,
-    chain: base,
-    address: REFERRAL_CODE_NFT,
-  });
-  try {
-    const nft = await getNFT({
-      contract: referralNftContract,
-      tokenId: BigInt(r),
-      includeOwner: true,
-    });
-  
-    return {
-      props: {
-        referralNft: {
-          ...nft,
-          id: nft.id.toString(),
-        },
-      },
-    };
-  } catch (e) {
-    console.error(e);
-    return {
-      props: {
-        referralNft: null,
-      },
-    };
-  }
-};
-
-export default function Home({ referralNft }: { referralNft: NFT | null }) {
+  return sharedGetServerSideProps(context)
+}
+const HomePage: FC<WithServerSideProps> = ({ referralNft }) => {
   const { theme } = useTheme();
   const categories = [
     'base-meme-coins',
@@ -67,18 +25,11 @@ export default function Home({ referralNft }: { referralNft: NFT | null }) {
   const [query, setQuery] = useState<string>('');
   const debouncedQuery = useDebounce(query, 500);
 
-  const { updateReferralCode } = useCartContext();
-  useEffect(() => {
-    if (referralNft) {
-      updateReferralCode(referralNft.id.toString());
-    }
-  }, [referralNft, updateReferralCode]);
-
   return (
     <>
       <Head>
         <title>Base Token Store</title>
-        <meta name="description" content="A place to buy and sell tokens on Base" />
+        <meta name="description" content="The easiest way to buy tokens on Base" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center">
@@ -150,3 +101,5 @@ export default function Home({ referralNft }: { referralNft: NFT | null }) {
     </>
   );
 }
+
+export default withServerSideProps(HomePage);

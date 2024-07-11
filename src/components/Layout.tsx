@@ -5,11 +5,13 @@ import { ShoppingBagIcon, WalletIcon } from "@heroicons/react/24/outline";
 import Cart from "~/components/Cart";
 import { Footer } from "~/components/Footer";
 import { useActiveAccount } from "thirdweb/react";
-import ThemeSwitch from "./ThemeSwitch";
+import ThemeSwitch from "~/components/ThemeSwitch";
+import Advertisement from "~/components/Advertisement/Banner";
 import { useTheme } from "next-themes";
 import Logo from "~/components/Logo";
 import CreditCard from "~/components/CreditCard";
 import { useCartContext } from "~/contexts/Cart";
+import { useAdvertisementContext } from "~/contexts/Advertisement";
 
 interface LayoutProps {
   children: ReactNode
@@ -19,6 +21,7 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
   const account = useActiveAccount();
   const { theme } = useTheme();
   const { cart } = useCartContext();
+  const { advertisement } = useAdvertisementContext();
 
   return (
     <div className="drawer drawer-end tracking-tight">
@@ -26,13 +29,16 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
       <div className="drawer-content">
         <div className="block">
           <div style={{ backgroundImage: `url('/images/full-width-text.svg')` }} className={`w-full bg-center bg-no-repeat h-96 absolute -top-48 -z-10 ${theme === 'dark' ? 'opacity-80' : ''}`} ></div>
-          <div className="overflow-x-hidden max-w-7xl mx-auto min-h-screen mt-28">
-            <div className="w-full justify-between items-center flex mr-4">
+          <div className="overflow-x-hidden max-w-7xl mx-auto min-h-screen mt-9">
+            <div className="w-full mx-auto mt-9">
+              <Advertisement />
+            </div>
+            <div className={`w-full justify-between items-center flex mr-4 ${advertisement ? 'mt-9' : 'mt-20'}`}>
               <div className="sm:w-full sm:px-0 w-fit px-2">
                 <ThemeSwitch />
               </div>
               <div className="lg:w-full w-fit flex items-center justify-start sm:justify-center gap-2">
-                <Link href="/" className="lg:flex hidden">
+                <Link href="/" className="lg:flex hidden" rel="noreferrer">
                   <Logo
                     shapesFill={`${theme === 'dark' ? '#C9CCD5' : '#FFFFFF'}`}
                     backgroundFill={`${theme === 'dark' ? '#000000' : '#1E4FFD'}`}

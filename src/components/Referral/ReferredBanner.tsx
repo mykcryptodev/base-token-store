@@ -1,5 +1,4 @@
 import { CheckIcon, DocumentDuplicateIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useEffect, useState, type FC } from "react";
 import { base } from "thirdweb/chains";
@@ -9,32 +8,16 @@ import { type NFT, getContract } from "thirdweb";
 import { REFERRAL_CODE_NFT } from "~/constants/addresses";
 import { client } from "~/providers/Thirdweb";
 import { MediaRenderer, useActiveAccount } from "thirdweb/react";
+import useIsDarkTheme from "~/hooks/useIsDarkTheme";
 
 type Props = {
-  referralNft: NFT | null;
+  referralNft: (Omit<NFT, 'id'> & { id: string }) | null;
   hideTitle?: boolean;
   hideClose?: boolean;
 }
 
 export const RefferedBanner: FC<Props> = ({ referralNft, hideClose, hideTitle }) => {
-  const { theme } = useTheme();
-  // force theme refresh
-  const [isDarkTheme, setIsDarkTheme] = useState<boolean>(false);
-  useEffect(() => {
-    if (theme === 'dark') {
-      return setIsDarkTheme(true);
-    }
-    if (theme === 'system') {
-      // find out if the user prefers dark or light
-      const darkQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      if (darkQuery.matches) {
-        return setIsDarkTheme(true)
-      } else {
-        return setIsDarkTheme(false)
-      }
-    }
-    setIsDarkTheme(false);
-  }, [theme]);
+  const isDarkTheme = useIsDarkTheme();
   const account = useActiveAccount();
   const [isBannerVisible, setIsBannerVisible] = useState<boolean>(true);
   const [ownedReferralCode, setOwnedReferralCode] = useState<string>('');
