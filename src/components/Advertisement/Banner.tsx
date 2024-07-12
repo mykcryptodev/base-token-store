@@ -2,7 +2,7 @@ import { ArrowTopRightOnSquareIcon, QuestionMarkCircleIcon } from "@heroicons/re
 import Link from "next/link";
 import { type FC } from "react";
 import { MediaRenderer } from "thirdweb/react";
-
+import posthog from "posthog-js";
 
 import { APP_NAME } from "~/constants";
 import { useAdvertisementContext } from "~/contexts/Advertisement";
@@ -12,6 +12,12 @@ export const Advertisement: FC = () => {
   const { advertisement } = useAdvertisementContext();
   const handleAdClicked = () => {
     if (advertisement) {
+      // log the click
+      posthog.capture('advertisement click', { 
+        dayId: advertisement.dayId,
+        media: advertisement.media,
+        link: advertisement.link,
+      });
       // window change to ad link
       const url = new URL(advertisement.link);
       url.searchParams.append('utm_source', 'base-token-store');
