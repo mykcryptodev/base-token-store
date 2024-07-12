@@ -140,6 +140,8 @@ const Cart: FC = () => {
       }, {
         onSuccess() {
           posthog.capture('checkout', { success: true });
+          // delete all items from cart
+          cart.forEach((item) => deleteItem(item.id));
         },
         onError(error) {
           posthog.capture('checkout', { success: false, error });
