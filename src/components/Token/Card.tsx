@@ -43,7 +43,10 @@ export const TokenCard: FC<Props> = ({ token }) => {
         price: token.current_price,
         img: token.image,
       });
-      posthog.capture('add to cart', { property: baseAddress })
+      posthog.capture('add to cart', { 
+        assetAddress: baseAddress, 
+        assetType: "token",
+      });
     }
     setLoading(false);
     // pop the side drawer

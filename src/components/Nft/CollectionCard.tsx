@@ -4,6 +4,7 @@ import { type Collection } from "~/types/simpleHash";
 import { api } from "~/utils/api";
 import Sparkline from "../Token/Sparkline";
 import VerifiedCollectionModal from "~/components/Nft/VerifiedModal";
+import posthog from "posthog-js";
 
 const TokenLoadingCard: FC = () => (
   <div className="card max-w-[236px] bg-base-200 raise-on-hover cursor-pointer">
@@ -122,7 +123,14 @@ export const NftCollectionCard: FC<Props> = ({ collection, onCollectionSelected 
         <div className="card-actions h-full items-end">
           <button 
             className="btn btn-secondary shadow-none hover:btn-primary hover:shadow z-10"
-            onClick={() => onCollectionSelected?.(collection)}
+            onClick={() => {
+              onCollectionSelected?.(collection);
+              posthog.capture('view collection', { 
+                collectionAddress: collection.collection_details.top_contract_details.find(c => 
+                  c.chain === 'base'
+                )?.contract_address,
+              });
+            }}
           >View</button>
         </div>
       </div>

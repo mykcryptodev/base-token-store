@@ -9,6 +9,7 @@ import { type EndaomentOrg } from "~/types/endaoment";
 import Link from "next/link";
 import usePrevious from "~/hooks/usePrevious";
 import { COINGECKO_UNKNOWN_IMG } from "~/constants/dex";
+import posthog from "posthog-js";
 
 export const Donation: FC = () => {
   const { cart, addItem } = useCartContext();
@@ -59,6 +60,10 @@ export const Donation: FC = () => {
       price: 1,
       img: cause.logoUrl,
       isDonation: true,
+    });
+    posthog.capture('add to cart', { 
+      assetAddress: cause.contractAddress, 
+      assetType: "donation",
     });
   };
 

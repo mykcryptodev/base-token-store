@@ -6,6 +6,7 @@ import { useCartContext } from "~/contexts/Cart";
 import { type CartItem } from "~/hooks/useCart";
 import { type Order } from "~/types/openSea";
 import { api } from "~/utils/api";
+import posthog from "posthog-js";
 
 const TokenLoadingCard: FC = () => (
   <div className="card max-w-[236px] bg-base-200 raise-on-hover cursor-pointer">
@@ -101,6 +102,10 @@ export const NftListingCard: FC<Props> = ({ listing }) => {
         isNft: true,
         nftOrderHash: listing.order_hash,
         nftExchangeAddress: listing.protocol_address,
+      });
+      posthog.capture('add to cart', { 
+        assetAddress: nft.contract_address, 
+        assetType: "nft",
       });
     }
     setAddToCartIsLoading(false);
