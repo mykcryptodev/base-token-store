@@ -18,6 +18,7 @@ export const env = createEnv({
     SIMPLEHASH_API_KEY: z.string(),
     GOOGLE_VISION_API_KEY: z.string(),
     DEFINED_API_KEY: z.string(),
+    POSTHOG_PERSONAL_API_KEY: z.string(),
   },
 
   /**
@@ -50,6 +51,7 @@ export const env = createEnv({
     SIMPLEHASH_API_KEY: process.env.SIMPLEHASH_API_KEY,
     GOOGLE_VISION_API_KEY: process.env.GOOGLE_VISION_API_KEY,
     DEFINED_API_KEY: process.env.DEFINED_API_KEY,
+    POSTHOG_PERSONAL_API_KEY: process.env.POSTHOG_PERSONAL_API_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

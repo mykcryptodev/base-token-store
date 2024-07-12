@@ -14,6 +14,7 @@ import { api } from "~/utils/api";
 import Logo from "~/components/Logo";
 import { useTheme } from "next-themes";
 import React from "react";
+import Analytics from "~/components/Analytics";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   return sharedGetServerSideProps(context)
@@ -121,6 +122,17 @@ const CreateAdvertisement: FC<WithServerSideProps> = () => {
                 }}
                 key={lastBoughtAt?.getTime()}
               />
+            </div>
+          </div>
+          <div className="max-w-3xl mx-auto w-full">
+            <div className="collapse collapse-arrow">
+              <input type="checkbox" className="peer" /> 
+              <div className="collapse-title text-sm font-semibold max-w-3xl mx-auto">
+                Page Views
+              </div>
+              <div className="collapse-content mx-auto shadow-inner rounded-lg overflow-x-auto w-full">
+                <Analytics />
+              </div>
             </div>
           </div>
           <div className="max-w-3xl mx-auto">
