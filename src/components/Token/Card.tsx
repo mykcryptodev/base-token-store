@@ -7,6 +7,7 @@ import { useCartContext } from "~/contexts/Cart";
 import { api } from "~/utils/api";
 import { type CartItem } from "~/hooks/useCart";
 import TokenInfoModal from "~/components/Token/InfoModal";
+import posthog from "posthog-js";
 
 type Props = {
   token: TokenListResponse;
@@ -42,6 +43,7 @@ export const TokenCard: FC<Props> = ({ token }) => {
         price: token.current_price,
         img: token.image,
       });
+      posthog.capture('add to cart', { property: baseAddress })
     }
     setLoading(false);
     // pop the side drawer
