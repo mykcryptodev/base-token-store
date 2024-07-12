@@ -17,6 +17,7 @@ import Donation from '~/components/Donation';
 import { REFERRAL_CODE_NFT } from '~/constants/addresses';
 import { ownerOf } from 'thirdweb/extensions/erc721';
 import ReferralChip from '~/components/Referral/ReferralChip';
+import posthog from "posthog-js";
 
 const Cart: FC = () => {
   const { sendCalls } = useSendCalls();
@@ -135,6 +136,15 @@ const Cart: FC = () => {
           paymasterService: {
             url: `https://${DEFAULT_CHAIN.id}.bundler.thirdweb.com/${client.clientId}`
           }
+        }
+      }, {
+        onSuccess() {
+          posthog.capture('checkout', { success: true });
+          // delete all items from cart
+          cart.forEach((item) => deleteItem(item.id));
+        },
+        onError(error) {
+          posthog.capture('checkout', { success: false, error });
         }
       });
       // close the drawer

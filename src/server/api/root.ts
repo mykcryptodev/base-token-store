@@ -1,4 +1,5 @@
 import { advertisementRouter } from "~/server/api/routers/advertisement";
+import { analyticsRouter } from "~/server/api/routers/analytics";
 import { catsRouter } from "~/server/api/routers/cats";
 import { coingeckoRouter } from "~/server/api/routers/coingecko";
 import { dexRouter } from "~/server/api/routers/dex";
@@ -19,6 +20,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
   advertisement: advertisementRouter,
+  analytics: analyticsRouter,
   cats: catsRouter,
   coingecko: coingeckoRouter,
   dex: dexRouter,
