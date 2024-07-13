@@ -17,11 +17,12 @@ const Upload = dynamic(() => import('~/components/Upload'), { ssr: false });
 
 interface Props {
   price: string;
+  pricePerBannerSlot: string;
   selectedDayIds: number[];
   onAdsBought: () => void;
 }
 
-const AdvertisementForm: FC<Props> = ({ price, selectedDayIds, onAdsBought }) => {
+const AdvertisementForm: FC<Props> = ({ price, pricePerBannerSlot, selectedDayIds, onAdsBought }) => {
   const { sendCallsAsync } = useSendCalls();
   const { data: capabilities } = useCapabilities();
   const account = useActiveAccount();
@@ -29,7 +30,7 @@ const AdvertisementForm: FC<Props> = ({ price, selectedDayIds, onAdsBought }) =>
   const [buyIsLoading, setBuyIsLoading] = useState<boolean>(false);
   const [mediaUrl, setMediaUrl] = useState<string>("");
   const [link, setLink] = useState<string>("");
-  const [resalePrice, setResalePrice] = useState<string>("");
+  const [resalePrice, setResalePrice] = useState<string>(toEther(BigInt(pricePerBannerSlot ?? toWei('0.002'))));
 
   const { data: royalty } = api.advertisement.getRoyalty.useQuery(undefined, {
     refetchOnMount: false,
@@ -79,7 +80,7 @@ const AdvertisementForm: FC<Props> = ({ price, selectedDayIds, onAdsBought }) =>
             onAdsBought();
             setMediaUrl("");
             setLink("");
-            setResalePrice("");
+            setResalePrice(toEther(BigInt(pricePerBannerSlot ?? toWei('0.002'))));
           },
           onSettled(data, variables, context) {
             console.log(`SETTLED`)
@@ -113,7 +114,7 @@ const AdvertisementForm: FC<Props> = ({ price, selectedDayIds, onAdsBought }) =>
           onAdsBought();
           setMediaUrl("");
           setLink("");
-          setResalePrice("");
+          setResalePrice(toEther(BigInt(pricePerBannerSlot ?? toWei('0.002'))));
         },
         onSettled(data, variables, context) {
           console.log(`SETTLED`)
@@ -163,21 +164,29 @@ const AdvertisementForm: FC<Props> = ({ price, selectedDayIds, onAdsBought }) =>
         </div>
         <div className="form-control w-full">
           <label className="label">
-            <span className="label-text">Resale Price</span>
+            <span className="label-text">Resale Price (min: {toEther(BigInt(pricePerBannerSlot ?? toWei('0.002')))} ETH)</span>
           </label>
           <input
             type="text"
-            placeholder="0.001 ETH"
+            placeholder="0.002 ETH"
             className="input input-lg input-bordered w-full"
             value={resalePrice}
-            onChange={(e) => setResalePrice(e.target.value)}
+            onChange={(e) => {
+              console.log({ value: e.target.value, pricePerBannerSlot });
+              // do not let the resale price be below the pricePerBannerSlot
+              if (BigInt(toWei(e.target.value)) < BigInt(pricePerBannerSlot ?? '0.002')) {
+                setResalePrice(toEther(BigInt(pricePerBannerSlot)));
+                return;
+              }
+              setResalePrice(e.target.value)
+            }}
           />
           <label className="label">
             <span className="label-text-alt"></span>
             <span className="label-text-alt flex items-center gap-1">
-              If someone bought out one of your ad slot days, what would they need to pay you?
+              <span className="opacity-50">If someone bought out one of your ad slot days, what would they need to pay you?</span>
               <div className="tooltip tooltip-left cursor-pointer" data-tip={`${APP_NAME} takes a ${royalty ?? "2"}% royalty on ad space resales`}>
-                <QuestionMarkCircleIcon className="h-4 w-4 stroke-2" />
+                <QuestionMarkCircleIcon className="h-4 w-4 stroke-2 opacity-50" />
               </div>
             </span>
           </label>

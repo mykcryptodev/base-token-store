@@ -2,7 +2,7 @@ import Head from "next/head";
 import { CubeIcon, GlobeAmericasIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 import { type GetServerSideProps } from "next";
 import { type FC, useState, useMemo } from "react";
-import { toEther } from "thirdweb";
+import { toEther, toWei } from "thirdweb";
 import { MediaRenderer } from "thirdweb/react";
 import AdvertisementCalendar from "~/components/Advertisement/Calendar";
 import AdvertisementForm from "~/components/Advertisement/Form";
@@ -158,6 +158,7 @@ const CreateAdvertisement: FC<WithServerSideProps> = () => {
               <AdvertisementForm 
                 selectedDayIds={selectedDayIds}
                 price={price}
+                pricePerBannerSlot={pricePerBannerSlot ?? toWei('0.002').toString()}
                 onAdsBought={() => {
                   setLastBoughtAt(null);
                   setTimeout(() => {
