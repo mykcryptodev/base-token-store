@@ -15,12 +15,14 @@ import Logo from "~/components/Logo";
 import { useTheme } from "next-themes";
 import React from "react";
 import Analytics from "~/components/Analytics";
+import AdClicks from "~/components/Advertisement/Clicks";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   return sharedGetServerSideProps(context)
 }
 const CreateAdvertisement: FC<WithServerSideProps> = () => {
   const { theme } = useTheme();
+  const [activeTab, setActiveTab] = useState<"buy" | "analytics">("buy");
   const [price, setPrice] = useState<string>("0");
   const [selectedDayIds, setSelectedDayIds] = useState<number[]>([]);
   const [lastBoughtAt, setLastBoughtAt] = useState<Date | null>(new Date());
@@ -110,44 +112,62 @@ const CreateAdvertisement: FC<WithServerSideProps> = () => {
                 </div>
               </div>
             </div>
-            <h2 className="text-3xl font-bold my-4">Select Dates</h2>
           </div>
-          <div className="max-w-4xl mx-auto">
-            <div className="flex flex-col gap-4">
-              <AdvertisementCalendar 
-                callback={(price, dayIds) => {
-                  setPrice(price.toString());
-                  console.log({ dayIds });
-                  setSelectedDayIds(dayIds);
+          <div className="max-w-4xl w-full mx-auto">
+            <div role="tablist" className="tabs tabs-lifted mb-4">
+              <a 
+                role="tab" 
+                className={`tab ${activeTab === "buy" ? 'tab-active' : ''}`}
+                onClick={() => setActiveTab("buy")}
+              >
+                Buy Ad
+              </a>
+              <a 
+                role="tab" 
+                className={`tab ${activeTab === "analytics" ? 'tab-active' : ''}`}
+                onClick={() => setActiveTab("analytics")}
+              >
+                View Analytics
+              </a>
+            </div>
+          </div>
+          {activeTab === "analytics" && (
+            <div className="max-w-3xl mx-auto w-full">
+              <h2 className="text-3xl font-bold my-4">Page Views</h2>
+              <Analytics />
+              <h2 className="text-3xl font-bold my-4">Ad Clicks</h2>
+              <AdClicks />
+            </div>
+          )}
+          {activeTab === "buy" && (
+            <>
+            <div className="max-w-4xl mx-auto">
+              <div className="flex flex-col gap-4">
+                <AdvertisementCalendar 
+                  callback={(price, dayIds) => {
+                    setPrice(price.toString());
+                    console.log({ dayIds });
+                    setSelectedDayIds(dayIds);
+                  }}
+                  key={lastBoughtAt?.getTime()}
+                />
+              </div>
+            </div>
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-3xl font-bold my-4">Create Ad Media</h2>
+              <AdvertisementForm 
+                selectedDayIds={selectedDayIds}
+                price={price}
+                onAdsBought={() => {
+                  setLastBoughtAt(null);
+                  setTimeout(() => {
+                    setLastBoughtAt(new Date());
+                  }, 4000);
                 }}
-                key={lastBoughtAt?.getTime()}
               />
             </div>
-          </div>
-          <div className="max-w-3xl mx-auto w-full">
-            <div className="collapse collapse-arrow">
-              <input type="checkbox" className="peer" /> 
-              <div className="collapse-title text-sm font-semibold max-w-3xl mx-auto">
-                Page Views
-              </div>
-              <div className="collapse-content mx-auto shadow-inner rounded-lg overflow-x-auto w-full">
-                <Analytics />
-              </div>
-            </div>
-          </div>
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold my-4">Create Ad Media</h2>
-            <AdvertisementForm 
-              selectedDayIds={selectedDayIds}
-              price={price}
-              onAdsBought={() => {
-                setLastBoughtAt(null);
-                setTimeout(() => {
-                  setLastBoughtAt(new Date());
-                }, 4000);
-              }}
-            />
-          </div>
+            </>
+          )}
         </div>
       </main>
     </>

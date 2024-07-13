@@ -132,6 +132,7 @@ const AdvertisementCalendar: FC<Props> = ({ callback }) => {
   return (
     <div className="w-full">
       <div className="max-w-3xl mx-auto">
+        <h2 className="text-3xl font-bold my-4">Select Dates</h2>
         <div className="flex items-center">
           <h2 className="flex-auto text-sm font-semibold">
             {new Date(Date.UTC(year, month + 1, 1)).toLocaleDateString([], {
