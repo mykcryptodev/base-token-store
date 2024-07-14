@@ -36,6 +36,7 @@ export const analyticsRouter = createTRPCRouter({
         result: {
           data: number[];
           labels: string[];
+          label: string;
         }[];
       };
       const data = await response.json() as PageviewEventResult;

@@ -42,6 +42,9 @@ export const AdClicks: FC = () => {
     xaxis: {
       categories: analytics.result[0]?.labels ?? [],
     },
+    legend: {
+      show: false,
+    },
     tooltip: {
       custom: (
         { series, seriesIndex, dataPointIndex } : 
@@ -55,10 +58,9 @@ export const AdClicks: FC = () => {
     },
   };
 
-  const series = [{
-    name: "Pageviews",
-    data: analytics.result[0]?.data ?? [],
-  }];
+  const series = analytics.result.map((result) => ({
+    data: result.data ?? [],
+  }));
 
   return (
     <div>
