@@ -3,8 +3,9 @@ import dynamic from 'next/dynamic';
 import { type FC, useState } from 'react';
 import { getContract, toEther, toWei, encode } from 'thirdweb';
 import { base } from 'thirdweb/chains';
-import { ConnectButton, useActiveAccount, useSendTransaction } from 'thirdweb/react';
+import { ConnectButton, useActiveAccount, useActiveWallet, useSendTransaction } from 'thirdweb/react';
 import { upload } from 'thirdweb/storage';
+import { useAccount, useDisconnect } from 'wagmi';
 import { useSendCalls, useCapabilities } from 'wagmi/experimental';
 import { APP_NAME } from '~/constants';
 import { BANNER_ADVERTISEMENT } from '~/constants/addresses';
@@ -12,6 +13,7 @@ import { DEFAULT_CHAIN } from '~/constants/chain';
 import { client } from '~/providers/Thirdweb';
 import { buyAdSpace } from '~/thirdweb/8453/0x4047f984f20f174919bffbf0c5f347270d13a112';
 import { api } from "~/utils/api";
+import { useDisconnect as useDisconnectThirdweb } from 'thirdweb/react';
 
 const Upload = dynamic(() => import('~/components/Upload'), { ssr: false });
 
@@ -24,6 +26,10 @@ interface Props {
 
 const AdvertisementForm: FC<Props> = ({ price, pricePerBannerSlot, selectedDayIds, onAdsBought }) => {
   const { sendCallsAsync } = useSendCalls();
+  const wagmiAccount = useAccount();
+  const wallet = useActiveWallet();
+  const { disconnect: disconnectWagmi } = useDisconnect();
+  const { disconnect: disconnectTw } = useDisconnectThirdweb();
   const { data: capabilities } = useCapabilities();
   const account = useActiveAccount();
   const { mutate: sendTransaction } = useSendTransaction();
@@ -201,19 +207,37 @@ const AdvertisementForm: FC<Props> = ({ price, pricePerBannerSlot, selectedDayId
           )}
           Buy Ad ({toEther(BigInt(price)).toString()} ETH)
         </button>
-        <ConnectButton
-          client={client}
-          chain={DEFAULT_CHAIN}
-          connectButton={{
-            label: "Buy with a different wallet?",
-            className: "!btn !btn-secondary !btn-lg !w-full"
-          }}
-          detailsButton={{
-            render: () => (
-              <div className="btn btn-secondary btn-lg w-full font-normal animate-none">Buy with a different wallet</div>
-            )
-          }}
-        />
+        {wagmiAccount?.address ? (
+          <button
+            className="btn btn-secondary btn-lg w-full"
+            onClick={() => {
+              disconnectWagmi();
+              if (wallet) {
+                disconnectTw(wallet);
+              }
+            }}
+          >
+            Log out to buy with a different wallet
+          </button>
+        ) : (
+          <ConnectButton
+            client={client}
+            chain={DEFAULT_CHAIN}
+            connectButton={{
+              label: "Buy with non-smart wallet",
+              className: "!btn !btn-secondary !btn-lg !w-full"
+            }}
+            detailsButton={{
+              render: () => (
+                <div 
+                  className="btn btn-secondary btn-lg w-full font-normal animate-none"
+                >
+                  Buy with non-smart wallet
+                </div>
+              )
+            }}
+          />
+        )}
       </div>
     </div>
   )
