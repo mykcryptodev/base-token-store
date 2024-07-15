@@ -31,6 +31,7 @@ const AdvertisementForm: FC<Props> = ({ price, pricePerBannerSlot, selectedDayId
   const { disconnect: disconnectWagmi } = useDisconnect();
   const { disconnect: disconnectTw } = useDisconnectThirdweb();
   const { data: capabilities } = useCapabilities();
+  console.log({ capabilities });
   const account = useActiveAccount();
   const { mutate: sendTransaction } = useSendTransaction();
   const [buyIsLoading, setBuyIsLoading] = useState<boolean>(false);
@@ -96,6 +97,7 @@ const AdvertisementForm: FC<Props> = ({ price, pricePerBannerSlot, selectedDayId
             setBuyIsLoading(false);
           }
         });
+        return;
       }
       await sendCallsAsync({
         calls: [{
