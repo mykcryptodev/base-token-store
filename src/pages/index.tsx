@@ -14,14 +14,14 @@ import { withServerSideProps, type WithServerSideProps } from "~/hoc/withServerS
 export const getServerSideProps: GetServerSideProps = async (context) => {
   return sharedGetServerSideProps(context)
 }
-const HomePage: FC<WithServerSideProps> = ({ referralNft }) => {
+const HomePage: FC<WithServerSideProps> = ({ referralNft, category: defaultCategory, collectionId }) => {
   const { theme } = useTheme();
   const categories = [
     'base-meme-coins',
     'NFTs and collectibles',
     'base-ecosystem',
   ];
-  const [category, setCategory] = useState<string>('base-meme-coins');
+  const [category, setCategory] = useState<string>(defaultCategory ?? 'base-meme-coins');
   const [query, setQuery] = useState<string>('');
   const debouncedQuery = useDebounce(query, 500);
 
@@ -72,7 +72,7 @@ const HomePage: FC<WithServerSideProps> = ({ referralNft }) => {
                 <RefferedBanner referralNft={referralNft} />
               </div>
               <div className={`${category === 'NFTs and collectibles' ? 'flex' : 'hidden'}`}>
-                <NftCollectionsGrid query={debouncedQuery} />
+                <NftCollectionsGrid query={debouncedQuery} defaultCollectionId={collectionId} />
               </div>
               <div className={`${category === 'NFTs and collectibles' ? 'hidden' : 'flex flex-col gap-2'}`}>
                 {referralNft?.owner && (

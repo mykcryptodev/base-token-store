@@ -11,9 +11,10 @@ import VerifiedCollectionModal from "~/components/Nft/VerifiedModal";
 
 type Props = {
   query?: string;
+  defaultCollectionId: string | null;
 }
 
-export const CollectionsGrid: FC<Props> = ({ query }) => {
+export const CollectionsGrid: FC<Props> = ({ query, defaultCollectionId }) => {
   const COLLECTIONS_PER_PAGE = 20;
   const [cursor, setCursor] = useState<string>();
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -45,6 +46,20 @@ export const CollectionsGrid: FC<Props> = ({ query }) => {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
+
+  const { data: defaultCollection } = api.simpleHash.getCollectionById.useQuery({
+    collectionId: defaultCollectionId ?? undefined,
+  }, {
+    enabled: !!defaultCollectionId,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false
+  });
+
+  useEffect(() => {
+    if (defaultCollection) {
+      setSelectedCollection(defaultCollection as unknown as Collection);
+    }
+  }, [defaultCollection]);
 
   const isLoading = searchedCollectionsIsLoading || collectionsIsLoading;
 

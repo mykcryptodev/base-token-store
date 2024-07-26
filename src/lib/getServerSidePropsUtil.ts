@@ -12,11 +12,15 @@ export async function sharedGetServerSideProps(
   context: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<{ 
   advertisement: Advertisement | null; 
-  referralNft: (Omit<NFT, 'id'> & { id: string }) | null 
+  referralNft: (Omit<NFT, 'id'> & { id: string }) | null;
+  category: string | null;
+  collectionId: string | null;
 }>> {
   const { query } = context;
   const r = query.r as string | undefined;
   const referralCodeExists = r && typeof r === 'string' && r.match(/^\d+$/);
+  const category = query.category as string | undefined;
+  const collectionId = query.collectionId as string | undefined;
 
   const advertisementDayId = (date: Date) => {
     const utcDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
@@ -75,6 +79,8 @@ export async function sharedGetServerSideProps(
           ...nft,
           id: nft.id.toString(),
         } : null,
+        category: category ?? null,
+        collectionId: collectionId ?? null
       },
     };
   } catch (e) {
@@ -83,6 +89,8 @@ export async function sharedGetServerSideProps(
       props: {
         advertisement: null,
         referralNft: null,
+        category: null,
+        collectionId: null,
       },
     };
   }

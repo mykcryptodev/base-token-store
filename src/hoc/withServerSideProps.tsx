@@ -7,6 +7,8 @@ import { type Advertisement } from '~/types/advertisement';
 import { type NFT } from 'thirdweb';
 
 export interface WithServerSideProps {
+  category: string | null;
+  collectionId: string | null;
   advertisement: Advertisement | null;
   referralNft: (Omit<NFT, 'id'> & { id: string }) | null;
 }

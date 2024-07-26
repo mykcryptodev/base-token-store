@@ -45,6 +45,32 @@ export const simpleHashRouter = createTRPCRouter({
         )
       };
     }),
+  getCollectionById: publicProcedure
+    .input(z.object({
+      collectionId: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      if (!input.collectionId) {
+        return null;
+      }
+      const { collectionId } = input;
+      const url = new URL(`https://api.simplehash.com/api/v0/nfts/collections/ids`);
+      url.searchParams.append('collection_ids', collectionId);
+      url.searchParams.append('include_top_contract_details', '1');
+
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'X-API-KEY': env.SIMPLEHASH_API_KEY,
+        },
+      });
+      const data = await response.json() as CollectionsApiResponse;
+      console.log(JSON.stringify(data));
+      return { 
+        collection_details: data.collections[0] 
+      };
+    }),
   getHistoricalFloorPrices: publicProcedure
     .input(z.object({
       collectionId: z.string().optional(),
