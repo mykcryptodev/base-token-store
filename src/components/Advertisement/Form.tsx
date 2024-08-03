@@ -180,13 +180,10 @@ const AdvertisementForm: FC<Props> = ({ price, pricePerBannerSlot, selectedDayId
             className="input input-lg input-bordered w-full"
             value={resalePrice}
             onChange={(e) => {
-              console.log({ value: e.target.value, pricePerBannerSlot });
-              // do not let the resale price be below the pricePerBannerSlot
-              if (BigInt(toWei(e.target.value)) < BigInt(pricePerBannerSlot ?? '0.002')) {
-                setResalePrice(toEther(BigInt(pricePerBannerSlot)));
-                return;
+              const value = e.target.value;
+              if (!isNaN(Number(value))) {
+                setResalePrice(value);
               }
-              setResalePrice(e.target.value)
             }}
           />
           <label className="label">
@@ -202,7 +199,7 @@ const AdvertisementForm: FC<Props> = ({ price, pricePerBannerSlot, selectedDayId
         <button
           className="btn btn-primary btn-lg w-full"
           onClick={() => void handleBuy()}
-          disabled={buyIsLoading || price === "0"}
+          disabled={buyIsLoading || price === "0" || Number(resalePrice) <= 0}
         >
           {buyIsLoading && (
             <div className="loading loading-spinner w-4 h-4"></div>
