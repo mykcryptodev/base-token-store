@@ -8,12 +8,14 @@ import { type CartItem } from "~/hooks/useCart";
 import { type TokenListResponse } from "~/types/coingecko";
 import Performance from "~/components/Token/Performance";
 import Link from "next/link";
+import { type NFT } from "thirdweb";
 
 type Props = {
   token: TokenListResponse;
+  referralNft?: (Omit<NFT, 'id'> & { id: string }) | null;
 }
 
-export const TokenInfoModal: FC<Props> = ({ token }) => {
+export const TokenInfoModal: FC<Props> = ({ token, referralNft }) => {
   const { cart, addItem } = useCartContext();
   const [loading, setLoading] = useState<boolean>(false);
   const [tokenInfoFetchEnabled, setTokenInfoFetchEnabled] = useState<boolean>(false);
@@ -24,8 +26,14 @@ export const TokenInfoModal: FC<Props> = ({ token }) => {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
-  const tabs = ["Your Performance", "Token Performance", "Token Info"] as const;
+  const performanceTabName = referralNft?.owner ? `${referralNft.metadata.name}'s Performance` : `Your Performance`;
+  const tabs = [
+    performanceTabName, 
+    "Token Performance", 
+    "Token Info",
+  ] as const;
   const [activeTab, setActiveTab] = useState<string>(tabs[0]);
+  console.log({performanceTabName, activeTab})
 
   const onAddToCart = async () => {
     // Add logic check here for prevent race condition
@@ -56,7 +64,7 @@ export const TokenInfoModal: FC<Props> = ({ token }) => {
   return (
     <>
       <label 
-        htmlFor={`${token.id}-token-info`}
+        htmlFor={`${token.id}-${referralNft?.id}-token-info`}
         className="btn btn-ghost btn-sm"
         onClick={() => setTokenInfoFetchEnabled(true)}
       >
@@ -64,10 +72,10 @@ export const TokenInfoModal: FC<Props> = ({ token }) => {
       </label>
 
       <Portal>
-        <input type="checkbox" id={`${token.id}-token-info`} className="modal-toggle" />
+        <input type="checkbox" id={`${token.id}-${referralNft?.id}-token-info`} className="modal-toggle" />
         <div className="modal modal-bottom sm:modal-middle" role="dialog">
           <div className="modal-box relative overflow-hidden">
-            <label htmlFor={`${token.id}-token-info`} className="btn btn-circle btn-sm btn-ghost absolute top-4 right-4">
+            <label htmlFor={`${token.id}-${referralNft?.id}-token-info`} className="btn btn-circle btn-sm btn-ghost absolute top-4 right-4">
               <XMarkIcon className="h-6 w-6" />
             </label>
             <h3 className="text-xl font-bold flex items-center gap-2 pb-4">
@@ -93,8 +101,8 @@ export const TokenInfoModal: FC<Props> = ({ token }) => {
                   </a>
                 ))}
               </div>
-              {activeTab === "Your Performance" && (
-                <Performance tokenInfo={tokenInfo} />
+              {activeTab === performanceTabName && (
+                <Performance tokenInfo={tokenInfo} referralNft={referralNft} />
               )}
               {activeTab === "Token Performance" && (
                 <>
@@ -111,9 +119,12 @@ export const TokenInfoModal: FC<Props> = ({ token }) => {
                   <div className="divider my-0" />
                   <div className="flex justify-between">
                     <span>24h Price Change</span>
-                    <span>{token.price_change_percentage_24h.toLocaleString([], {
-                      maximumFractionDigits: 2
-                    })}%</span>
+                    <span>
+                      {token.price_change_percentage_24h > 0 ? '+' : ''}
+                      {token.price_change_percentage_24h.toLocaleString([], {
+                        maximumFractionDigits: 2
+                      })}%
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>24h Trading Volume</span>

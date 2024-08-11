@@ -81,7 +81,7 @@ const HomePage: FC<WithServerSideProps> = ({ referralNft, category: defaultCateg
                       {`${referralNft.metadata.name}'s holdings`}
                     </div>
                     <TokenGrid
-                      address={referralNft.owner} 
+                      referralNft={referralNft}
                       category={category}
                       query={debouncedQuery}
                     />

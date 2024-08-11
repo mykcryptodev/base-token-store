@@ -57,6 +57,7 @@ export const moralisRouter = createTRPCRouter({
     }))
     .query(async ({ input }) => {
       const { chainId, address, days, tokens } = input;
+      if (!address) return null;
       if (!Moralis.Core.isStarted) {
         await Moralis.start({
           apiKey: env.MORALIS_API_KEY,
@@ -66,8 +67,7 @@ export const moralisRouter = createTRPCRouter({
       const response = await Moralis.EvmApi.wallets.getWalletProfitability({
         days,
         chain: toHex(chainId),
-        // address,
-        address: "0x653Ff253b0c7C1cc52f484e891b71f9f1F010Bfb",
+        address,
         tokenAddresses: tokens,
       });
 

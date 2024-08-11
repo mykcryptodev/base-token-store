@@ -6,14 +6,15 @@ import { useState } from "react";
 import TokenCard from "~/components/Token/Card";
 import Link from "next/link";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { type NFT } from "thirdweb";
 
 type Props = {
   category: string;
   query?: string;
-  address?: string;
+  referralNft?: (Omit<NFT, 'id'> & { id: string }) | null;
 }
 
-export const TokenGrid: FC<Props> = ({ category, query, address }) => {
+export const TokenGrid: FC<Props> = ({ category, query, referralNft }) => {
   const { data: tokens, isLoading: tokensIsLoading } = api.coingecko.getTokens.useQuery({
     category,
     sparkline: true,
@@ -57,10 +58,10 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
     data: tokensOwnedByAddress, 
     isLoading: tokensOwnedByAddressIsLoading 
   } = api.simpleHash.getFungibles.useQuery({
-    address,
+    address: referralNft?.owner ?? '',
     chain: 'base',
   }, {
-    enabled: category !== "NFTs and collectibles" && !!address,
+    enabled: category !== "NFTs and collectibles" && !!referralNft?.owner,
     refetchOnMount: false,
     refetchOnWindowFocus: false
   });
@@ -98,21 +99,21 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
       );
     }
 
-    // if there is an address, filter the tokens by the address ownership
-    if (address) {
+    // if there is an owner address, filter the tokens by the address ownership
+    if (referralNft?.owner) {
       scopedTokens = scopedTokens?.filter((token) => {
         return tokensOwnedByAddress?.find((t) => t.fungible_id.split('base.')[1]?.toLowerCase() === token.address?.toLowerCase());
       });
     }
 
     // no pagination for search or address tokens
-    if (query ?? address) {
+    if (query ?? referralNft?.owner) {
       return scopedTokens;
     }
 
     // return paginated tokens
     return scopedTokens?.slice(indexOfFirstToken, indexOfLastToken);
-  }, [address, indexOfFirstToken, indexOfLastToken, query, searchedTokenAddresses, searchedTokens, tokenAddresses, tokens, tokensOwnedByAddress]);
+  }, [indexOfFirstToken, indexOfLastToken, query, referralNft?.owner, searchedTokenAddresses, searchedTokens, tokenAddresses, tokens, tokensOwnedByAddress]);
 
 
   const { 
@@ -192,7 +193,7 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
     });
-    if (address) {
+    if (referralNft?.owner) {
       return (
         <div className="w-full bg-base-200 p-4 m-4 rounded-xl text-center">
           {query ? 'Not holding any of the tokens in this search' : 'Not holding any of the tokens offerred on the store'}
@@ -232,7 +233,11 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
             {!fallbackToken ? (
               <TokenLoadingCard />
             ) : (
-              <TokenCard key={fallbackToken.id} token={fallbackToken} />
+              <TokenCard 
+                key={fallbackToken.id} 
+                token={fallbackToken} 
+                referralNft={referralNft}
+              />
             )}
           </div>
           {catPic ? (
@@ -249,7 +254,7 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
 
   return (
     <>
-      <div className={`max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-5xl mx-auto ${address ? '' : 'min-h-[732px]'}`}>
+      <div className={`max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-5xl mx-auto ${referralNft?.owner ? '' : 'min-h-[732px]'}`}>
         {!isLoading && tokensInScope?.length === 0 && (
           <TokenNotFound />
         )}
@@ -264,19 +269,19 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
           <div 
             className={`flex flex-nowrap items-stretch w-full gap-4 pb-6 pt-2 ${!tokensInScope?.length && !isLoading ? 'hidden' : ''}`}
           >
-            {tokensInScope?.map((token) => <TokenCard key={token.id} token={token} />)}
+            {tokensInScope?.map((token) => <TokenCard key={token.id} token={token} referralNft={referralNft} />)}
             {isLoading && Array.from({ length: tokensPerPage }, (_, index) => (
               <TokenLoadingCard key={index} />
             ))}
           </div>
         </div>
         <div className="flex flex-col overflow-x-auto min-w-full">
-          <div className={`flex w-full justify-end ${address ? 'hidden' : ''}`}>
+          <div className={`flex w-full justify-end ${referralNft?.owner ? 'hidden' : ''}`}>
             <Link href="https://coingecko.com" target="_blank" rel="noopener noreferrer" className="flex gap-1 items-center">
               <span className="text-xs opacity-90">Token data provided by</span><Image src="/images/coingecko.webp" alt="Powered by CoinGecko" width={85} height={85} />
             </Link>
           </div>
-          {!query && !address && (
+          {!query && !referralNft?.owner && (
             <div className="flex items-center justify-center mt-4">
               <button 
                 className="sm:flex hidden btn btn-secondary mr-2" 

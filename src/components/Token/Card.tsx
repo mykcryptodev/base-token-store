@@ -8,11 +8,13 @@ import { api } from "~/utils/api";
 import { type CartItem } from "~/hooks/useCart";
 import TokenInfoModal from "~/components/Token/InfoModal";
 import posthog from "posthog-js";
+import { type NFT } from "thirdweb";
 
 type Props = {
   token: TokenListResponse;
+  referralNft?: (Omit<NFT, 'id'> & { id: string }) | null;
 }
-export const TokenCard: FC<Props> = ({ token }) => {
+export const TokenCard: FC<Props> = ({ token, referralNft }) => {
   const [loading, setLoading] = useState(false)
   const { cart, addItem } = useCartContext();
   const { mutateAsync: getTokenInfo } = api.coingecko.getTokenById.useMutation();
@@ -90,7 +92,7 @@ export const TokenCard: FC<Props> = ({ token }) => {
             className="btn btn-secondary shadow-none hover:btn-primary hover:shadow z-10"
             onClick={() => onAddToCart()}
           >Add to cart</button>
-          <TokenInfoModal token={token} />
+          <TokenInfoModal token={token} referralNft={referralNft} />
         </div>
       </div>
     </div>

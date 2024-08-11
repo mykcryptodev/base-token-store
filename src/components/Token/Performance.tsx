@@ -4,25 +4,29 @@ import { useActiveAccount } from "thirdweb/react";
 import { api } from "~/utils/api";
 import { toDecimalPlace } from "~/helpers/toDecimalPlace";
 import { type TokenDetailResponse } from "~/types/coingecko";
+import { type NFT } from "thirdweb";
 
 type Props = {
   tokenInfo: TokenDetailResponse | undefined;
+  referralNft?: (Omit<NFT, 'id'> & { id: string }) | null;
 }
 
-export const Performance: FC<Props> = ({ tokenInfo }) => {
+export const Performance: FC<Props> = ({ tokenInfo, referralNft }) => {
   const account = useActiveAccount();
   const timeframes = ["30d", "60d", "90d", "All"] as const;
   const [activeTimeframe, setActiveTimeframe] = useState<string>(timeframes[0]);
+  const addressToTrackPerformance = referralNft?.owner ?? account?.address ?? "";
+  console.log({addressToTrackPerformance})
   const { 
     data: performance, 
     isLoading, 
   } = api.moralis.getWalletPerformance.useQuery({
-    address: account?.address ?? "",
+    address: addressToTrackPerformance,
     chainId: base.id,
     days: activeTimeframe.replace('d', '').toLowerCase(),
     tokens: [tokenInfo?.platforms?.base ?? ""],
   }, {
-    enabled: !!account && !!tokenInfo?.platforms?.base,
+    enabled: !!addressToTrackPerformance && !!tokenInfo?.platforms?.base,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
@@ -33,7 +37,7 @@ export const Performance: FC<Props> = ({ tokenInfo }) => {
     return performance?.result?.find((item) => item.token_address.toLowerCase() === basePlatform.toLowerCase());
   }, [tokenInfo?.platforms, performance]);
 
-  console.log({ isLoading, tokenPerformance })
+  console.log({ isLoading, tokenPerformance, referralNft, account })
   if (!isLoading && !tokenPerformance) return (
     <div className="h-40 flex items-center justify-center w-full">
       <div className="opacity-50 text-center">No performance data available</div>
@@ -43,7 +47,7 @@ export const Performance: FC<Props> = ({ tokenInfo }) => {
   return (
     <div className="flex flex-col gap-2">
       <div className="font-bold sm:text-lg flex items-center justify-between">
-        <div>Your Performance</div>
+        <div>{referralNft?.metadata.name ? `${referralNft.metadata.name}'s` : 'Your'} Performance</div>
         <div role="tablist" className="tabs tabs-boxed sm:tabs-sm tabs-xs">
           {timeframes.map((timeframe) => (
             <a 
