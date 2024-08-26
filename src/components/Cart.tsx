@@ -18,6 +18,7 @@ import { REFERRAL_CODE_NFT } from '~/constants/addresses';
 import { ownerOf } from 'thirdweb/extensions/erc721';
 import ReferralChip from '~/components/Referral/ReferralChip';
 import posthog from "posthog-js";
+import { env } from '~/env';
 
 const Cart: FC = () => {
   const { sendCalls } = useSendCalls();
@@ -134,7 +135,7 @@ const Cart: FC = () => {
             supported: true
           },
           paymasterService: {
-            url: `https://${DEFAULT_CHAIN.id}.bundler.thirdweb.com/${client.clientId}`
+            url: env.NEXT_PUBLIC_PAYMASTER_URL,
           }
         }
       }, {
