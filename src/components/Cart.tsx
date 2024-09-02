@@ -6,7 +6,7 @@ import { ZERO_ADDRESS, getContract, toWei} from 'thirdweb';
 import { base } from 'thirdweb/chains';
 import { useCartContext } from '~/contexts/Cart';
 import { api } from '~/utils/api';
-import { useSendCalls } from 'wagmi/experimental'
+import { useSendCalls, useShowCallsStatus } from 'wagmi/experimental'
 import { client } from '~/providers/Thirdweb';
 import { useActiveAccount, useActiveWallet } from 'thirdweb/react';
 import { DEFAULT_CHAIN } from '~/constants/chain';
@@ -19,8 +19,10 @@ import { ownerOf } from 'thirdweb/extensions/erc721';
 import ReferralChip from '~/components/Referral/ReferralChip';
 import posthog from "posthog-js";
 import { env } from '~/env';
+import { config } from '~/providers/Wagmi';
 
 const Cart: FC = () => {
+  const { showCallsStatus } = useShowCallsStatus({ config });
   const { sendCalls } = useSendCalls();
   const { cart, referralCode, updateItem, deleteItem } = useCartContext();
   const wallet = useActiveWallet();
@@ -139,7 +141,11 @@ const Cart: FC = () => {
           }
         }
       }, {
-        onSuccess() {
+        onSuccess(tx) {
+          // show the transaction completed screen
+          showCallsStatus({
+            id: tx,
+          });
           posthog.capture('checkout', { success: true });
           // delete all items from cart
           cart.forEach((item) => deleteItem(item.id));

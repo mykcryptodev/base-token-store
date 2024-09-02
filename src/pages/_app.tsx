@@ -1,6 +1,5 @@
 import { type AppType } from "next/app";
 import { ThemeProvider } from "next-themes";
-
 import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
