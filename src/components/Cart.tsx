@@ -19,7 +19,6 @@ import { ownerOf } from 'thirdweb/extensions/erc721';
 import ReferralChip from '~/components/Referral/ReferralChip';
 import posthog from "posthog-js";
 import { env } from '~/env';
-import Link from 'next/link';
 import { config } from '~/providers/Wagmi';
 
 const Cart: FC = () => {
