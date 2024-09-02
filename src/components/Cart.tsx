@@ -49,25 +49,6 @@ const Cart: FC = () => {
     updateItem(id, { usdAmountDesired: Math.max(0, value) });
   }
 
-  type CustomSnackbarProps = {
-    message: string;
-    linkText: string;
-    linkUrl: string;
-  }
-  const CustomSnackbar: FC<CustomSnackbarProps> = ({ message, linkText, linkUrl }) => (
-    <div className="flex items-center justify-between">
-      <span>{message}</span>
-      <Link 
-        href={linkUrl} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="ml-4 btn btn-ghost btn-xs"
-      >
-        {linkText}
-      </Link>
-    </div>
-  );
-
   const checkout = async () => {
     if (!wallet) return;
     setCheckoutIsLoading(true);
