@@ -34,10 +34,13 @@ export const ListingsGrid: FC<Props> = ({ collectionSlug }) => {
             t.order_hash === listing.order_hash
           ))
         );
+        console.log({uniqueListings: JSON.stringify(uniqueListings)})
         return uniqueListings;
       });
     }
   }, [listingsData]);
+
+  console.log({listings, listingsData})
 
   return (
     <>

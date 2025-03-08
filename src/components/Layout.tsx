@@ -30,7 +30,6 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         <div className="block">
-          <div style={{ backgroundImage: `url('/images/full-width-text.svg')` }} className={`w-full bg-center bg-no-repeat h-96 absolute -top-48 -z-10 ${theme === 'dark' ? 'opacity-80' : ''}`} ></div>
           <div className="overflow-x-hidden max-w-7xl mx-auto min-h-screen mt-9">
             {todaysAdIsNotCensored && (
               <div className="w-full mx-auto mt-9">

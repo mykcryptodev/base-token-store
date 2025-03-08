@@ -69,33 +69,68 @@ export const openSeaRouter = createTRPCRouter({
       cursor: z.string().optional(),
     }))
     .query(async ({ input }) => {
-      const { collection, limit = 100, cursor } = input;
-      const url = new URL(`https://api.opensea.io/api/v2/listings/collection/${collection}/best`);
-      // url params for limit and next
-      url.searchParams.append('limit', limit.toString());
-      if (cursor) {
-        url.searchParams.append('next', cursor);
+      const { collection, limit = 100, cursor: initialCursor } = input;
+
+      // Helper function to fetch and process a page of listings
+      async function fetchListingsPage(cursor?: string): Promise<{
+        listings: OpenSeaListingResponse['listings'];
+        next?: string;
+      }> {
+        const url = new URL(`https://api.opensea.io/api/v2/listings/collection/${collection}/best`);
+        url.searchParams.append('limit', limit.toString());
+        if (cursor) {
+          url.searchParams.append('next', cursor);
+        }
+        const response = await fetch(url.toString(), {
+          method: 'GET',
+          headers: {
+            'accept': 'application/json',
+            'x-api-key': env.OPENSEA_API_KEY,
+          },
+        });
+        return response.json() as Promise<OpenSeaListingResponse>;
       }
-      const response = await fetch(url.toString(), {
-        method: 'GET',
-        headers: {
-          'accept': 'application/json',
-          'x-api-key': env.OPENSEA_API_KEY,
-        },
-      });
-      const data = await response.json() as OpenSeaListingResponse;
-      return {
-        ...data,
-        listings: data.listings.filter(listing => 
-          // only return basic listings that can be bought right away
-          listing.type === 'basic' &&
-          // only return listings that are selling one item at a time
-          listing.protocol_data.parameters.offer.length === 1 &&
-          // only return listings that are charging in eth
-          listing.protocol_data.parameters.consideration.every(
-            consideration => consideration.itemType === 0
+
+      // Map to store the cheapest listing for each token
+      const cheapestByToken = new Map<string, OpenSeaListingResponse['listings'][number]>();
+      let nextCursor = initialCursor;
+
+      // Keep fetching until we have enough listings or no more pages
+      while (cheapestByToken.size < limit) {
+        const page = await fetchListingsPage(nextCursor);
+        
+        // Filter and process listings
+        page.listings
+          .filter(listing => 
+            // only return basic listings that can be bought right away
+            listing.type === 'basic' &&
+            // only return listings that are selling one item at a time
+            listing.protocol_data.parameters.offer.length === 1 &&
+            // only return listings that are charging in eth
+            listing.protocol_data.parameters.consideration.every(
+              consideration => consideration.itemType === 0
+            )
           )
-        ),
+          .forEach(listing => {
+            const identifierOrCriteria = listing.protocol_data.parameters.offer[0]?.identifierOrCriteria;
+            if (!identifierOrCriteria) return;
+            
+            const currentPrice = BigInt(listing.price.current.value);
+            const existingListing = cheapestByToken.get(identifierOrCriteria);
+            
+            if (!existingListing || currentPrice < BigInt(existingListing.price.current.value)) {
+              cheapestByToken.set(identifierOrCriteria, listing);
+            }
+          });
+
+        // Break if no more pages
+        if (!page.next) break;
+        nextCursor = page.next;
+      }
+
+      return {
+        listings: Array.from(cheapestByToken.values()).slice(0, limit),
+        next: nextCursor,
       };
     }),
   getPurchaseEncodedData: publicProcedure

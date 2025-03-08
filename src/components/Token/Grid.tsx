@@ -23,6 +23,14 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
     refetchOnWindowFocus: false,
   });
 
+  const { data: pinnedToken } = api.coingecko.getTokenCardDataById.useQuery({
+    id: 'mochi-thecatcoin',
+  }, {
+    enabled: !!query,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+
   const { data: searchedTokens, isLoading: searchIsLoading } = api.coingecko.searchTokens.useQuery({
     query: query ?? '',
   }, {
@@ -82,6 +90,14 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
       return { ...token, address: baseAddress };
     }).filter((token) => token.address);
 
+    if (pinnedToken) {
+      const pinnedTokenAddress = tokenAddresses?.find((t) => t.id === pinnedToken.id)?.platforms?.base;
+      scopedTokens?.unshift({
+        ...pinnedToken,
+        address: pinnedTokenAddress,
+      });
+    }
+
     // if there is a search, filter the tokens
     if (query) {
       const filteredTokens = !scopedTokens ? [] : scopedTokens.filter((token) => 
@@ -112,14 +128,14 @@ export const TokenGrid: FC<Props> = ({ category, query, address }) => {
 
     // return paginated tokens
     return scopedTokens?.slice(indexOfFirstToken, indexOfLastToken);
-  }, [address, indexOfFirstToken, indexOfLastToken, query, searchedTokenAddresses, searchedTokens, tokenAddresses, tokens, tokensOwnedByAddress]);
+  }, [tokens, pinnedToken, query, address, indexOfFirstToken, indexOfLastToken, tokenAddresses, searchedTokens, searchedTokenAddresses, tokensOwnedByAddress]);
 
 
   const { 
     data: fallbackToken, 
     isLoading: fallbackTokenIsLoading 
   } = api.coingecko.getTokenCardDataById.useQuery({
-    id: 'pawthereum-2',
+    id: 'mochi-thecatcoin',
   }, {
     refetchOnMount: false,
     refetchOnWindowFocus: false,

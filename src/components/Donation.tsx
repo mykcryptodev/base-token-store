@@ -20,7 +20,7 @@ export const Donation: FC = () => {
   const [offset, setOffset] = useState<number>(0);
   const CAUSES_PER_PAGE = 5;
   const { data: causeData, isLoading: causesIsLoading } = api.endaoment.search.useQuery({
-    searchTerm: debounceQuery ?? 'paws',
+    searchTerm: debounceQuery ?? 'cats',
     claimedStatus: 'claimed',
     count: CAUSES_PER_PAGE,
     offset: offset,
@@ -67,19 +67,36 @@ export const Donation: FC = () => {
     });
   };
 
+  const CauseImage = ({ cause }: { cause: EndaomentOrg }) => {
+    const [error, setError] = useState<boolean>(false);
+    if (error) {
+      return (
+        <div className="bg-base-300 rounded-full w-10 h-10" />
+      );
+    }
+    return (
+      <Image
+        src={cause.logoUrl ?? COINGECKO_UNKNOWN_IMG}
+        alt={cause.name}
+        width={40}
+        height={40}
+        className="rounded-full"
+        onError={() => setError(true)}
+      />
+    );
+  };
+
   const Cause: FC<{ cause: EndaomentOrg }> = ({ cause }) => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
     return (
       <div className="w-full">
         <div className="flex items-start gap-2 overflow-x-auto">
-          <Image
-            src={cause.logoUrl ?? COINGECKO_UNKNOWN_IMG}
-            alt={cause.name}
-            width={40}
-            height={40}
-            className="rounded-full"
-          />
+          <div className="avatar">
+            <div className="w-10 rounded-full">
+              <CauseImage cause={cause} />
+            </div>
+          </div>
           <div 
             className="flex overflow-x-auto flex-col cursor-pointer"
             onClick={() => setIsExpanded(!isExpanded)}

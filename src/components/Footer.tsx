@@ -12,14 +12,11 @@ export const Footer: FC = () => {
       label: "About Smart Wallet",
       href: "https://www.smartwallet.dev?utm_source=basetokenstore",
     },
-    {
-      label: "Buy an Ad",
-      href: "/advertisement/create",
-    },
-    {
-      label: "Onchain Summer",
-      href: "https://www.base.org/onchainsummer?utm_source=basetokenstore",
-    },
+    // UNCOMMENT THIS TO SHOW THE AD LINk
+    // {
+    //   label: "Buy an Ad",
+    //   href: "/advertisement/create",
+    // },
     {
       label: "Build on Base",
       href: "https://www.base.org?utm_source=basetokenstore",
@@ -66,27 +63,9 @@ export const Footer: FC = () => {
               </Link>
             ))}
           </div>
-          <Link href="https://www.base.org/onchainsummer?utm_source=basetokenstore" target="_blank" rel="noreferrer">
-            <Image src="/images/onchainsummer.png" alt="Onchain Summer" className="h-16 min-w-[200px] w-fit" width={200} height={200} />
-          </Link>
-          <Link href="https://github.com/mykcryptodev/base-token-store" className="flex items-center gap-2 text-sm" target="_blank" rel="noreferrer">
-            <Image src="/images/github.png" alt="Github" className="h-8 w-fit" width={50} height={50} />
-            <div className="flex flex-col">
-              <span>Open source license</span>
-              <span>Clone on GitHub</span>
-            </div>
-          </Link>
-          <Link href="https://www.complainonchain.xyz/mykcryptodev" className="text-sm items-center flex gap-2" target="_blank" rel="noreferrer">
-            <Image src="/images/keren.webp" alt="Keren: Report an issue" className="h-8 w-fit" width={50} height={50} />
-            <div className="flex flex-col">
-              <span>Report an issue</span>
-              <span className="text-xs opacity-50">by $keren</span>
-            </div>
-          </Link>
           <Builders className="sm:hidden flex" />
         </div>
       </div>
-      <div style={{ backgroundImage: `url('/images/full-width-text.svg')` }} className={`w-full bg-center bg-no-repeat h-40 absolute -bottom-5 z-10 ${theme === 'dark' ? 'opacity-80' : ''}`} ></div>
     </div>
   )
 };

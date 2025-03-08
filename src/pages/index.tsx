@@ -3,7 +3,7 @@ import Head from "next/head";
 import { type FC, useState } from "react";
 import Logo from "~/components/Logo";
 import NftCollectionsGrid from "~/components/Nft/CollectionsGrid";
-import RefferedBanner from "~/components/Referral/ReferredBanner";
+// import RefferedBanner from "~/components/Referral/ReferredBanner";
 import TokenGrid from "~/components/Token/Grid";
 import useDebounce from "~/hooks/useDebounce";
 
@@ -69,7 +69,9 @@ const HomePage: FC<WithServerSideProps> = ({ referralNft, category: defaultCateg
                 ))}
               </div>
               <div className="m-4 mx-0 sm:mx-4">
-                <RefferedBanner referralNft={referralNft} />
+                {/* UNCOMMENT THIS TO SHOW THE REFERRAL BANNER
+                  <RefferedBanner referralNft={referralNft} /> 
+                */}
               </div>
               <div className={`${category === 'NFTs and collectibles' ? 'flex' : 'hidden'}`}>
                 <NftCollectionsGrid query={debouncedQuery} defaultCollectionId={collectionId} />
